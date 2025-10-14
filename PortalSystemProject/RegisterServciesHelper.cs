@@ -4,6 +4,7 @@ using BL.Services;
 using DAL.Contracts;
 using DAL.DbContext;
 using DAL.Repositories;
+using Domains;
 using Domains.UserModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,7 @@ namespace PortalSystemProject
                 cfg.AddProfile<MappingProfile>();
             });
 
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 
 
@@ -64,6 +66,10 @@ namespace PortalSystemProject
             builder.Services.AddScoped<IJobSeekerProfileRepository, JobSeekerProfileService>();
             builder.Services.AddScoped<IJobTypeRepository, JobTypeService>();
             builder.Services.AddScoped<ISavedJobRepository, SavedJobService>();
+            //external services
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IFileService, FileService>();
+
             //builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserService>();
         }
     }

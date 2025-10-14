@@ -21,7 +21,7 @@ namespace PortalSystemProject
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-
+            builder.Services.AddHttpContextAccessor();
             RegisterServciesHelper.RegisteredServices(builder);
 
             var app = builder.Build();

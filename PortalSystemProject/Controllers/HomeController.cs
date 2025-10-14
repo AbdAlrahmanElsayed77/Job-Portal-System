@@ -1,5 +1,6 @@
 using BL.Contracts;
 using BL.Dtos;
+using BL.Services;
 using Microsoft.AspNetCore.Mvc;
 using PortalSystemProject.Models;
 using System.Diagnostics;
@@ -19,7 +20,7 @@ namespace PortalSystemProject.Controllers
         }
 
        
-        public IActionResult AllJops()
+        public async Task<IActionResult> AllJops()
         {
             var result= _jopTYPE.GetAll();
             return View(result);

@@ -18,6 +18,7 @@ namespace PortalSystemProject.Controllers
             _jopTYPE = jopTYPE;
         }
 
+       
         public IActionResult AllJops()
         {
             var result= _jopTYPE.GetAll();
@@ -61,9 +62,6 @@ namespace PortalSystemProject.Controllers
                 throw new Exception(ex.Message);
             }
         }
-
-
-
 
     }
 }

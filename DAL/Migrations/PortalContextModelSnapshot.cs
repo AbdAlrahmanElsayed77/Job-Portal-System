@@ -71,7 +71,7 @@ namespace DAL.Migrations
                     b.HasIndex("JobPostId", "JobSeekerId")
                         .IsUnique();
 
-                    b.ToTable("Applications");
+                    b.ToTable("Applications", (string)null);
                 });
 
             modelBuilder.Entity("Domains.CVFile", b =>
@@ -123,7 +123,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("JobSeekerId");
 
-                    b.ToTable("CVFiles");
+                    b.ToTable("CVFiles", (string)null);
                 });
 
             modelBuilder.Entity("Domains.Company", b =>
@@ -178,7 +178,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("Name");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Domains.EmployerProfile", b =>
@@ -219,7 +219,7 @@ namespace DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("EmployerProfiles");
+                    b.ToTable("EmployerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Domains.JobCategory", b =>
@@ -253,7 +253,7 @@ namespace DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("JobCategories");
+                    b.ToTable("JobCategories", (string)null);
                 });
 
             modelBuilder.Entity("Domains.JobPost", b =>
@@ -340,7 +340,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("JobCategoryId", "JobTypeId", "City");
 
-                    b.ToTable("JobPosts");
+                    b.ToTable("JobPosts", (string)null);
                 });
 
             modelBuilder.Entity("Domains.JobSeekerProfile", b =>
@@ -390,7 +390,7 @@ namespace DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("JobSeekerProfiles");
+                    b.ToTable("JobSeekerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Domains.JobType", b =>
@@ -424,7 +424,7 @@ namespace DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("JobTypes");
+                    b.ToTable("JobTypes", (string)null);
                 });
 
             modelBuilder.Entity("Domains.SavedJob", b =>
@@ -457,7 +457,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("JobPostId");
 
-                    b.ToTable("SavedJobs");
+                    b.ToTable("SavedJobs", (string)null);
                 });
 
             modelBuilder.Entity("Domains.UserModel.ApplicationUser", b =>

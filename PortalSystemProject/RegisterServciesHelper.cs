@@ -8,6 +8,7 @@ using Domains.UserModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Diagnostics;
 
 namespace PortalSystemProject
 {
@@ -26,15 +27,19 @@ namespace PortalSystemProject
                 .AddDefaultTokenProviders();
 
 
-            // Configure Serilog for logging
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .WriteTo.MSSqlServer(
-                    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
-                    tableName: "Log",
-                    autoCreateSqlTable: true)
-                .CreateLogger();
-            builder.Host.UseSerilog();
+            //// Configure Serilog for logging
+            if (Process.GetCurrentProcess().ProcessName != "dotnet")
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.Console()
+                    .WriteTo.MSSqlServer(
+                        connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+                        tableName: "Log",
+                        autoCreateSqlTable: true)
+                    .CreateLogger();
+
+                builder.Host.UseSerilog();
+            }
 
 
 

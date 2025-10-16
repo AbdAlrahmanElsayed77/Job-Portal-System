@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BL.Dtos;
+using BL.Dtos.AccountDtos;
 using Domains;
 using Domains.UserModel;
 using System;
@@ -21,7 +22,10 @@ namespace BL.Mapping
             //.ForMember(dest => dest.FullName,
             //    opt => opt.MapFrom(src => $"{src.FName} {src.LName}"))
             //.ReverseMap();
-
+            //Account
+            CreateMap<RegisterDto, ApplicationUser>()
+               .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+               .ForMember(dest => dest.EmailConfirmed, opt => opt.MapFrom(src => true));
             CreateMap<Application, ApplicationDto>().ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserDto>().ReverseMap();
             CreateMap<Company, CompanyDto>().ReverseMap();

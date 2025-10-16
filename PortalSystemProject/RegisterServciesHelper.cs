@@ -57,6 +57,7 @@ namespace PortalSystemProject
             // register services 
             builder.Services.AddScoped(typeof(ITableRepository<>), typeof(TableRepository<>));
             //builder.Services.AddScoped<ITestService, TestService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IApplicationRepository, ApplicationService>();
             builder.Services.AddScoped<ICompanyRepository, CompanyService>();
             builder.Services.AddScoped<IEmployerProfileRepository, EmployerProfileService>();

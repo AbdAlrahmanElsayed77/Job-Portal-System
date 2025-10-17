@@ -7,11 +7,13 @@ namespace PortalSystemProject.Controllers
     public class AccountController : Controller
     {
         private readonly IAccountService _accountService;
-
+        private readonly IHttpContextAccessor _httpContextAccessor = new HttpContextAccessor();
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
         }
+        private string GetOrigin() =>
+            $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://{_httpContextAccessor?.HttpContext?.Request.Host}";
 
         // GET: /Account/Register
         [HttpGet]
@@ -27,7 +29,7 @@ namespace PortalSystemProject.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var result = await _accountService.RegisterAsync(model);
+            var result = await _accountService.RegisterAsync(model, GetOrigin());
             TempData["Message"] = result;
 
             if (result.Contains("successfully", StringComparison.OrdinalIgnoreCase))
@@ -42,8 +44,6 @@ namespace PortalSystemProject.Controllers
         {
             return View();
         }
-
-        // POST: /Account/Login
         [HttpPost]
         public async Task<IActionResult> Login(LoginDto model)
         {
@@ -59,8 +59,36 @@ namespace PortalSystemProject.Controllers
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }
-
-        // GET: /Account/Logout
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(Guid userId, string token)
+        {
+            var result = await _accountService.ConfirmEmailAsync(userId, token);
+            ViewBag.Message = result;
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var result = await _accountService.ForgotPasswordAsync(email, GetOrigin());
+            ViewBag.Message = result;
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            ViewBag.Email = email;
+            ViewBag.Token = token;
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string email, string token, string newPassword)
+        {
+            var result = await _accountService.ResetPasswordAsync(email, token, newPassword);
+            ViewBag.Message = result;
+            return View();
+        }
         [HttpGet]
         public async Task<IActionResult> Logout()
         {

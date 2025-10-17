@@ -1,0 +1,345 @@
+﻿@model PortalSystemProject.Models.JobSeeker.ApplicationDetailsViewModel
+
+@{
+    ViewData["Title"] = "تفاصيل التقديم";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>
+                    <i class="fas fa-file-alt"></i> تفاصيل التقديم
+                </h3>
+                <a asp-action="MyApplications" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> العودة للقائمة
+                </a>
+            </div>
+
+            <!-- Status Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <div class="mb-3">
+                        @if (Model.Status == "قيد المراجعة")
+                        {
+                            <i class="fas fa-clock fa-4x text-warning"></i>
+                        }
+                        else if (Model.Status == "تمت المراجعة")
+                        {
+                            <i class="fas fa-eye fa-4x text-info"></i>
+                        }
+                        else if (Model.Status == "مقبول")
+                        {
+                            <i class="fas fa-check-circle fa-4x text-success"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-times-circle fa-4x text-danger"></i>
+                        }
+                    </div>
+                    <h4>@Model.Status</h4>
+                    <p class="text-muted">قدمت في: @Model.AppliedAt.ToString("dd MMMM yyyy - hh:mm tt")</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Job Details -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-briefcase"></i> تفاصيل الوظيفة
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                @if (!string.IsNullOrEmpty(Model.CompanyLogo))
+                                {
+                                    <img src="@Model.CompanyLogo" alt="@Model.CompanyName"
+                                         class="me-3 rounded" style="width: 80px; height: 80px; object-fit: contain;">
+                                }
+                                else
+                                {
+                                    <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                                         style="width: 80px; height: 80px;">
+                                        <i class="fas fa-building fa-2x text-muted"></i>
+                                    </div>
+                                }
+
+                                <div>
+                                    <h5>@Model.JobTitle</h5>
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-building"></i> @Model.CompanyName
+                                    </p>
+                                    <a asp-controller="JobSeeker" asp-action="JobDetails"
+                                       asp-route-id="@Model.JobPostId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-external-link-alt"></i> عرض الوظيفة
+                                    </a>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.JobDescription))
+                            {
+                                <hr>
+                                <h6 class="mb-2">وصف الوظيفة:</h6>
+                                <p class="text-muted">@Model.JobDescription</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Cover Letter -->
+                    @if (!string.IsNullOrEmpty(Model.CoverLetter))
+                    {
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-envelope"></i> خطاب التقديم
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0" style="white-space: pre-wrap;">@Model.CoverLetter</p>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- CV Attached -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-pdf"></i> السيرة الذاتية المرفقة
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.CVFileName))
+                            {
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <i class="fas fa-file-pdf text-danger fa-2x me-2"></i>
+                                        <span>@Model.CVFileName</span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.CVBlobUrl))
+                                    {
+                                        <div>
+                                            <a href="@Model.CVBlobUrl" target="_blank"
+                                               class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-eye"></i> عرض
+                                            </a>
+                                            <a asp-controller="CVManagement" asp-action="Download"
+                                               asp-route-id="@Model.ApplicationId"
+                                               class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-download"></i> تحميل
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">لا توجد سيرة ذاتية مرفقة</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Timeline -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-history"></i> سير العملية
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">تم التقديم</h6>
+                                        <small class="text-muted">
+                                            @Model.AppliedAt.ToString("dd/MM/yyyy hh:mm tt")
+                                        </small>
+                                    </div>
+                                </div>
+
+                                @if (Model.ReviewedAt.HasValue)
+                                {
+                                    <div class="timeline-item completed">
+                                        <div class="timeline-marker">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">تمت المراجعة</h6>
+                                            <small class="text-muted">
+                                                @Model.ReviewedAt.Value.ToString("dd/MM/yyyy")
+                                            </small>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="timeline-item pending">
+                                        <div class="timeline-marker">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">قيد المراجعة</h6>
+                                            <small class="text-muted">بانتظار المراجعة</small>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (Model.FinalDecisionAt.HasValue)
+                                {
+                                    <div class="timeline-item completed">
+                                        <div class="timeline-marker">
+                                            <i class="fas fa-flag-checkered"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">القرار النهائي</h6>
+                                            <small class="text-muted">
+                                                @Model.FinalDecisionAt.Value.ToString("dd/MM/yyyy")
+                                            </small>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="timeline-item pending">
+                                        <div class="timeline-marker">
+                                            <i class="fas fa-hourglass-half"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">القرار النهائي</h6>
+                                            <small class="text-muted">بانتظار القرار</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-cog"></i> الإجراءات
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Status == "قيد المراجعة")
+                            {
+                                <button class="btn btn-danger w-100 mb-2"
+                                        onclick="withdrawApplication('@Model.ApplicationId')">
+                                    <i class="fas fa-times"></i> سحب التقديم
+                                </button>
+                                <small class="text-muted d-block">
+                                    يمكنك سحب التقديم قبل المراجعة فقط
+                                </small>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle"></i>
+                                    لا يمكن سحب التقديم بعد المراجعة
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function withdrawApplication(appId) {
+            if (!confirm('هل أنت متأكد من سحب هذا التقديم؟ لن تتمكن من التراجع عن هذا الإجراء.')) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('__RequestVerificationToken',
+                document.querySelector('input[name="__RequestVerificationToken"]')?.value || '');
+
+            try {
+                const response = await fetch('/Application/Withdraw/' + appId, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    window.location.href = '/Application/MyApplications';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert('حدث خطأ أثناء سحب التقديم');
+            }
+        }
+    </script>
+}
+
+@{
+    <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken()" />
+}
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 25px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -24px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        border: 2px solid #dee2e6;
+        background: white;
+    }
+
+    .timeline-item.completed .timeline-marker {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .timeline-item.pending .timeline-marker {
+        background: white;
+        border-color: #ffc107;
+        color: #ffc107;
+    }
+
+    .timeline-content h6 {
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+</style>

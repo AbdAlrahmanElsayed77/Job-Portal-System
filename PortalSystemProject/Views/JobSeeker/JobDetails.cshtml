@@ -1,0 +1,294 @@
+﻿@model PortalSystemProject.Models.JobSeeker.JobDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Job Header -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        @if (!string.IsNullOrEmpty(Model.CompanyLogo))
+                        {
+                            <img src="@Model.CompanyLogo" alt="@Model.CompanyName"
+                                 class="me-3 rounded" style="width: 100px; height: 100px; object-fit: contain;">
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-building fa-3x text-muted"></i>
+                            </div>
+                        }
+
+                        <div class="flex-grow-1">
+                            <h3 class="mb-2">@Model.Title</h3>
+                            <h5 class="text-muted mb-3">
+                                <i class="fas fa-building"></i> @Model.CompanyName
+                            </h5>
+
+                            <div class="d-flex flex-wrap gap-3 mb-3">
+                                @if (!string.IsNullOrEmpty(Model.Location))
+                                {
+                                    <span>
+                                        <i class="fas fa-map-marker-alt text-primary"></i>
+                                        @Model.Location
+                                    </span>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.SalaryRange))
+                                {
+                                    <span>
+                                        <i class="fas fa-money-bill-wave text-success"></i>
+                                        @Model.SalaryRange
+                                    </span>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.ExperienceRequired))
+                                {
+                                    <span>
+                                        <i class="fas fa-briefcase text-info"></i>
+                                        @Model.ExperienceRequired
+                                    </span>
+                                }
+                                <span>
+                                    <i class="fas fa-calendar text-warning"></i>
+                                    @Model.PublishedAt.ToString("dd MMM yyyy")
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="badge bg-primary">@Model.Category</span>
+                                @if (!string.IsNullOrEmpty(Model.JobType))
+                                {
+                                    <span class="badge bg-secondary">@Model.JobType</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt"></i> وصف الوظيفة
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="job-description">
+                        @Html.Raw(Model.Description.Replace("\n", "<br>"))
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Requirements -->
+            @if (!string.IsNullOrEmpty(Model.Requirements))
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list-check"></i> المتطلبات
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="job-requirements">
+                            @Html.Raw(Model.Requirements.Replace("\n", "<br>"))
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Company Info -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building"></i> عن الشركة
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6>@Model.CompanyName</h6>
+                    @if (!string.IsNullOrEmpty(Model.CompanyWebsite))
+                    {
+                        <p>
+                            <i class="fas fa-globe"></i>
+                            <a href="@Model.CompanyWebsite" target="_blank">@Model.CompanyWebsite</a>
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CompanyDescription))
+                    {
+                        <p class="text-muted">@Model.CompanyDescription</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Action Card -->
+            <div class="card shadow-sm mb-4 sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        @if (Model.HasApplied)
+                        {
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-check-circle"></i>
+                                <strong>تم التقديم على هذه الوظيفة</strong>
+                            </div>
+                            <a asp-controller="Application" asp-action="Details"
+                               asp-route-id="@Model.CurrentApplicationId"
+                               class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-eye"></i> عرض التقديم
+                            </a>
+                        }
+                        else if (Model.CanApply)
+                        {
+                            <a asp-controller="Application" asp-action="Apply"
+                               asp-route-jobId="@Model.JobId"
+                               class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-paper-plane"></i> تقديم على الوظيفة
+                            </a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary w-100 mb-2" disabled>
+                                <i class="fas fa-times-circle"></i> غير متاح للتقديم
+                            </button>
+                        }
+
+                        <button class="btn btn-outline-danger w-100 save-job-btn"
+                                data-job-id="@Model.JobId"
+                                data-is-saved="@Model.IsSaved.ToString().ToLower()">
+                            <i class="@(Model.IsSaved ? "fas" : "far") fa-heart"></i>
+                            @(Model.IsSaved ? "إلغاء الحفظ" : "حفظ الوظيفة")
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            يجب تسجيل الدخول للتقديم
+                        </div>
+                        <a asp-controller="Account" asp-action="Login"
+                           asp-route-returnUrl="@Context.Request.Path"
+                           class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Job Statistics -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> إحصائيات الوظيفة
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>عدد المتقدمين:</span>
+                        <strong>@Model.TotalApplications</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>تاريخ النشر:</span>
+                        <strong>@Model.PublishedAt.ToString("dd/MM/yyyy")</strong>
+                    </div>
+                    @if (Model.ExpiresAt.HasValue)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <span>ينتهي في:</span>
+                            <strong>@Model.ExpiresAt.Value.ToString("dd/MM/yyyy")</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Share -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-share-alt"></i> مشاركة الوظيفة
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-fill"
+                                onclick="shareOnFacebook()">
+                            <i class="fab fa-facebook"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info flex-fill"
+                                onclick="shareOnTwitter()">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success flex-fill"
+                                onclick="shareOnWhatsApp()">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary flex-fill"
+                                onclick="copyLink()">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Save/Unsave Job
+        document.querySelector('.save-job-btn')?.addEventListener('click', async function() {
+            const jobId = this.dataset.jobId;
+            const isSaved = this.dataset.isSaved === 'true';
+
+            const response = await fetch('/SavedJobs/Toggle/' + jobId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const icon = this.querySelector('i');
+                if (result.action === 'saved') {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    this.innerHTML = '<i class="fas fa-heart"></i> إلغاء الحفظ';
+                    this.dataset.isSaved = 'true';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    this.innerHTML = '<i class="far fa-heart"></i> حفظ الوظيفة';
+                    this.dataset.isSaved = 'false';
+                }
+            }
+        });
+
+        // Share functions
+        function shareOnFacebook() {
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href));
+        }
+
+        function shareOnTwitter() {
+            window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('@Model.Title'));
+        }
+
+        function shareOnWhatsApp() {
+            window.open('https://wa.me/?text=' + encodeURIComponent('@Model.Title - ' + window.location.href));
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('تم نسخ الرابط!');
+        }
+    </script>
+}

@@ -1,15 +1,21 @@
 ﻿using BL.Dtos;
-using Domains;
-using Domains.UserModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface IJobSeekerProfileRepository : IBaseServices<JobSeekerProfile, JobSeekerProfileDto>
+    public interface IJobSeekerProfileRepository
     {
+
+        Task<JobSeekerProfileDto?> GetByUserIdAsync(Guid userId);
+
+
+        Task<bool> HasProfileAsync(Guid userId);
+
+
+        Task<Guid> CreateProfileAsync(JobSeekerProfileDto profileDto);
+
+
+        Task<bool> UpdateProfileAsync(JobSeekerProfileDto profileDto);
     }
 }

@@ -21,4 +21,8 @@
     <ProjectReference Include="..\BL\BL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\cvs\" />
+  </ItemGroup>
+
 </Project>

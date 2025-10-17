@@ -1,0 +1,187 @@
+﻿@model PortalSystemProject.Models.JobSeeker.ApplyJobViewModel
+
+@{
+    ViewData["Title"] = "التقديم على الوظيفة";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-paper-plane"></i> التقديم على الوظيفة
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Job Info -->
+                    <div class="alert alert-info mb-4">
+                        <h5 class="mb-2">
+                            <i class="fas fa-briefcase"></i> @Model.JobTitle
+                        </h5>
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-building"></i> @Model.CompanyName
+                        </p>
+                    </div>
+
+                    <!-- Application Form -->
+                    <form asp-action="Apply" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="JobPostId" />
+                        <input type="hidden" asp-for="JobTitle" />
+                        <input type="hidden" asp-for="CompanyName" />
+
+                        <!-- CV Selection -->
+                        <div class="mb-4">
+                            <label asp-for="CVFileId" class="form-label">
+                                <i class="fas fa-file-pdf"></i> اختر السيرة الذاتية *
+                            </label>
+                            <select asp-for="CVFileId" class="form-select" required>
+                                <option value="">-- اختر السيرة الذاتية --</option>
+                                @foreach (var cv in Model.AvailableCVs)
+                                {
+                                    <option value="@cv.Id" selected="@(cv.IsPrimary)">
+                                        @cv.FileName 
+                                        @(cv.IsPrimary ? "⭐ (أساسي)" : "") - 
+                                        @cv.UploadedAt.ToString("dd/MM/yyyy")
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="CVFileId" class="text-danger"></span>
+                            
+                            @if (!Model.AvailableCVs.Any())
+                            {
+                                <div class="alert alert-warning mt-2">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    لا توجد سير ذاتية. 
+                                    <a asp-controller="CVManagement" asp-action="Index" class="alert-link">
+                                        ارفع سيرتك الذاتية الآن
+                                    </a>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Cover Letter -->
+                        <div class="mb-4">
+                            <label asp-for="CoverLetter" class="form-label">
+                                <i class="fas fa-envelope"></i> خطاب التقديم (Cover Letter)
+                                <small class="text-muted">(اختياري)</small>
+                            </label>
+                            <textarea asp-for="CoverLetter" class="form-control" rows="8" 
+                                      placeholder="اكتب خطاب تقديم مختصر يوضح سبب تقديمك لهذه الوظيفة ومهاراتك المتعلقة بها..."></textarea>
+                            <span asp-validation-for="CoverLetter" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                خطاب التقديم يزيد من فرص قبولك. اكتب نبذة عن خبراتك ومهاراتك المتعلقة بالوظيفة.
+                            </small>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="alert alert-light border">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-lightbulb text-warning"></i> نصائح للتقديم الناجح:
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>تأكد من أن سيرتك الذاتية محدثة</li>
+                                <li>اكتب خطاب تقديم مخصص لكل وظيفة</li>
+                                <li>راجع متطلبات الوظيفة جيداً</li>
+                                <li>كن صادقاً في معلوماتك</li>
+                            </ul>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a asp-controller="JobSeeker" asp-action="JobDetails" 
+                               asp-route-id="@Model.JobPostId" 
+                               class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> رجوع
+                            </a>
+                            <button type="submit" class="btn btn-primary" 
+                                    @(Model.AvailableCVs.Any() ? "" : "disabled")>
+                                <i class="fas fa-paper-plane"></i> إرسال التقديم
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Preview CV Card -->
+            <div class="card shadow-sm mt-4" id="cvPreview" style="display: none;">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-eye"></i> معاينة السيرة الذاتية المختارة
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2" id="selectedCvName"></p>
+                    <a href="#" id="selectedCvLink" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt"></i> عرض السيرة الذاتية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // CV Selection Preview
+        const cvSelect = document.querySelector('select[name="CVFileId"]');
+        const cvPreview = document.getElementById('cvPreview');
+        const cvs = @Html.Raw(Json.Serialize(Model.AvailableCVs.Select(cv => new { 
+            cv.Id, 
+            cv.FileName, 
+            BlobUrl = "/uploads/cvs/" + cv.FileName 
+        })));
+
+        cvSelect?.addEventListener('change', function() {
+            const selectedId = this.value;
+            if (selectedId) {
+                const cv = cvs.find(c => c.id === selectedId);
+                if (cv) {
+                    document.getElementById('selectedCvName').textContent = cv.fileName;
+                    document.getElementById('selectedCvLink').href = cv.blobUrl;
+                    cvPreview.style.display = 'block';
+                }
+            } else {
+                cvPreview.style.display = 'none';
+            }
+        });
+
+        // Trigger change on load if CV is pre-selected
+        if (cvSelect?.value) {
+            cvSelect.dispatchEvent(new Event('change'));
+        }
+
+        // Character counter for cover letter
+        const coverLetter = document.querySelector('textarea[name="CoverLetter"]');
+        const maxLength = 2000;
+        
+        if (coverLetter) {
+            const counter = document.createElement('small');
+            counter.className = 'form-text text-muted float-end';
+            coverLetter.parentElement.appendChild(counter);
+
+            function updateCounter() {
+                const remaining = maxLength - coverLetter.value.length;
+                counter.textContent = `${coverLetter.value.length} / ${maxLength} حرف`;
+                counter.className = remaining < 100 ? 'form-text text-danger float-end' : 'form-text text-muted float-end';
+            }
+
+            coverLetter.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .alert-light {
+        background-color: #f8f9fa;
+    }
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+    }
+</style>

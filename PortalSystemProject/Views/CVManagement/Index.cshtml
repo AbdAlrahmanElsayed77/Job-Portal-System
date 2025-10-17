@@ -1,0 +1,256 @@
+﻿@model PortalSystemProject.Models.JobSeeker.CVManagementViewModel
+
+@{
+    ViewData["Title"] = "إدارة السير الذاتية";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>
+                    <i class="fas fa-file-pdf"></i> إدارة السير الذاتية
+                </h3>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    <i class="fas fa-upload"></i> رفع سيرة ذاتية جديدة
+                </button>
+            </div>
+
+            <!-- Messages -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- CV List -->
+            @if (Model.CVFiles.Any())
+            {
+                <div class="row">
+                    @foreach (var cv in Model.CVFiles)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card shadow-sm h-100 cv-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="file-icon">
+                                            <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                        </div>
+                                        @if (cv.IsPrimary)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-star"></i> أساسي
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <h6 class="card-title text-truncate" title="@cv.FileName">
+                                        @cv.FileName
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar"></i>
+                                            رُفع في: @cv.UploadedAt.ToString("dd/MM/yyyy")
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-hdd"></i>
+                                            الحجم: @cv.FileSizeDisplay
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-paper-plane"></i>
+                                            استخدم في: @cv.UsedInApplications تقديم
+                                        </small>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <a href="@cv.BlobUrl" target="_blank"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> عرض
+                                        </a>
+
+                                        <a asp-action="Download" asp-route-id="@cv.Id"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-download"></i> تحميل
+                                        </a>
+
+                                        @if (!cv.IsPrimary)
+                                        {
+                                            <button class="btn btn-sm btn-outline-success set-primary-btn"
+                                                    data-cv-id="@cv.Id">
+                                                <i class="fas fa-star"></i> تعيين كأساسي
+                                            </button>
+                                        }
+
+                                        @if (cv.UsedInApplications == 0)
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger delete-cv-btn"
+                                                    data-cv-id="@cv.Id">
+                                                <i class="fas fa-trash"></i> حذف
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-secondary" disabled
+                                                    title="لا يمكن حذفها لأنها مستخدمة في تقديمات">
+                                                <i class="fas fa-lock"></i> لا يمكن الحذف
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-file-pdf fa-4x mb-3"></i>
+                    <h5>لا توجد سير ذاتية</h5>
+                    <p class="text-muted">ابدأ برفع سيرتك الذاتية الآن</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <i class="fas fa-upload"></i> رفع سيرة ذاتية
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-upload"></i> رفع سيرة ذاتية جديدة
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="UploadModel.CVFile" class="form-label">
+                            اختر ملف السيرة الذاتية
+                        </label>
+                        <input asp-for="UploadModel.CVFile" class="form-control"
+                               type="file" accept=".pdf,.doc,.docx" required>
+                        <small class="form-text text-muted">
+                            الملفات المسموحة: PDF, DOC, DOCX (الحد الأقصى: 5 MB)
+                        </small>
+                        <span asp-validation-for="UploadModel.CVFile" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="UploadModel.SetAsPrimary" class="form-check-input"
+                               type="checkbox" id="setPrimaryCheck">
+                        <label class="form-check-label" for="setPrimaryCheck">
+                            تعيين كسيرة ذاتية أساسية
+                        </label>
+                        <small class="form-text text-muted d-block">
+                            السيرة الذاتية الأساسية سيتم اختيارها تلقائياً عند التقديم
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> رفع
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Set Primary CV
+        document.querySelectorAll('.set-primary-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('هل تريد تعيين هذه السيرة الذاتية كأساسية؟')) return;
+
+                const cvId = this.dataset.cvId;
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken',
+                    document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                const response = await fetch('/CVManagement/SetPrimary/' + cvId, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            });
+        });
+
+        // Delete CV
+        document.querySelectorAll('.delete-cv-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('هل أنت متأكد من حذف هذه السيرة الذاتية؟')) return;
+
+                const cvId = this.dataset.cvId;
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken',
+                    document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                const response = await fetch('/CVManagement/Delete/' + cvId, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            });
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .cv-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .cv-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        }
+
+    .file-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff5f5;
+        border-radius: 10px;
+    }
+</style>

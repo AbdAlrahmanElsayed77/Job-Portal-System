@@ -1,0 +1,225 @@
+﻿@model PortalSystemProject.Models.JobSeeker.ApplicationsHistoryViewModel
+
+@{
+    ViewData["Title"] = "سجل التقديمات";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>
+                    <i class="fas fa-file-alt"></i> سجل التقديمات
+                </h3>
+                <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-primary">
+                    <i class="fas fa-search"></i> تصفح الوظائف
+                </a>
+            </div>
+
+            <!-- Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form asp-action="MyApplications" method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">الحالة</label>
+                            <select name="status" class="form-select">
+                                <option value="">جميع الحالات</option>
+                                <option value="0" selected="@(Model.StatusFilter == "0")">قيد المراجعة</option>
+                                <option value="1" selected="@(Model.StatusFilter == "1")">تمت المراجعة</option>
+                                <option value="2" selected="@(Model.StatusFilter == "2")">مقبول</option>
+                                <option value="3" selected="@(Model.StatusFilter == "3")">مرفوض</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">من تاريخ</label>
+                            <input type="date" name="fromDate" class="form-control"
+                                   value="@Model.FromDate?.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">إلى تاريخ</label>
+                            <input type="date" name="toDate" class="form-control"
+                                   value="@Model.ToDate?.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Applications List -->
+            @if (Model.Applications.Any())
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <p class="text-muted mb-3">
+                            عرض @Model.Applications.Count من أصل @Model.TotalApplications تقديم
+                        </p>
+
+                        @foreach (var app in Model.Applications)
+                        {
+                            <div class="card shadow-sm mb-3 application-card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-2 text-center">
+                                            @if (!string.IsNullOrEmpty(app.CompanyLogo))
+                                            {
+                                                <img src="@app.CompanyLogo" alt="@app.CompanyName"
+                                                     class="img-fluid rounded" style="max-height: 60px;">
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-building fa-3x text-muted"></i>
+                                            }
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5 class="mb-2">
+                                                <a asp-action="Details" asp-route-id="@app.ApplicationId"
+                                                   class="text-decoration-none text-dark">
+                                                    @app.JobTitle
+                                                </a>
+                                            </h5>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-building"></i> @app.CompanyName
+                                            </p>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar"></i>
+                                                قدمت في: @app.AppliedAt.ToString("dd/MM/yyyy hh:mm tt")
+                                            </small>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <span class="@app.StatusClass">
+                                                @app.Status
+                                            </span>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <a asp-action="Details" asp-route-id="@app.ApplicationId"
+                                               class="btn btn-sm btn-outline-primary mb-2 w-100">
+                                                <i class="fas fa-eye"></i> التفاصيل
+                                            </a>
+
+                                            @if (app.Status == "قيد المراجعة")
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger w-100 withdraw-btn"
+                                                        data-app-id="@app.ApplicationId">
+                                                    <i class="fas fa-times"></i> سحب التقديم
+                                                </button>
+                                            }
+
+                                            <a asp-controller="JobSeeker" asp-action="JobDetails"
+                                               asp-route-id="@app.JobPostId"
+                                               class="btn btn-sm btn-outline-secondary w-100 mt-2">
+                                                <i class="fas fa-briefcase"></i> الوظيفة
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Pagination -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@GetPageUrl(Model.CurrentPage - 1)">
+                                            السابق
+                                        </a>
+                                    </li>
+
+                                    @for (int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                            <a class="page-link" href="@GetPageUrl(i)">@i</a>
+                                        </li>
+                                    }
+
+                                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" href="@GetPageUrl(Model.CurrentPage + 1)">
+                                            التالي
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-inbox fa-4x mb-3"></i>
+                    <h5>لا توجد تقديمات</h5>
+                    <p class="text-muted">لم تقدم على أي وظيفة بعد</p>
+                    <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-primary">
+                        <i class="fas fa-search"></i> تصفح الوظائف المتاحة
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Withdraw Application
+        document.querySelectorAll('.withdraw-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('هل أنت متأكد من سحب هذا التقديم؟ لن تتمكن من التراجع عن هذا الإجراء.')) {
+                    return;
+                }
+
+                const appId = this.dataset.appId;
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken',
+                    document.querySelector('input[name="__RequestVerificationToken"]')?.value || '');
+
+                try {
+                    const response = await fetch('/Application/Withdraw/' + appId, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(result.message);
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert('حدث خطأ أثناء سحب التقديم');
+                }
+            });
+        });
+    </script>
+}
+
+@functions {
+    string GetPageUrl(int page)
+    {
+        var routeValues = new RouteValueDictionary
+        {
+            { "page", page },
+            { "status", Model.StatusFilter },
+            { "fromDate", Model.FromDate?.ToString("yyyy-MM-dd") },
+            { "toDate", Model.ToDate?.ToString("yyyy-MM-dd") }
+        };
+        return Url.Action("MyApplications", routeValues) ?? "#";
+    }
+}
+
+<style>
+    .application-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .application-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        }
+</style>

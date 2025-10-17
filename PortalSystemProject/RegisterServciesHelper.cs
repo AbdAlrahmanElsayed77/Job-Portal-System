@@ -4,6 +4,7 @@ using BL.Services;
 using DAL.Contracts;
 using DAL.DbContext;
 using DAL.Repositories;
+using Domains;
 using Domains.UserModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -44,10 +45,19 @@ namespace PortalSystemProject
                 cfg.AddProfile<MappingProfile>();
             });
 
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+
+
             // register services 
             builder.Services.AddScoped(typeof(ITableRepository<>), typeof(TableRepository<>));
-
-            // Services للـ Job Seeker Module
+            //builder.Services.AddScoped<ITestService, TestService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IApplicationRepository, ApplicationService>();
+            builder.Services.AddScoped<ICompanyRepository, CompanyService>();
+            builder.Services.AddScoped<IEmployerProfileRepository, EmployerProfileService>();
+            builder.Services.AddScoped<ICVFileRepository, CVFileService>();
+            builder.Services.AddScoped<IJobCategoryRepository, JobCategoryService>();
             builder.Services.AddScoped<IJobPostRepository, JobPostService>();
             builder.Services.AddScoped<IJobCategoryRepository, JobCategoryService>();
             builder.Services.AddScoped<IJobTypeRepository, JobTypeService>();
@@ -61,6 +71,11 @@ namespace PortalSystemProject
             builder.Services.AddScoped<IEmployerProfileRepository, EmployerProfileService>();
 
             //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //external services
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IFileService, FileService>();
+
+            //builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserService>();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BL.Contracts;
 using BL.Mapping;
+using BL.Seeders;
 using BL.Services;
 using DAL.Contracts;
 using DAL.DbContext;
@@ -21,14 +22,21 @@ namespace PortalSystemProject
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-
+            builder.Services.AddHttpContextAccessor();
             RegisterServciesHelper.RegisteredServices(builder);
 
             var app = builder.Build();
+            // 🔧 Auto apply migrations + seed roles/admin
             using (var scope = app.Services.CreateScope())
             {
-                var db = scope.ServiceProvider.GetRequiredService<PortalContext>();
+                var services = scope.ServiceProvider;
+
+                // 1️⃣ Apply pending migrations (safe for dev/test)
+                var db = services.GetRequiredService<PortalContext>();
                 db.Database.Migrate();
+
+                // 2️⃣ Seed roles and admin user
+                IdentitySeeder.SeedRolesAndAdminAsync(services).GetAwaiter().GetResult();
             }
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -40,7 +48,7 @@ namespace PortalSystemProject
             
             app.UseHttpsRedirection();
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

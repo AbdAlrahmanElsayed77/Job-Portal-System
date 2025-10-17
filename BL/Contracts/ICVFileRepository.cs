@@ -1,15 +1,30 @@
 ﻿using BL.Dtos;
-using Domains;
-using Domains.UserModel;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface ICVFileRepository : IBaseServices<CVFile, CVFileDto>
+    public interface ICVFileRepository
     {
+
+        Task<List<CVFileDto>> GetCVsByJobSeekerIdAsync(Guid jobSeekerId);
+
+        Task<(bool Success, string Message, Guid? CVFileId)> UploadCVAsync(
+            Guid jobSeekerId,
+            IFormFile file,
+            bool setAsPrimary = false);
+
+
+        Task<(bool Success, string Message)> DeleteCVAsync(Guid cvFileId, Guid jobSeekerId);
+
+
+        Task<bool> SetPrimaryAsync(Guid cvFileId, Guid jobSeekerId);
+
+        Task<CVFileDto?> GetPrimaryCVAsync(Guid jobSeekerId);
+
+ 
+        Task<int> GetCVUsageCountAsync(Guid cvFileId);
     }
 }

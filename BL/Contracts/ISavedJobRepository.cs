@@ -1,14 +1,25 @@
 ﻿using BL.Dtos;
-using Domains;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface ISavedJobRepository:IBaseServices<SavedJob,SavedJobDto>
+    public interface ISavedJobRepository
     {
+
+        Task<(bool Success, string Message)> SaveJobAsync(Guid jobPostId, Guid jobSeekerId);
+
+
+        Task<(bool Success, string Message)> UnsaveJobAsync(Guid jobPostId, Guid jobSeekerId);
+
+
+        Task<bool> IsJobSavedAsync(Guid jobPostId, Guid jobSeekerId);
+
+
+        Task<List<SavedJobDto>> GetSavedJobsAsync(Guid jobSeekerId);
+
+  
+        Task<List<Guid>> GetSavedJobIdsAsync(Guid jobSeekerId);
     }
 }

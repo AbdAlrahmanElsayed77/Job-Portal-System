@@ -20,13 +20,10 @@ namespace PortalSystemProject
             builder.Services.AddDbContext<PortalContext>(options =>
           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-
             // 🟢 تسجيل الـ Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<PortalContext>()
                 .AddDefaultTokenProviders();
-
 
             //// Configure Serilog for logging
             if (Process.GetCurrentProcess().ProcessName != "dotnet")
@@ -41,8 +38,6 @@ namespace PortalSystemProject
 
                 builder.Host.UseSerilog();
             }
-
-
 
             //builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddAutoMapper(cfg =>
@@ -64,9 +59,18 @@ namespace PortalSystemProject
             builder.Services.AddScoped<ICVFileRepository, CVFileService>();
             builder.Services.AddScoped<IJobCategoryRepository, JobCategoryService>();
             builder.Services.AddScoped<IJobPostRepository, JobPostService>();
-            builder.Services.AddScoped<IJobSeekerProfileRepository, JobSeekerProfileService>();
+            builder.Services.AddScoped<IJobCategoryRepository, JobCategoryService>();
             builder.Services.AddScoped<IJobTypeRepository, JobTypeService>();
+            builder.Services.AddScoped<ICVFileRepository, CVFileService>();
+            builder.Services.AddScoped<IApplicationRepository, ApplicationService>();
             builder.Services.AddScoped<ISavedJobRepository, SavedJobService>();
+            builder.Services.AddScoped<IJobSeekerProfileRepository, JobSeekerProfileService>();
+
+            // باقي الـ Services
+            builder.Services.AddScoped<ICompanyRepository, CompanyService>();
+            builder.Services.AddScoped<IEmployerProfileRepository, EmployerProfileService>();
+
+            //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //external services
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IFileService, FileService>();

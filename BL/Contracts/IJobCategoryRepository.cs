@@ -1,15 +1,16 @@
 ﻿using BL.Dtos;
-using Domains;
-using Domains.UserModel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface IJobCategoryRepository : IBaseServices<JobCategory, JobCategoryDto>
+    public interface IJobCategoryRepository
     {
+
+        Task<List<(JobCategoryDto Category, int JobCount)>> GetCategoriesWithJobCountAsync();
+
+
+        Task<List<JobCategoryDto>> GetAllCategoriesAsync();
     }
 }

@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface IEmployerProfileRepository : IBaseServices<EmployerProfile, EmployerProfileDto>
+    public interface IEmployerProfileService : IBaseServices<EmployerProfile, EmployerProfileDto>
     {
+        EmployerProfileDto GetByUserId(Guid userId);
     }
 }

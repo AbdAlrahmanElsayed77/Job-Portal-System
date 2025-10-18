@@ -1,0 +1,203 @@
+﻿@model PortalSystemProject.Models.JobSeeker.SavedJobsViewModel
+
+@{
+    ViewData["Title"] = "الوظائف المحفوظة";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>
+                    <i class="fas fa-heart text-danger"></i> الوظائف المحفوظة
+                    <span class="badge bg-primary">@Model.TotalSaved</span>
+                </h3>
+                <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-primary">
+                    <i class="fas fa-search"></i> تصفح المزيد
+                </a>
+            </div>
+
+            @if (Model.SavedJobs.Any())
+            {
+                foreach (var job in Model.SavedJobs)
+                {
+                    <div class="card shadow-sm mb-3 saved-job-card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center">
+                                    @if (!string.IsNullOrEmpty(job.CompanyLogo))
+                                    {
+                                        <img src="@job.CompanyLogo" alt="@job.CompanyName"
+                                             class="img-fluid rounded" style="max-height: 70px;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                             style="height: 70px;">
+                                            <i class="fas fa-building fa-3x text-muted"></i>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="col-md-7">
+                                    <h5 class="card-title mb-2">
+                                        <a asp-controller="JobSeeker" asp-action="JobDetails"
+                                           asp-route-id="@job.JobPostId"
+                                           class="text-decoration-none text-dark">
+                                            @job.Title
+                                        </a>
+                                    </h5>
+
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-building"></i> @job.CompanyName
+                                    </p>
+
+                                    <div class="d-flex flex-wrap gap-3 mb-2">
+                                        @if (!string.IsNullOrEmpty(job.Location))
+                                        {
+                                            <small>
+                                                <i class="fas fa-map-marker-alt text-primary"></i>
+                                                @job.Location
+                                            </small>
+                                        }
+                                        @if (!string.IsNullOrEmpty(job.SalaryRange))
+                                        {
+                                            <small>
+                                                <i class="fas fa-money-bill-wave text-success"></i>
+                                                @job.SalaryRange
+                                            </small>
+                                        }
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i>
+                                            حفظت في: @job.SavedAt.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </div>
+
+                                    <div>
+                                        <span class="badge bg-primary">@job.Category</span>
+                                        @if (!string.IsNullOrEmpty(job.JobType))
+                                        {
+                                            <span class="badge bg-secondary">@job.JobType</span>
+                                        }
+                                        @if (!job.IsActive)
+                                        {
+                                            <span class="badge bg-danger">منتهية</span>
+                                        }
+                                        @if (job.HasApplied)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> تم التقديم
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 text-end">
+                                    <a asp-controller="JobSeeker" asp-action="JobDetails"
+                                       asp-route-id="@job.JobPostId"
+                                       class="btn btn-sm btn-primary w-100 mb-2">
+                                        <i class="fas fa-eye"></i> عرض التفاصيل
+                                    </a>
+
+                                    @if (job.IsActive && !job.HasApplied)
+                                    {
+                                        <a asp-controller="Application" asp-action="Apply"
+                                           asp-route-jobId="@job.JobPostId"
+                                           class="btn btn-sm btn-success w-100 mb-2">
+                                            <i class="fas fa-paper-plane"></i> تقديم الآن
+                                        </a>
+                                    }
+
+                                    <button class="btn btn-sm btn-outline-danger w-100 unsave-btn"
+                                            data-job-id="@job.JobPostId">
+                                        <i class="fas fa-heart-broken"></i> إلغاء الحفظ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info text-center py-5">
+                    <i class="far fa-heart fa-4x mb-3"></i>
+                    <h5>لا توجد وظائف محفوظة</h5>
+                    <p class="text-muted">لم تقم بحفظ أي وظيفة بعد. ابدأ بتصفح الوظائف واحفظ المفضلة لديك</p>
+                    <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-primary">
+                        <i class="fas fa-search"></i> تصفح الوظائف
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Unsave Job
+        document.querySelectorAll('.unsave-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('هل تريد إلغاء حفظ هذه الوظيفة؟')) return;
+
+                const jobId = this.dataset.jobId;
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken',
+                    document.querySelector('input[name="__RequestVerificationToken"]')?.value || '');
+
+                try {
+                    const response = await fetch('/SavedJobs/Unsave/' + jobId, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Remove card with animation
+                        const card = this.closest('.saved-job-card');
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(-20px)';
+
+                        setTimeout(() => {
+                            card.remove();
+
+                            // Check if no jobs left
+                            const remainingJobs = document.querySelectorAll('.saved-job-card').length;
+                            if (remainingJobs === 0) {
+                                location.reload();
+                            } else {
+                                // Update count
+                                const badge = document.querySelector('.badge.bg-primary');
+                                if (badge) {
+                                    badge.textContent = remainingJobs;
+                                }
+                            }
+                        }, 300);
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert('حدث خطأ أثناء إلغاء الحفظ');
+                }
+            });
+        });
+    </script>
+}
+
+@{
+    // Add CSRF token for AJAX requests
+    <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken()" />
+}
+
+<style>
+    .saved-job-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .saved-job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        }
+</style>

@@ -71,7 +71,7 @@ namespace DAL.Migrations
                     b.HasIndex("JobPostId", "JobSeekerId")
                         .IsUnique();
 
-                    b.ToTable("Applications", (string)null);
+                    b.ToTable("Applications");
                 });
 
             modelBuilder.Entity("Domains.CVFile", b =>
@@ -123,7 +123,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("JobSeekerId");
 
-                    b.ToTable("CVFiles", (string)null);
+                    b.ToTable("CVFiles");
                 });
 
             modelBuilder.Entity("Domains.Company", b =>
@@ -178,7 +178,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("Name");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("Domains.EmployerProfile", b =>
@@ -219,7 +219,7 @@ namespace DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("EmployerProfiles", (string)null);
+                    b.ToTable("EmployerProfiles");
                 });
 
             modelBuilder.Entity("Domains.JobCategory", b =>
@@ -253,7 +253,7 @@ namespace DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("JobCategories", (string)null);
+                    b.ToTable("JobCategories");
                 });
 
             modelBuilder.Entity("Domains.JobPost", b =>
@@ -340,7 +340,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("JobCategoryId", "JobTypeId", "City");
 
-                    b.ToTable("JobPosts", (string)null);
+                    b.ToTable("JobPosts");
                 });
 
             modelBuilder.Entity("Domains.JobSeekerProfile", b =>
@@ -370,6 +370,10 @@ namespace DAL.Migrations
                         .HasMaxLength(140)
                         .HasColumnType("nvarchar(140)");
 
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
@@ -390,7 +394,7 @@ namespace DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("JobSeekerProfiles", (string)null);
+                    b.ToTable("JobSeekerProfiles");
                 });
 
             modelBuilder.Entity("Domains.JobType", b =>
@@ -424,7 +428,7 @@ namespace DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("JobTypes", (string)null);
+                    b.ToTable("JobTypes");
                 });
 
             modelBuilder.Entity("Domains.SavedJob", b =>
@@ -457,7 +461,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("JobPostId");
 
-                    b.ToTable("SavedJobs", (string)null);
+                    b.ToTable("SavedJobs");
                 });
 
             modelBuilder.Entity("Domains.UserModel.ApplicationUser", b =>

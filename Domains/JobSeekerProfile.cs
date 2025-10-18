@@ -23,7 +23,8 @@ namespace Domains
         public string? City { get; set; }
 
         public byte? YearsOfExperience { get; set; }
-
+        [MaxLength(400)]
+        public string? PhotoUrl { get; set; }
         // Navs
 
         public Guid UserId { get; set; }

@@ -1,0 +1,52 @@
+﻿@model BL.Dtos.JobSeekerProfileDto
+
+<div class="container mt-5">
+    <div class="card shadow-sm p-4 rounded-4">
+        <h4 class="fw-bold mb-4">Edit Your Profile</h4>
+
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Headline" class="form-label">Headline</label>
+                <input asp-for="Headline" class="form-control rounded-3" placeholder="e.g. Full Stack Developer" />
+                <span asp-validation-for="Headline" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Summary" class="form-label">About You</label>
+                <textarea asp-for="Summary" class="form-control rounded-3" rows="4" placeholder="Write a short summary..."></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Country" class="form-label">Country</label>
+                    <input asp-for="Country" class="form-control rounded-3" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="City" class="form-label">City</label>
+                    <input asp-for="City" class="form-control rounded-3" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="YearsOfExperience" class="form-label">Experience (Years)</label>
+                <input asp-for="YearsOfExperience" class="form-control rounded-3" type="number" min="0" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Profile Photo</label>
+                <input type="file" name="photoFile" class="form-control rounded-3" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Upload CV</label>
+                <input type="file" name="cvFile" class="form-control rounded-3" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-3 mt-3">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>

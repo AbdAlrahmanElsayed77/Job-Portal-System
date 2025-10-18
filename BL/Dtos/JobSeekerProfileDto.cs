@@ -9,6 +9,7 @@ namespace BL.Dtos
 {
     public class JobSeekerProfileDto:BaseDto
     {
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }          // FK -> ApplicationUser
         public string? Headline { get; set; }
         public string? Summary { get; set; }
@@ -16,5 +17,10 @@ namespace BL.Dtos
         public string? City { get; set; }
         public byte? YearsOfExperience { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? PhotoUrl { get; set; }
+
+        // For UI display (optional)
+        public string? UserEmail { get; set; }
+        public List<CVFileDto> CVFiles { get; set; } = new();
     }
 }

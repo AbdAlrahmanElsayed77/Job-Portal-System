@@ -55,20 +55,14 @@ namespace PortalSystemProject
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IApplicationRepository, ApplicationService>();
             builder.Services.AddScoped<ICompanyRepository, CompanyService>();
-            builder.Services.AddScoped<IEmployerProfileRepository, EmployerProfileService>();
+            builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
             builder.Services.AddScoped<ICVFileRepository, CVFileService>();
             builder.Services.AddScoped<IJobCategoryRepository, JobCategoryService>();
             builder.Services.AddScoped<IJobPostRepository, JobPostService>();
-            builder.Services.AddScoped<IJobCategoryRepository, JobCategoryService>();
             builder.Services.AddScoped<IJobTypeRepository, JobTypeService>();
-            builder.Services.AddScoped<ICVFileRepository, CVFileService>();
-            builder.Services.AddScoped<IApplicationRepository, ApplicationService>();
             builder.Services.AddScoped<ISavedJobRepository, SavedJobService>();
             builder.Services.AddScoped<IJobSeekerProfileRepository, JobSeekerProfileService>();
-
-            // باقي الـ Services
-            builder.Services.AddScoped<ICompanyRepository, CompanyService>();
-            builder.Services.AddScoped<IEmployerProfileRepository, EmployerProfileService>();
+            builder.Services.AddScoped<IJobSeekerProfileService, JobSeekerProfileServices>();
 
             //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //external services

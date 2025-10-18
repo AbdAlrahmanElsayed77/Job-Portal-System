@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,11 +25,19 @@ namespace DAL.Repositories
             _logger = log;
         }
 
-        public List<T> GetAll()
+        public List<T> GetAll(params Expression<Func<T, object>>[]? includes)
         {
             try
             {
-                return _dbSet.Where(d=>d.CurrentState==0).ToList();
+                var query = _dbSet.Where(d => d.CurrentState == 0);
+                if (includes != null && includes.Length > 0)
+                {
+                    foreach (var include in includes)
+                    {
+                        query = query.Include(include);
+                    }
+                }
+                return query.ToList();
             }
             catch (Exception ex)
             {
@@ -36,11 +45,19 @@ namespace DAL.Repositories
             }
         }
 
-        public T GetById(Guid id)
+        public T GetById(Guid id, params Expression<Func<T, object>>[]? includes)
         {
             try
             {
-                return _dbSet.FirstOrDefault(n=>n.Id == id);
+                var query = _dbSet.AsQueryable();
+                if (includes != null && includes.Length > 0)
+                {
+                    foreach (var include in includes)
+                    {
+                        query = query.Include(include);
+                    }
+                }
+                return query.FirstOrDefault(n => n.Id == id);
             }
             catch (Exception ex)
             {

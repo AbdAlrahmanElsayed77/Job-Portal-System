@@ -32,12 +32,16 @@ namespace BL.Mapping
             CreateMap<JobCategory, JobCategoryDto>().ReverseMap();
             CreateMap<JobPost, JobPostDto>().ReverseMap();
             CreateMap<JobType, JobTypeDto>().ReverseMap();
-            CreateMap<CVFile, CVFileDto>().ReverseMap();
-            CreateMap<JobSeekerProfile, JobSeekerProfileDto>().ReverseMap();
+            CreateMap<CVFile, CVFileDto>().ReverseMap()
+                .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());
+            CreateMap<JobSeekerProfile, JobSeekerProfileDto>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ReverseMap()
+                .ForMember(dest => dest.User, opt => opt.Ignore());
             CreateMap<SavedJob, SavedJobDto>().ReverseMap();
-            CreateMap<EmployerProfile, EmployerProfileDto>().ReverseMap();
-
-
+            CreateMap<EmployerProfile, EmployerProfileDto>()
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
+                .ReverseMap();
 
         }
     }

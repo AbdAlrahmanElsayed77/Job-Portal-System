@@ -29,6 +29,7 @@ namespace BL.Services
         public async Task<string> RegisterAsync(RegisterDto model, string origin)
         {
             var user = _mapper.Map<ApplicationUser>(model);
+            user.EmailConfirmed = false;
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
                 return string.Join("; ", result.Errors.Select(e => e.Description));
@@ -36,6 +37,7 @@ namespace BL.Services
             {
                 await _userManager.AddToRoleAsync(user, model.Role);
             }
+
             // Generate email confirmation link
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = HttpUtility.UrlEncode(token);

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BL.Contracts;
+using BL.Dtos;
 using BL.Dtos.AccountDtos;
 using Domains.UserModel;
 using Microsoft.AspNetCore.Identity;
@@ -18,12 +19,16 @@ namespace BL.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailService _emailService;
-        public AccountService(IMapper mapper,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService)
+        private readonly IJobSeekerProfileService _jobSeekerService;
+        private readonly IEmployerProfileService _employerService;
+        public AccountService(IMapper mapper,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IJobSeekerProfileService jobSeekerService, IEmployerProfileService employerService)
         {
             _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _jobSeekerService = jobSeekerService;
+            _employerService = employerService;
         }
 
         public async Task<string> RegisterAsync(RegisterDto model, string origin)
@@ -111,5 +116,81 @@ namespace BL.Services
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
             return result.Succeeded ? "Password reset successfully!" : "Failed to reset password.";
         }
+        public async Task<ProfileResultDto> GetProfile(Guid viewerId, Guid targetUserId)
+        {
+            var viewer = await _userManager.FindByIdAsync(viewerId.ToString());
+            var targetUser = await _userManager.FindByIdAsync(targetUserId.ToString());
+
+            if (targetUser == null)
+                throw new Exception("User not found");
+
+            bool isEditable = viewerId == targetUserId;
+
+            // 🔹 Get target user's role
+            var roles = await _userManager.GetRolesAsync(targetUser);
+            var role = roles.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(role))
+                throw new Exception("User role not assigned");
+
+            // 🔸 Job Seeker
+            if (role == "JobSeeker")
+            {
+                var profile = _jobSeekerService.GetByUserId(targetUserId);
+                if (profile == null)
+                {
+                    if (isEditable)
+                    {
+                        // redirect user to create profile if viewing their own
+                        return new ProfileResultDto
+                        {
+                            ProfileData = new JobSeekerProfileDto { UserId = targetUserId },
+                            ViewPath = "~/Views/JobSeekerProfile/Edit.cshtml",
+                            IsEditable = true
+                        };
+                    }
+
+                    throw new Exception("Job Seeker profile not found");
+                }
+
+                return new ProfileResultDto
+                {
+                    ProfileData = profile,
+                    ViewPath = "~/Views/JobSeekerProfile/Index.cshtml",
+                    IsEditable = isEditable
+                };
+            }
+
+            // 🔸 Employer
+            if (role == "Employer")
+            {
+                var profile = _employerService.GetByUserId(targetUserId);
+                if (profile == null)
+                {
+                    if (isEditable)
+                    {
+                        // redirect user to create profile if viewing their own
+                        return new ProfileResultDto
+                        {
+                            ProfileData = new EmployerProfileDto { UserId = targetUserId },
+                            ViewPath = "~/Views/EmployerProfile/Edit.cshtml",
+                            IsEditable = true
+                        };
+                    }
+
+                    throw new Exception("Employer profile not found");
+                }
+
+                return new ProfileResultDto
+                {
+                    ProfileData = profile,
+                    ViewPath = "~/Views/EmployerProfile/Index.cshtml",
+                    IsEditable = isEditable
+                };
+            }
+
+            throw new Exception("Unknown user role");
+        }
     }
+
 }

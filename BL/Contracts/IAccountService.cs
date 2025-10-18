@@ -16,5 +16,6 @@ namespace BL.Contracts
         Task<string> ResetPasswordAsync(string email, string token, string newPassword);
         Task<string> ForgotPasswordAsync(string email, string origin);
         Task<string> ConfirmEmailAsync(Guid userId, string token);
+        Task<ProfileResultDto> GetProfile(Guid viewerId, Guid targetUserId);
     }
 }

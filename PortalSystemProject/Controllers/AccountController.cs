@@ -1,5 +1,6 @@
 ﻿using BL.Contracts;
 using BL.Dtos.AccountDtos;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PortalSystemProject.Controllers
@@ -7,10 +8,12 @@ namespace PortalSystemProject.Controllers
     public class AccountController : Controller
     {
         private readonly IAccountService _accountService;
+        private readonly UserManager<Domains.UserModel.ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor = new HttpContextAccessor();
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, UserManager<Domains.UserModel.ApplicationUser> userManager)
         {
             _accountService = accountService;
+            _userManager = userManager;
         }
         private string GetOrigin() =>
             $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://{_httpContextAccessor?.HttpContext?.Request.Host}";
@@ -94,6 +97,17 @@ namespace PortalSystemProject.Controllers
         {
             await _accountService.LogoutAsync();
             return RedirectToAction("Login");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Profile(Guid? userId)
+        {
+            var viewer = await _userManager.GetUserAsync(User);
+            var targetId = userId ?? viewer.Id;
+
+            var result = await _accountService.GetProfile(viewer.Id, targetId);
+
+            ViewBag.IsEditable = result.IsEditable;
+            return View(result.ViewPath, result.ProfileData);
         }
     }
 }

@@ -1,0 +1,51 @@
+﻿@model BL.Dtos.EmployerProfileDto
+@{
+    ViewData["Title"] = "Edit Employer Profile";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-5">
+            <h3 class="fw-bold text-primary mb-4">
+                <i class="bi bi-pencil-square"></i> Update Your Profile
+            </h3>
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label asp-for="CompanyName" class="form-label fw-semibold"></label>
+                        <input asp-for="CompanyName" class="form-control form-control-lg" placeholder="Enter company name" />
+                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="JobTitle" class="form-label fw-semibold"></label>
+                        <input asp-for="JobTitle" class="form-control form-control-lg" placeholder="Your job title" />
+                        <span asp-validation-for="JobTitle" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Company Logo</label>
+                        <input type="file" name="logoFile" class="form-control form-control-lg" />
+                    </div>
+                </div>
+
+                <div class="mt-5 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill">
+                        <i class="bi bi-save2"></i> Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg px-4 rounded-pill ms-2">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

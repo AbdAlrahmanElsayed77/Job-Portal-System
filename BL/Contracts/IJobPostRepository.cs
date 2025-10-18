@@ -11,5 +11,7 @@ namespace BL.Contracts
 {
     public interface IJobPostRepository : IBaseServices<JobPost, JobPostDto>
     {
+        public List<JobPostDto> getJopsForEmployer(Guid empId);
+
     }
 }

@@ -24,7 +24,7 @@ namespace BL.Dtos
         public decimal? MaxSalary { get; set; }
         public string? Currency { get; set; }     // e.g., "EGP", "USD"
         public bool IsActive { get; set; }
-        public DateTime PublishedAt { get; set; }
+        public DateTime? PublishedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
     }
 }

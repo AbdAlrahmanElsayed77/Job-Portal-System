@@ -30,7 +30,7 @@ namespace BL.Mapping
             CreateMap<ApplicationUser, ApplicationUserDto>().ReverseMap();
             CreateMap<Company, CompanyDto>().ReverseMap();
             CreateMap<JobCategory, JobCategoryDto>().ReverseMap();
-            CreateMap<JobPost, JobPostDto>().ReverseMap();
+            CreateMap<JobPost, JobPostDto>().AfterMap((src, dst) => { dst.PublishedAt = src.CreatedDate; }).ReverseMap();
             CreateMap<JobType, JobTypeDto>().ReverseMap();
             CreateMap<CVFile, CVFileDto>().ReverseMap();
             CreateMap<JobSeekerProfile, JobSeekerProfileDto>().ReverseMap();

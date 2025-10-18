@@ -29,18 +29,18 @@ namespace PortalSystemProject
 
 
             //// Configure Serilog for logging
-            if (Process.GetCurrentProcess().ProcessName != "dotnet")
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .WriteTo.Console()
-                    .WriteTo.MSSqlServer(
-                        connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
-                        tableName: "Log",
-                        autoCreateSqlTable: true)
-                    .CreateLogger();
+            //if (Process.GetCurrentProcess().ProcessName != "dotnet")
+            //{
+            //    Log.Logger = new LoggerConfiguration()
+            //        .WriteTo.Console()
+            //        .WriteTo.MSSqlServer(
+            //            connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+            //            tableName: "Log",
+            //            autoCreateSqlTable: true)
+            //        .CreateLogger();
 
-                builder.Host.UseSerilog();
-            }
+            //    builder.Host.UseSerilog();
+            //}
 
 
 

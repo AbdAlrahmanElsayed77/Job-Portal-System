@@ -15,6 +15,18 @@ namespace BL.Services
     {
         public JobPostService(ITableRepository<JobPost> repo, IMapper mapper) : base(repo, mapper)
         {
+            Repo = repo;
+            Mapper = mapper;
         }
+
+        public ITableRepository<JobPost> Repo { get; }
+        public IMapper Mapper { get; }
+
+        public List<JobPostDto> getJopsForEmployer(Guid empId)
+        {
+            return Mapper.Map<List<JobPostDto>>(Repo.GetAll().Where(j => j.CreatedByUserId == empId).ToList());
+        }
+
+        
     }
 }

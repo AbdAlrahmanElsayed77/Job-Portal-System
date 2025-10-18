@@ -12,7 +12,6 @@ namespace BL.Dtos
         public Guid UserId { get; set; }         // FK -> ApplicationUser
         public Guid CompanyId { get; set; }      // FK -> Company
         public string? JobTitle { get; set; }
-        public string? Phone { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

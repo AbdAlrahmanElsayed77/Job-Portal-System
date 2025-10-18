@@ -42,7 +42,7 @@ namespace BL.Services
         {
             var dbObject = _mapper.Map<DTO, T>(entity);
             //dbObject.UpdatedBy = userId;
-            return _repo.Add(dbObject);
+            return _repo.Update(dbObject);
         }
 
         public bool ChangeStatus(Guid id, int status = 1)

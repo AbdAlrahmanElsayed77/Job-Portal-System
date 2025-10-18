@@ -1,0 +1,43 @@
+﻿
+@model IEnumerable<BL.Dtos.JobPostDto>
+@{
+    ViewData["Title"] = "JopPosts";
+}
+
+<h1>JopPosts</h1>
+
+
+
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">+ Add New Job Post</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Published</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var job in Model)
+        {
+            <tr>
+                <td>@job.Title</td>
+                <td>@job.City, @job.Country</td>
+                <td>@($"{job.MinSalary}-{job.MaxSalary} {job.Currency}")</td>
+                <td>@(job.IsActive ? "Active" : "Inactive")</td>
+                <td>@job.PublishedAt?.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@job.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@job.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -68,6 +68,8 @@ namespace DAL.Repositories
             try
             {
                 var dbData = GetById(entity.Id);
+                if (dbData != null)
+                    _context.Entry(dbData).State = EntityState.Detached;
                 entity.CreatedDate = dbData.CreatedDate;
                 entity.CreatedBy = dbData.CreatedBy;
                 entity.UpdatedDate = DateTime.Now;

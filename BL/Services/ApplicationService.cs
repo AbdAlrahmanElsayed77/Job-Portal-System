@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BL.Contracts;
 using BL.Dtos;
+using DAL.Contracts;
 using DAL.DbContext;
+using Domains;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,13 +12,15 @@ using System.Threading.Tasks;
 
 namespace BL.Services
 {
-    public class ApplicationService : IApplicationRepository
+    public class ApplicationService :BaseService<Application,ApplicationDto>, IApplicationRepository
     {
+        private readonly ITableRepository<Application> repo;
         private readonly PortalContext _context;
         private readonly IMapper _mapper;
 
-        public ApplicationService(PortalContext context, IMapper mapper)
+        public ApplicationService(ITableRepository<Application> repo,PortalContext context, IMapper mapper):base(repo,mapper)
         {
+            this.repo = repo;
             _context = context;
             _mapper = mapper;
         }
@@ -159,6 +163,40 @@ namespace BL.Services
             catch (Exception ex)
             {
                 return (false, $"An error occurred.: {ex.Message}");
+            }
+        }
+
+        // Get all applications for a specific job post
+        public IEnumerable<ApplicationDto> GetApplicationsByJob(Guid jobPostId)
+        {
+            // Get all applications for a given JobPost, including ApplicantUser for name
+            var apps = repo.GetAll(a=>a.ApplicantUser)
+                .Where(a => a.JobPostId == jobPostId)
+                .ToList();
+
+            // Map to DTOs
+            var result = _mapper.Map<IEnumerable<ApplicationDto>>(apps);
+
+            // Fill display-only field (ApplicantName)
+            foreach (var dto in result)
+            {
+                var entity = apps.First(a => a.Id == dto.Id);
+                dto.ApplicantName = entity.ApplicantUser?.UserName; // or .UserName if that’s your field
+            }
+
+            return result;
+        }
+
+
+        //  Update only the application status
+        public void UpdateStatus(Guid id, Status newStatus)
+        {
+            var app = repo.GetById(id);
+            if (app != null)
+            {
+                app.Status = newStatus;
+                app.UpdatedDate = DateTime.UtcNow;
+                repo.Update(app);
             }
         }
     }

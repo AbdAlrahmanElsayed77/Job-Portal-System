@@ -161,8 +161,8 @@ namespace PortalSystemProject.Controllers
                     JobTitle = "Job Title", 
                     CompanyName = "Company Name",
                     AppliedAt = a.AppliedAt,
-                    Status = GetStatusText(a.Status),
-                    StatusClass = GetStatusClass(a.Status),
+                    Status = GetStatusText((byte)a.Status),
+                    StatusClass = GetStatusClass((byte)a.Status),
                     CoverLetter = a.CoverLetter,
                     CVFileName = "CV.pdf"
                 }).ToList(),
@@ -203,7 +203,7 @@ namespace PortalSystemProject.Controllers
                 JobDescription = "Job Description",
                 CompanyName = "Company Name",
                 AppliedAt = application.AppliedAt,
-                Status = GetStatusText(application.Status),
+                Status = GetStatusText((byte)application.Status),
                 CoverLetter = application.CoverLetter,
                 CVFileName = "CV.pdf"
             };

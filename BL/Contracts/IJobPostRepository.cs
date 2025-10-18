@@ -1,4 +1,5 @@
 ﻿using BL.Dtos;
+using Domains;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface IJobPostRepository
+    public interface IJobPostRepository: IBaseServices<JobPost, JobPostDto>
     {
   
         Task<(List<JobPostDto> Jobs, int TotalCount)> GetFilteredJobsAsync(
@@ -36,5 +37,7 @@ namespace BL.Contracts
 
  
         Task<int> GetApplicationsCountAsync(Guid jobPostId);
+        public List<JobPostDto> getJopsForEmployer(Guid empId);
+
     }
 }

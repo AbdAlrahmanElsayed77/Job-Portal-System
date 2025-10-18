@@ -1,11 +1,12 @@
 ﻿using BL.Dtos;
+using Domains;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BL.Contracts
 {
-    public interface IApplicationRepository
+    public interface IApplicationRepository:IBaseServices<Application,ApplicationDto>
     {
 
         Task<(bool Success, string Message, Guid? ApplicationId)> ApplyForJobAsync(
@@ -34,5 +35,7 @@ namespace BL.Contracts
 
   
         Task<(bool Success, string Message)> WithdrawApplicationAsync(Guid applicationId, Guid jobSeekerId);
+        IEnumerable<ApplicationDto> GetApplicationsByJob(Guid jobPostId);
+        void UpdateStatus(Guid id, Status newStatus);
     }
 }

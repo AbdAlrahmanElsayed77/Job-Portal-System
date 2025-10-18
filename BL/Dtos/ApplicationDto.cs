@@ -1,4 +1,5 @@
 ﻿using BL.Dtos.Base;
+using Domains;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,9 @@ namespace BL.Dtos
         public Guid ApplicantUserId { get; set; } // FK -> ApplicationUser
         public string? CoverLetter { get; set; }
         public Guid? CVFileId { get; set; }       // FK -> CVFile (snapshot)
-        public byte Status { get; set; }          // 0..6
+        public Status Status { get; set; }        // 0..6
         public DateTime AppliedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public string? ApplicantName { get; set; }
     }
 }

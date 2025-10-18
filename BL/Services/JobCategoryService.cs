@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BL.Contracts;
 using BL.Dtos;
+using DAL.Contracts;
 using DAL.DbContext;
+using Domains;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,12 +12,13 @@ using System.Threading.Tasks;
 
 namespace BL.Services
 {
-    public class JobCategoryService : IJobCategoryRepository
+    public class JobCategoryService : BaseService<JobCategory, JobCategoryDto>, IJobCategoryRepository
     {
+        private readonly ITableRepository<EmployerProfile> repo;
         private readonly PortalContext _context;
         private readonly IMapper _mapper;
 
-        public JobCategoryService(PortalContext context, IMapper mapper)
+        public JobCategoryService(ITableRepository<JobCategory> repo,PortalContext context, IMapper mapper):base(repo, mapper)
         {
             _context = context;
             _mapper = mapper;

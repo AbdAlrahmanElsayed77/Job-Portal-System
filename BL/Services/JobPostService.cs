@@ -12,16 +12,19 @@ using System.Threading.Tasks;
 
 namespace BL.Services
 {
-    public class JobPostService : IJobPostRepository
+    public class JobPostService :BaseService<JobPost, JobPostDto>, IJobPostRepository
     {
         private readonly PortalContext _context;
         private readonly IMapper _mapper;
+        public ITableRepository<JobPost> Repo { get; }
 
-        public JobPostService(PortalContext context, IMapper mapper)
+
+        public JobPostService(ITableRepository<JobPost> repo, PortalContext context, IMapper mapper): base(repo, mapper)
         {
             _context = context;
             _mapper = mapper;
-        }
+            Repo = repo;
+    }
 
 
         public async Task<(List<JobPostDto> Jobs, int TotalCount)> GetFilteredJobsAsync(
@@ -142,6 +145,12 @@ namespace BL.Services
         {
             return await _context.Applications
                 .CountAsync(a => a.JobPostId == jobPostId);
+        }
+
+
+        public List<JobPostDto> getJopsForEmployer(Guid empId)
+        {
+            return _mapper.Map<List<JobPostDto>>(Repo.GetAll().Where(j => j.CreatedByUserId == empId).ToList());
         }
     }
 }

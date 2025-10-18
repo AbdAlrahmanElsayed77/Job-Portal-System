@@ -103,7 +103,7 @@ namespace PortalSystemProject.Controllers
                     JobType = j.JobTypeId.HasValue ? GetJobTypeName(j.JobTypeId.Value) : null,
                     SalaryRange = FormatSalaryRange(j.MinSalary, j.MaxSalary, j.Currency),
                     ExperienceRange = FormatExperienceRange(j.MinExperienceYears, j.MaxExperienceYears),
-                    PublishedAt = j.PublishedAt,
+                    PublishedAt = (DateTime)j.PublishedAt,
                     IsSaved = savedJobIds.Contains(j.Id),
                     HasApplied = appliedJobIds.Contains(j.Id)
                 }).ToList(),
@@ -204,7 +204,7 @@ namespace PortalSystemProject.Controllers
                 Location = $"{job.City}, {job.Country}",
                 ExperienceRequired = FormatExperienceRange(job.MinExperienceYears, job.MaxExperienceYears),
                 SalaryRange = FormatSalaryRange(job.MinSalary, job.MaxSalary, job.Currency),
-                PublishedAt = job.PublishedAt,
+                PublishedAt = (DateTime)job.PublishedAt,
                 ExpiresAt = job.ExpiresAt,
                 IsSaved = isSaved,
                 HasApplied = hasApplied,

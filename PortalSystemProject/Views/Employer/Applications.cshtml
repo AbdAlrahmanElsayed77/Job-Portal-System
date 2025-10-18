@@ -1,0 +1,60 @@
+﻿@using Domains
+@model IEnumerable<BL.Dtos.ApplicationDto>
+
+@{
+    ViewData["Title"] = "Applicants for " + ViewBag.JobTitle;
+}
+
+<h2>Applicants for: @ViewBag.JobTitle</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Applicant Name</th>
+            <th>Status</th>
+            <th>Applied At</th>
+            <th>Cover Letter</th>
+            <th>CV</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var app in Model)
+        {
+            <tr>
+                <td>@app.ApplicantName</td>
+                <td>@app.Status</td>
+                <td>@app.AppliedAt.ToShortDateString()</td>
+                <td>@(string.IsNullOrWhiteSpace(app.CoverLetter) ? "—" : app.CoverLetter)</td>
+                <td>
+                    @if (app.CVFileId != null)
+                    {
+                        <a asp-action="DownloadCV" asp-route-id="@app.CVFileId" class="btn btn-outline-info btn-sm">Download</a>
+                    }
+                    else
+                    {
+                        <span>No CV</span>
+                    }
+                </td>
+                <td>
+                    <form asp-action="UpdateApplicationStatus" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@app.Id" />
+                        <select name="status" class="form-select form-select-sm d-inline w-auto">
+                            @foreach (Status s in Enum.GetValues(typeof(Status)))
+                            {
+                                <option value="@s" selected="@(s == app.Status)">@s</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="mt-3">
+    <a asp-controller="Employer" asp-action="JobPosts" class="btn btn-secondary">← Back to Job Posts</a>
+    <a asp-action="ExportToExcel" asp-route-jobPostId="@ViewBag.JobPostId" class="btn btn-success ms-2">Export to Excel</a>
+    <a asp-action="ExportToPdf" asp-route-jobPostId="@ViewBag.JobPostId" class="btn btn-danger ms-2">Export to PDF</a>
+</div>

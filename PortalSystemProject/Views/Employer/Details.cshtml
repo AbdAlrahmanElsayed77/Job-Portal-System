@@ -1,0 +1,20 @@
+﻿@model BL.Dtos.JobPostDto
+
+@{
+    ViewData["Title"] = "Job Details";
+}
+
+<h2>@Model.Title</h2>
+<a asp-action="Applications" asp-route-id="@Model.Id" class="btn btn-secondary mt-3">View applicants</a>
+
+<div class="card p-3">
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Requirements:</strong> @Model.Requirements</p>
+    <p><strong>Location:</strong> @Model.City, @Model.Country</p>
+    <p><strong>Experience:</strong> @Model.MinExperienceYears - @Model.MaxExperienceYears yrs</p>
+    <p><strong>Salary:</strong> @Model.MinSalary - @Model.MaxSalary @Model.Currency</p>
+    <p><strong>Published At:</strong> @Model.PublishedAt?.ToShortDateString()</p>
+    <p><strong>Expires At:</strong> @(Model.ExpiresAt?.ToShortDateString() ?? "Not set")</p>
+</div>
+
+<a asp-action="JobPosts" class="btn btn-secondary mt-3">Back to List</a>

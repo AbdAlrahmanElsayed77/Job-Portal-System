@@ -1,0 +1,126 @@
+﻿@model BL.Dtos.JobPostDto
+
+@{
+    ViewData["Title"] = "Create Job Post";
+    var categories = ViewBag.JobCategories as IEnumerable<dynamic>;
+    var jobTypes = ViewBag.JobTypes as IEnumerable<dynamic>;
+}
+
+<h2 class="mb-4">Create Job Post</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Requirements" class="form-label"></label>
+        <textarea asp-for="Requirements" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Requirements" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Country" class="form-label"></label>
+            <input asp-for="Country" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="City" class="form-label"></label>
+            <input asp-for="City" class="form-control" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="MinExperienceYears" class="form-label"></label>
+            <input asp-for="MinExperienceYears" type="number" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="MaxExperienceYears" class="form-label"></label>
+            <input asp-for="MaxExperienceYears" type="number" class="form-control" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="MinSalary" class="form-label"></label>
+            <input asp-for="MinSalary" type="number" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="MaxSalary" class="form-label"></label>
+            <input asp-for="MaxSalary" type="number" class="form-control" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Currency" class="form-label"></label>
+            <input asp-for="Currency" class="form-control" placeholder="e.g., EGP or USD" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="IsActive" class="form-label"></label>
+            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="ExpiresAt" class="form-label"></label>
+            <input asp-for="ExpiresAt" type="datetime-local" class="form-control" />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="JobCategoryId" class="form-label">Job Category</label>
+            <select asp-for="JobCategoryId" class="form-select">
+                <option value="">-- Select Category --</option>
+                @foreach (var c in categories ?? Enumerable.Empty<dynamic>())
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+            <span asp-validation-for="JobCategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="JobTypeId" class="form-label">Job Type</label>
+            <select asp-for="JobTypeId" class="form-select">
+                <option value="">-- Select Job Type --</option>
+                @foreach (var t in jobTypes ?? Enumerable.Empty<dynamic>())
+                {
+                    <option value="@t.Id">@t.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="CompanyId" class="form-label"></label>
+            <input asp-for="CompanyId" class="form-control" placeholder="Company ID" />
+        </div>
+        
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="jobposts" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

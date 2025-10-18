@@ -21,6 +21,7 @@ namespace Domains
 
         public Guid? CVFileId { get; set; }
         public CVFile? CVFile { get; set; }
- 
+        public Status Status { get; set; } = Status.UnderReview;
+
     }
 }

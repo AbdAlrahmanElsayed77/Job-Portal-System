@@ -26,11 +26,11 @@ namespace BL.Mapping
             CreateMap<RegisterDto, ApplicationUser>()
                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
                .ForMember(dest => dest.EmailConfirmed, opt => opt.MapFrom(src => true));
-            CreateMap<Application, ApplicationDto>().ReverseMap();
+            CreateMap<Application, ApplicationDto>().AfterMap((src, dst) => { dst.AppliedAt = src.CreatedDate ?? DateTime.MinValue; }).ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserDto>().ReverseMap();
             CreateMap<Company, CompanyDto>().ReverseMap();
             CreateMap<JobCategory, JobCategoryDto>().ReverseMap();
-            CreateMap<JobPost, JobPostDto>().ReverseMap();
+            CreateMap<JobPost, JobPostDto>().AfterMap((src, dst) => { dst.PublishedAt = src.CreatedDate; }).ReverseMap();
             CreateMap<JobType, JobTypeDto>().ReverseMap();
             CreateMap<CVFile, CVFileDto>().ReverseMap()
                 .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());

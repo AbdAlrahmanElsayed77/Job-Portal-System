@@ -4,6 +4,7 @@ using BL.Dtos;
 using DAL.Contracts;
 using Domains;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
@@ -47,6 +48,9 @@ namespace BL.Services
                 // ✅ Create new profile
                 profile = _mapper.Map<EmployerProfile>(dto);
                 profile.UserId = userId;
+                profile.CreatedBy = userId;
+                profile.CreatedDate = DateTime.UtcNow;
+                profile.CurrentState = 1;
 
                 if (logoFile != null)
                 {
@@ -56,6 +60,8 @@ namespace BL.Services
                     if (company != null)
                     {
                         company.LogoUrl = logoUrl;
+                        company.UpdatedBy = userId;
+                        company.UpdatedDate = DateTime.UtcNow;
                         _companyRepo.Update(company);
                     }
                 }
@@ -65,37 +71,36 @@ namespace BL.Services
             else
             {
                 // 🟠 Update existing
-                profile = _profileRepo.GetById(dto.Id, p => p.Company);
+                profile = _profileRepo.GetById(dto.Id);
                 if (profile == null)
                     throw new Exception("Profile not found");
-                dto.CompanyId = profile.CompanyId;
-                _mapper.Map(dto, profile);
-                profile.UpdatedBy = userId;
 
+                // Preserve CompanyId - don't let it be changed
+                var originalCompanyId = profile.CompanyId;
+
+                _mapper.Map(dto, profile);
+                profile.CompanyId = originalCompanyId; // ✅ Ensure CompanyId stays the same
+                profile.UpdatedBy = userId;
+                profile.UpdatedDate = DateTime.UtcNow;
+
+                // ✅ Handle logo update separately to avoid tracking conflicts
                 if (logoFile != null)
                 {
                     var logoUrl = _fileService.UploadFileAsync("company_logos", logoFile).Result;
 
-                    // ✅ Use the already tracked Company entity
-                    if (profile.Company != null)
+                    // Get a fresh instance of the company to avoid tracking conflicts
+                    var company = _companyRepo.GetById(profile.CompanyId);
+                    if (company != null)
                     {
-                        profile.Company.LogoUrl = logoUrl;
-                        _companyRepo.Update(profile.Company);
-                    }
-                    else
-                    {
-                        // Fallback if for some reason Company wasn't included
-                        var company = _companyRepo.GetById(profile.CompanyId);
-                        if (company != null)
-                        {
-                            company.LogoUrl = logoUrl;
-                            _companyRepo.Update(company);
-                        }
+                        company.LogoUrl = logoUrl;
+                        company.UpdatedBy = userId;
+                        company.UpdatedDate = DateTime.UtcNow;
+                        _companyRepo.Update(company);
                     }
                 }
+
                 return _profileRepo.Update(profile);
             }
         }
-
     }
 }

@@ -19,41 +19,89 @@ namespace PortalSystem.Controllers
 
         public IActionResult Index()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var profile = _profileService.GetByUserId(userId);
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var profile = _profileService.GetByUserId(userId);
 
-            if (profile == null)
+                if (profile == null || profile.Id == Guid.Empty)
+                    return RedirectToAction("Edit");
+
+                return View(profile);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error loading profile: " + ex.Message;
                 return RedirectToAction("Edit");
-
-            return View(profile);
+            }
         }
 
         [HttpGet]
         public IActionResult Edit(Guid? id)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var profile = id.HasValue
-                ? _profileService.GetById(id.Value, p=>p.Company)
-                : new EmployerProfileDto { UserId = userId, CreatedAt = DateTime.UtcNow };
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                EmployerProfileDto profile;
 
-            return View(profile);
+                if (id.HasValue && id.Value != Guid.Empty)
+                {
+                    profile = _profileService.GetById(id.Value, p => p.Company);
+                    if (profile == null)
+                    {
+                        TempData["Error"] = "Profile not found";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    // Check if user already has a profile
+                    profile = _profileService.GetByUserId(userId);
+                    if (profile == null || profile.Id == Guid.Empty)
+                    {
+                        profile = new EmployerProfileDto
+                        {
+                            UserId = userId,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                    }
+                }
+
+                return View(profile);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error: " + ex.Message;
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(EmployerProfileDto model, IFormFile? logoFile)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
             if (!ModelState.IsValid)
                 return View(model);
-            
-            var success = _profileService.SaveProfile(model, userId, logoFile);
 
-            if (!success)
-                ModelState.AddModelError("", "Error saving profile");
+            try
+            {
+                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var success = _profileService.SaveProfile(model, userId, logoFile);
 
-            return RedirectToAction("Index");
+                if (!success)
+                {
+                    ModelState.AddModelError("", "Error saving profile");
+                    return View(model);
+                }
+
+                TempData["Success"] = "Profile saved successfully!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error saving profile: " + ex.Message;
+                return View(model);
+            }
         }
     }
 }

@@ -1,43 +1,114 @@
-﻿@using BL.Dtos.AccountDtos
-@model RegisterDto
+﻿@model BL.Dtos.AccountDtos.RegisterDto
+
 @{
     ViewData["Title"] = "Register";
 }
 
-<h2>Register</h2>
-<form asp-action="Register" method="post">
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-plus-fill display-3 text-primary"></i>
+                        <h3 class="fw-bold mt-3">Create Account</h3>
+                        <p class="text-muted">Join our job portal today</p>
+                    </div>
 
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" type="password" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
+                    <form asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-    <div class="form-group">
-        <label>Role</label>
-        <select asp-for="Role" class="form-control">
-            <option value="JobSeeker">Job Seeker</option>
-            <option value="Employer">Employer</option>
-        </select>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">First Name</label>
+                                <input asp-for="FirstName" class="form-control rounded-3"
+                                       placeholder="John" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">Last Name</label>
+                                <input asp-for="LastName" class="form-control rounded-3"
+                                       placeholder="Doe" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">
+                                <i class="bi bi-envelope"></i> Email Address
+                            </label>
+                            <input asp-for="Email" class="form-control rounded-3"
+                                   placeholder="john.doe@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control rounded-3"
+                                   placeholder="Min 6 characters" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label">
+                                <i class="bi bi-lock-fill"></i> Confirm Password
+                            </label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control rounded-3"
+                                   placeholder="Re-enter password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-person-badge"></i> I am registering as
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check card p-3 h-100">
+                                        <input asp-for="Role" type="radio" value="JobSeeker"
+                                               class="form-check-input" id="roleJobSeeker" checked />
+                                        <label class="form-check-label w-100" for="roleJobSeeker">
+                                            <i class="bi bi-person-circle text-primary"></i>
+                                            <strong>Job Seeker</strong>
+                                            <small class="d-block text-muted">Looking for opportunities</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check card p-3 h-100">
+                                        <input asp-for="Role" type="radio" value="Employer"
+                                               class="form-check-input" id="roleEmployer" />
+                                        <label class="form-check-label w-100" for="roleEmployer">
+                                            <i class="bi bi-building text-success"></i>
+                                            <strong>Employer</strong>
+                                            <small class="d-block text-muted">Hiring talent</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3">
+                            <i class="bi bi-person-plus"></i> Create Account
+                        </button>
+
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Already have an account?</p>
+                            <a asp-action="Login" class="text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right"></i> Login Here
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary mt-2">Register</button>
-</form>
-
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-info mt-2">@TempData["Message"]</div>
-}
-@section Scripts{
-    <partial name="_validationscriptspartial" />
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

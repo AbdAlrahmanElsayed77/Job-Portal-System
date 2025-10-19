@@ -1,3 +1,41 @@
-﻿<h2>Email Confirmation</h2>
-<p>@ViewBag.Message</p>
-<a asp-action="Login">Go to Login</a>
+﻿@{
+    ViewData["Title"] = "Email Confirmation";
+    var isSuccess = ViewBag.Success ?? false;
+    var message = ViewBag.Message ?? "Processing...";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 text-center p-5">
+                @if (isSuccess)
+                {
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle display-1 text-success"></i>
+                    </div>
+                    <h3 class="fw-bold text-success mb-3">Email Confirmed!</h3>
+                    <p class="text-muted mb-4">@message</p>
+                    <a asp-action="Login" class="btn btn-success btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Login Now
+                    </a>
+                }
+                else
+                {
+                    <div class="mb-4">
+                        <i class="bi bi-x-circle display-1 text-danger"></i>
+                    </div>
+                    <h3 class="fw-bold text-danger mb-3">Confirmation Failed</h3>
+                    <p class="text-muted mb-4">@message</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a asp-action="Login" class="btn btn-secondary">
+                            <i class="bi bi-box-arrow-in-right"></i> Go to Login
+                        </a>
+                        <a asp-action="Register" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus"></i> Register Again
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

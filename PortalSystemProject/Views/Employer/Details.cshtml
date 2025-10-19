@@ -4,17 +4,469 @@
     ViewData["Title"] = "Job Details";
 }
 
-<h2>@Model.Title</h2>
-<a asp-action="Applications" asp-route-id="@Model.Id" class="btn btn-secondary mt-3">View applicants</a>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-<div class="card p-3">
-    <p><strong>Description:</strong> @Model.Description</p>
-    <p><strong>Requirements:</strong> @Model.Requirements</p>
-    <p><strong>Location:</strong> @Model.City, @Model.Country</p>
-    <p><strong>Experience:</strong> @Model.MinExperienceYears - @Model.MaxExperienceYears yrs</p>
-    <p><strong>Salary:</strong> @Model.MinSalary - @Model.MaxSalary @Model.Currency</p>
-    <p><strong>Published At:</strong> @Model.PublishedAt?.ToShortDateString()</p>
-    <p><strong>Expires At:</strong> @(Model.ExpiresAt?.ToShortDateString() ?? "Not set")</p>
+    .details-container {
+        padding: 1.5rem;
+        /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
+        min-height: 100vh;
+    }
+
+    .details-wrapper {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .details-header {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .job-title-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .job-meta-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .meta-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #f0f3ff;
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+        .meta-tag.status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .meta-tag.status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.85rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .btn-applicants {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+        .btn-applicants:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+    .btn-back {
+        background-color: #e9ecef;
+        color: #333;
+    }
+
+        .btn-back:hover {
+            background-color: #dee2e6;
+            text-decoration: none;
+        }
+
+    .details-content {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .section {
+        margin-bottom: 2.5rem;
+    }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-icon {
+        font-size: 1.3rem;
+    }
+
+    .section-content {
+        color: #333;
+        line-height: 1.8;
+    }
+
+        .section-content p {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+            .section-content p:last-child {
+                margin-bottom: 0;
+            }
+
+    .label {
+        font-weight: 700;
+        color: #1a1a1a;
+        min-width: 150px;
+    }
+
+    .value {
+        color: #666;
+        flex: 1;
+    }
+
+        .value.highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .detail-card {
+        background: linear-gradient(135deg, #f0f3ff 0%, #f5f1ff 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+    }
+
+    .detail-card-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-card-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .detail-card.salary {
+        border-left-color: #28a745;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+
+        .detail-card.salary .detail-card-title {
+            color: #155724;
+        }
+
+    .detail-card.location {
+        border-left-color: #ff6b6b;
+        background: linear-gradient(135deg, #ffe5e5 0%, #ffc9c9 100%);
+    }
+
+        .detail-card.location .detail-card-title {
+            color: #c53030;
+        }
+
+    .detail-card.experience {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+    }
+
+        .detail-card.experience .detail-card-title {
+            color: #856404;
+        }
+
+    .text-content {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin: 1rem 0;
+    }
+
+        .text-content p {
+            margin: 0;
+            color: #333;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+    .dates-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .date-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .date-value {
+        font-size: 1.1rem;
+        color: #1a1a1a;
+        font-weight: 600;
+    }
+
+    .footer-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    @@media (max-width: 768px) {
+        .details-container
+
+    {
+        padding: 1rem;
+    }
+
+    .details-header,
+    .details-content {
+        padding: 1.5rem;
+    }
+
+    .header-top {
+        flex-direction: column;
+    }
+
+    .job-title-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .action-buttons {
+        width: 100%;
+    }
+
+    .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dates-info {
+        grid-template-columns: 1fr;
+    }
+
+    .section-content p {
+        flex-direction: column;
+    }
+
+    .label {
+        min-width: unset;
+        margin-bottom: 0.3rem;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+    }
+
+        .footer-actions .btn {
+            width: 100%;
+        }
+
+    }
+
+    @@media (max-width: 600px) {
+        .job-meta-tags
+
+    {
+        width: 100%;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="details-container">
+    <div class="details-wrapper">
+        <!-- Header Section -->
+        <div class="details-header">
+            <div class="header-top">
+                <div class="job-title-section">
+                    <h1>@Model.Title</h1>
+                    <div class="job-meta-tags">
+                        <span class="meta-tag @(Model.IsActive ? "status-active" : "status-inactive")">
+                            @(Model.IsActive ? "🟢 Active" : "🔴 Inactive")
+                        </span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a asp-action="Applications" asp-route-id="@Model.Id" class="btn btn-applicants">
+                        👥 View Applicants
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="details-grid">
+            <div class="detail-card salary">
+                <div class="detail-card-title">💰 Salary Range</div>
+                <div class="detail-card-value">@Model.MinSalary - @Model.MaxSalary</div>
+                <div style="font-size: 0.9rem; color: #155724; margin-top: 0.5rem;">@Model.Currency</div>
+            </div>
+
+            <div class="detail-card location">
+                <div class="detail-card-title">📍 Location</div>
+                <div class="detail-card-value" style="font-size: 1.2rem;">@Model.City</div>
+                <div style="font-size: 0.9rem; color: #c53030; margin-top: 0.5rem;">@Model.Country</div>
+            </div>
+
+            <div class="detail-card experience">
+                <div class="detail-card-title">⏳ Experience Required</div>
+                <div class="detail-card-value">@Model.MinExperienceYears - @Model.MaxExperienceYears</div>
+                <div style="font-size: 0.9rem; color: #856404; margin-top: 0.5rem;">Years</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="details-content">
+            <!-- Description Section -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">📝</span>
+                    Job Description
+                </div>
+                <div class="text-content">
+                    <p>@Model.Description</p>
+                </div>
+            </div>
+
+            <!-- Requirements Section -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">✅</span>
+                    Requirements
+                </div>
+                <div class="text-content">
+                    <p>@Model.Requirements</p>
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">ℹ️</span>
+                    Additional Information
+                </div>
+                <div class="section-content">
+                    <p>
+                        <span class="label">Published Date:</span>
+                        <span class="value">@(Model.PublishedAt?.ToString("MMMM dd, yyyy") ?? "Not published")</span>
+                    </p>
+                    <p>
+                        <span class="label">Expiration Date:</span>
+                        <span class="value">@(Model.ExpiresAt?.ToString("MMMM dd, yyyy") ?? "No expiration set")</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Dates Info Section -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-icon">📅</span>
+                    Timeline
+                </div>
+                <div class="dates-info">
+                    <div class="date-item">
+                        <span class="date-label">Published</span>
+                        <span class="date-value">@(Model.PublishedAt?.ToString("MMM dd, yyyy") ?? "Not published")</span>
+                    </div>
+                    <div class="date-item">
+                        <span class="date-label">Expires</span>
+                        <span class="date-value">@(Model.ExpiresAt?.ToString("MMM dd, yyyy") ?? "Never")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="footer-actions">
+            <a asp-action="JobPosts" class="btn btn-back">← Back to Job Posts</a>
+        </div>
+    </div>
 </div>
-
-<a asp-action="JobPosts" class="btn btn-secondary mt-3">Back to List</a>

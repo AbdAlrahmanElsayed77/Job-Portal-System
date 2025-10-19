@@ -79,7 +79,7 @@ namespace BL.Services
                     JobSeekerId = jobSeekerId,
                     FileName = file.FileName,
                     ContentType = file.ContentType,
-                    BlobUrl = $"/uploads/cvs/{uniqueFileName}",
+                    BlobUrl = $"Files/uploads/cvs/{uniqueFileName}",
                     FileSizeBytes = (int)file.Length,
                     IsPrimary = setAsPrimary,
                     CreatedDate = DateTime.Now,

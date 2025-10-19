@@ -44,19 +44,20 @@ namespace PortalSystemProject.Controllers
 
  
         [HttpGet]
-        [AllowAnonymous] 
+        [AllowAnonymous]
+       
         public async Task<IActionResult> BrowseJobs(
-            string? search,
-            Guid? categoryId,
-            Guid? jobTypeId,
-            string? country,
-            string? city,
-            decimal? minSalary,
-            decimal? maxSalary,
-            byte? minExp,
-            byte? maxExp,
-            string sortBy = "recent",
-            int page = 1)
+    string? search,
+    Guid? categoryId,
+    Guid? jobTypeId,
+    string? country,
+    string? city,
+    decimal? minSalary,
+    decimal? maxSalary,
+    byte? minExp,
+    byte? maxExp,
+    string sortBy = "recent",
+    int page = 1)
         {
             var pageSize = 10;
 
@@ -103,7 +104,7 @@ namespace PortalSystemProject.Controllers
                     JobType = j.JobTypeId.HasValue ? GetJobTypeName(j.JobTypeId.Value) : null,
                     SalaryRange = FormatSalaryRange(j.MinSalary, j.MaxSalary, j.Currency),
                     ExperienceRange = FormatExperienceRange(j.MinExperienceYears, j.MaxExperienceYears),
-                    PublishedAt = (DateTime)j.PublishedAt,
+                    PublishedAt = j.PublishedAt ?? DateTime.Now,  // ✅ الحل هنا
                     IsSaved = savedJobIds.Contains(j.Id),
                     HasApplied = appliedJobIds.Contains(j.Id)
                 }).ToList(),
@@ -151,6 +152,7 @@ namespace PortalSystemProject.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+ 
         public async Task<IActionResult> JobDetails(Guid id)
         {
             var job = await _jobPostRepo.GetJobDetailsWithCompanyAsync(id);
@@ -204,8 +206,8 @@ namespace PortalSystemProject.Controllers
                 Location = $"{job.City}, {job.Country}",
                 ExperienceRequired = FormatExperienceRange(job.MinExperienceYears, job.MaxExperienceYears),
                 SalaryRange = FormatSalaryRange(job.MinSalary, job.MaxSalary, job.Currency),
-                PublishedAt = (DateTime)job.PublishedAt,
-                ExpiresAt = job.ExpiresAt,
+                PublishedAt = job.PublishedAt ?? DateTime.Now,  // ✅ الحل هنا
+                ExpiresAt = job.ExpiresAt,  // ✅ ده nullable عادي
                 IsSaved = isSaved,
                 HasApplied = hasApplied,
                 CanApply = canApply,

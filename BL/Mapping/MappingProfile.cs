@@ -41,7 +41,9 @@ namespace BL.Mapping
             CreateMap<SavedJob, SavedJobDto>().ReverseMap();
             CreateMap<EmployerProfile, EmployerProfileDto>()
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
-                .ReverseMap();
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.Company.LogoUrl))
+                .ReverseMap()
+                .ForMember(dest => dest.Company, opt => opt.Ignore());
 
         }
     }

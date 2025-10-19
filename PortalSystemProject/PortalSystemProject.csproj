@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\uploads\**" />
+    <Content Remove="wwwroot\uploads\**" />
+    <EmbeddedResource Remove="wwwroot\uploads\**" />
+    <None Remove="wwwroot\uploads\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="EPPlus" Version="8.2.1" />
     <PackageReference Include="iTextSharp" Version="5.5.13.4" />
@@ -22,10 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BL\BL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\uploads\cvs\" />
   </ItemGroup>
 
 </Project>

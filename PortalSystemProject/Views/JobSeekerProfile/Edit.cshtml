@@ -1,11 +1,27 @@
 ﻿@model BL.Dtos.JobSeekerProfileDto
 
 <div class="container mt-5">
+    @* Success/Error Messages *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="card shadow-sm p-4 rounded-4">
         <h4 class="fw-bold mb-4">Edit Your Profile</h4>
-
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="UserId" />
 
             <div class="mb-3">
                 <label asp-for="Headline" class="form-label">Headline</label>
@@ -16,37 +32,62 @@
             <div class="mb-3">
                 <label asp-for="Summary" class="form-label">About You</label>
                 <textarea asp-for="Summary" class="form-control rounded-3" rows="4" placeholder="Write a short summary..."></textarea>
+                <span asp-validation-for="Summary" class="text-danger"></span>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label asp-for="Country" class="form-label">Country</label>
                     <input asp-for="Country" class="form-control rounded-3" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="City" class="form-label">City</label>
                     <input asp-for="City" class="form-control rounded-3" />
+                    <span asp-validation-for="City" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label asp-for="YearsOfExperience" class="form-label">Experience (Years)</label>
-                <input asp-for="YearsOfExperience" class="form-control rounded-3" type="number" min="0" />
+                <input asp-for="YearsOfExperience" class="form-control rounded-3" type="number" min="0" max="50" />
+                <span asp-validation-for="YearsOfExperience" class="text-danger"></span>
             </div>
+
+            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+            {
+                <div class="mb-3">
+                    <label class="form-label">Current Photo</label>
+                    <div>
+                        <img src="@Model.PhotoUrl" alt="Profile Photo" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+                    </div>
+                </div>
+            }
 
             <div class="mb-3">
                 <label class="form-label">Profile Photo</label>
-                <input type="file" name="photoFile" class="form-control rounded-3" />
+                <input type="file" name="photoFile" class="form-control rounded-3" accept="image/*" />
+                <small class="text-muted">Leave empty to keep current photo</small>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Upload CV</label>
-                <input type="file" name="cvFile" class="form-control rounded-3" />
+                <input type="file" name="cvFile" class="form-control rounded-3" accept=".pdf,.doc,.docx" />
+                <small class="text-muted">Upload a new CV (will be added to your existing CVs)</small>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 rounded-3 mt-3">
-                <i class="bi bi-save"></i> Save Changes
-            </button>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary rounded-3">
+                    <i class="bi bi-save"></i> Save Changes
+                </button>
+                <a asp-action="Index" class="btn btn-secondary rounded-3">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

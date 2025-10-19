@@ -1,0 +1,81 @@
+﻿@model BL.Dtos.EmployerProfileDto
+
+<div class="container mt-5">
+    @* Success/Error Messages *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    <img src="@(Model.CompanyLogoUrl ?? "/img/default-company-logo.png")"
+                         alt="Company Logo"
+                         class="img-thumbnail shadow-sm"
+                         style="width: 150px; height: 150px; object-fit: contain; background: #f8f9fa;">
+                    <div class="mt-3">
+                        <a asp-action="Edit" asp-controller="EmployerProfile" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <h3 class="fw-bold mb-1">@(Model.CompanyName ?? "Company Name")</h3>
+                    <p class="text-primary mb-2">
+                        <i class="bi bi-briefcase"></i> @(Model.JobTitle ?? "Employer")
+                    </p>
+                    <p class="text-muted small">
+                        <i class="bi bi-calendar"></i> Member since @Model.CreatedAt.ToString("MMMM yyyy")
+                    </p>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-file-earmark-post display-4 text-primary"></i>
+                            <h5 class="mt-3">Job Posts</h5>
+                            <p class="text-muted">Manage your job listings</p>
+                            <a href="#" class="btn btn-sm btn-primary">View Jobs</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-people display-4 text-success"></i>
+                            <h5 class="mt-3">Applications</h5>
+                            <p class="text-muted">Review candidate applications</p>
+                            <a href="#" class="btn btn-sm btn-success">View Applications</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-building display-4 text-info"></i>
+                            <h5 class="mt-3">Company Info</h5>
+                            <p class="text-muted">Update company details</p>
+                            <a href="#" class="btn btn-sm btn-info">Manage Company</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,16 +1,12 @@
 ﻿using BL.Dtos;
 using Domains;
-using Domains.UserModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace BL.Contracts
 {
     public interface IEmployerProfileService : IBaseServices<EmployerProfile, EmployerProfileDto>
     {
         EmployerProfileDto GetByUserId(Guid userId);
+        bool SaveProfile(EmployerProfileDto dto, Guid userId, IFormFile? logoFile);
     }
 }

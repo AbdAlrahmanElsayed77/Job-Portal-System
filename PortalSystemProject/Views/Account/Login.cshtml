@@ -1,35 +1,81 @@
-﻿@using BL.Dtos.AccountDtos
-@model LoginDto
+﻿@model BL.Dtos.AccountDtos.LoginDto
+
 @{
     ViewData["Title"] = "Login";
 }
 
-<h2>Login</h2>
-<form asp-action="Login" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-box-arrow-in-right display-3 text-primary"></i>
+                        <h3 class="fw-bold mt-3">Welcome Back</h3>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+
+                    <form asp-action="Login" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">
+                                <i class="bi bi-envelope"></i> Email Address
+                            </label>
+                            <input asp-for="Email" class="form-control form-control-lg rounded-3"
+                                   placeholder="Enter your email" autofocus />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control form-control-lg rounded-3"
+                                   placeholder="Enter your password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                            <label asp-for="RememberMe" class="form-check-label">
+                                Remember me
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </button>
+
+                        <div class="text-center">
+                            <a asp-action="ForgotPassword" class="text-decoration-none">
+                                <i class="bi bi-question-circle"></i> Forgot Password?
+                            </a>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Don't have an account?</p>
+                            <a asp-action="Register" class="btn btn-outline-primary rounded-3">
+                                <i class="bi bi-person-plus"></i> Create Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group form-check">
-        <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
-        <label class="form-check-label" asp-for="RememberMe">Remember Me</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-2">Login</button>
-</form>
-
-<p class="mt-3">
-    Don’t have an account?
-    <a asp-action="Register">Register here</a>
-</p>
-<a asp-action="ForgotPassword">Forgot Password</a>
-
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

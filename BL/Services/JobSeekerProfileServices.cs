@@ -18,7 +18,7 @@ namespace BL.Services
             ITableRepository<JobSeekerProfile> profileRepo,
             ITableRepository<CVFile> cvRepo,
             IFileService fileService,
-            IMapper mapper):base(profileRepo, mapper)
+            IMapper mapper) : base(profileRepo, mapper)
         {
             _profileRepo = profileRepo;
             _cvRepo = cvRepo;
@@ -35,10 +35,13 @@ namespace BL.Services
 
         public JobSeekerProfileDto GetOrCreate(Guid? id)
         {
-            if (id == null)
+            if (id == null || id == Guid.Empty)
                 return new JobSeekerProfileDto();
 
             var entity = _profileRepo.GetById(id.Value);
+            if (entity == null)
+                return new JobSeekerProfileDto();
+
             return _mapper.Map<JobSeekerProfileDto>(entity);
         }
 
@@ -56,7 +59,9 @@ namespace BL.Services
                 profile.CurrentState = 1;
 
                 if (photo != null)
+                {
                     profile.PhotoUrl = _fileService.UploadFileAsync("uploads/profile_photos", photo).Result;
+                }
 
                 // ✅ First, save profile alone so EF generates its ID
                 _profileRepo.Add(profile);
@@ -66,7 +71,8 @@ namespace BL.Services
                 {
                     var cvEntity = new CVFile
                     {
-                        JobSeekerId = profile.Id, // ✅ critical line
+                        Id = Guid.NewGuid(),
+                        JobSeekerId = profile.Id, // ✅ critical line - now profile.Id is generated
                         BlobUrl = _fileService.UploadFileAsync("uploads/cvs", cv).Result,
                         FileName = cv.FileName,
                         ContentType = cv.ContentType,
@@ -87,25 +93,39 @@ namespace BL.Services
                 if (profile == null)
                     throw new Exception("Profile not found");
 
+                // Preserve original values
+                var originalUserId = profile.UserId;
+                var originalCreatedBy = profile.CreatedBy;
+                var originalCreatedDate = profile.CreatedDate;
+
                 _mapper.Map(dto, profile);
+
+                // ✅ Restore preserved values
+                profile.UserId = originalUserId;
+                profile.CreatedBy = originalCreatedBy;
+                profile.CreatedDate = originalCreatedDate;
                 profile.UpdatedBy = userId;
                 profile.UpdatedDate = DateTime.UtcNow;
-                profile.UserId = userId;
+
                 if (photo != null)
+                {
                     profile.PhotoUrl = _fileService.UploadFileAsync("uploads/profile_photos", photo).Result;
+                }
 
                 _profileRepo.Update(profile);
 
+                // ✅ Add new CV if provided
                 if (cv != null)
                 {
                     var cvEntity = new CVFile
                     {
+                        Id = Guid.NewGuid(),
                         JobSeekerId = profile.Id, // ✅ ensure FK is valid
                         BlobUrl = _fileService.UploadFileAsync("uploads/cvs", cv).Result,
                         FileName = cv.FileName,
                         ContentType = cv.ContentType,
                         FileSizeBytes = (int)cv.Length,
-                        IsPrimary = false,
+                        IsPrimary = false, // Existing profile, so not primary
                         CreatedBy = userId,
                         CreatedDate = DateTime.UtcNow,
                         CurrentState = 1

@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Domains.UserModel.ApplicationUser> SignInManager
+@inject UserManager<Domains.UserModel.ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var roles = await UserManager.GetRolesAsync(currentUser);
+    var role = roles.FirstOrDefault();
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i> Profile
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+            @if (role == "JobSeeker")
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="JobSeekerProfile" asp-action="Index">
+                        <i class="bi bi-eye"></i> View Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="JobSeekerProfile" asp-action="Edit">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Application" asp-action="MyApplications">
+                        <i class="bi bi-file-earmark-text"></i> My Applications
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="SavedJob" asp-action="Index">
+                        <i class="bi bi-bookmark"></i> Saved Jobs
+                    </a>
+                </li>
+            }
+            else if (role == "Employer")
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="EmployerProfile" asp-action="Index">
+                        <i class="bi bi-eye"></i> View Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="EmployerProfile" asp-action="Edit">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" asp-controller="JobPost" asp-action="MyJobs">
+                        <i class="bi bi-briefcase"></i> My Job Posts
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="JobPost" asp-action="Create">
+                        <i class="bi bi-plus-circle"></i> Post New Job
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Application" asp-action="Received">
+                        <i class="bi bi-inbox"></i> Applications Received
+                    </a>
+                </li>
+            }
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                    <i class="bi bi-key"></i> Change Password
+                </a>
+            </li>
+            <li>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dropdown-item text-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Account" asp-action="Login">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Account" asp-action="Register">
+            <i class="bi bi-person-plus"></i> Register
+        </a>
+    </li>
+}

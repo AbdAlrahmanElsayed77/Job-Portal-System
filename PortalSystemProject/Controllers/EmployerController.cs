@@ -145,6 +145,7 @@ namespace PortalSystemProject.Controllers
         public IActionResult Applications(Guid id)
         {
             var job = JobPostService.GetById(id);
+            ViewBag.jobPost = id;
             if (job == null)
                 return NotFound();
 

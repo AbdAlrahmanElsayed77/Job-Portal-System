@@ -1,44 +1,323 @@
-﻿
-@model IEnumerable<BL.Dtos.JobPostDto>
+﻿@model IEnumerable<BL.Dtos.JobPostDto>
 @{
-    ViewData["Title"] = "JopPosts";
+    ViewData["Title"] = "Job Posts";
 }
 
-<h1>JopPosts</h1>
+<style>
+    .job-posts-container {
+        padding: 2rem 0;
+    }
 
+    .jobs-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
 
+    .jobs-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
 
+    .btn-add-job
+     {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">+ Add New Job Post</a>
-</p>
+    .btn-add-job:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Location</th>
-            <th>Salary</th>
-            <th>Status</th>
-            <th>Published</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var job in Model)
-        {
-            <tr>
-                <td>@job.Title</td>
-                <td>@job.City, @job.Country</td>
-                <td>@($"{job.MinSalary}-{job.MaxSalary} {job.Currency}")</td>
-                <td>@(job.IsActive ? "Active" : "Inactive")</td>
-                <td>@job.PublishedAt?.ToShortDateString()</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@job.Id" class="btn btn-info btn-sm">View</a>
-                    <a asp-action="Edit" asp-route-id="@job.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@job.Id" class="btn btn-sm btn-danger">Delete</a>
-                </td>
-            </tr>
+    .btn-dashboard {
+        background-color: #f0f3ff;
+        border: 2px solid #667eea;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        color: #667eea;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-dashboard:hover {
+            background-color: #667eea;
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+            text-decoration: none;
         }
-    </tbody>
-</table>
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .job-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .job-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        border-color: #667eea;
+    }
+
+    .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .job-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+        flex: 1;
+    }
+
+    .job-status {
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .job-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .meta-item {
+        font-size: 0.9rem;
+    }
+
+    .meta-label {
+        color: #888;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .meta-value {
+        color: #1a1a1a;
+        font-weight: 500;
+    }
+
+    .job-location {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .job-salary {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+
+    .job-date {
+        font-size: 0.85rem;
+        color: #999;
+        margin-bottom: 1rem;
+    }
+
+    .job-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: auto;
+    }
+
+    .job-actions a {
+        flex: 1;
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-view {
+        background-color: #e7f3ff;
+        color: #0066cc;
+    }
+
+    .btn-view:hover {
+        background-color: #0066cc;
+        color: white;
+    }
+
+    .btn-edit {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .btn-edit:hover {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn-delete:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #666;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #1a1a1a;
+    }
+
+    @@media (max-width: 768px) {
+        .jobs-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .btn-add-job {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-meta {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="job-posts-container">
+    <div class="jobs-header">
+        <h1>Job Posts</h1>
+        <div class="header-buttons">
+            <a asp-action="Dashboard" class="btn-dashboard">📊 Dashboard</a>
+            <a asp-action="Create" class="btn-add-job">+ Add New Job Post</a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="jobs-grid">
+            @foreach (var job in Model)
+            {
+                <div class="job-card">
+                    <div class="job-header">
+                        <h3 class="job-title">@job.Title</h3>
+                        <span class="job-status @(job.IsActive ? "status-active" : "status-inactive")">
+                            @(job.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </div>
+
+                    <div class="job-location">
+                        📍 @job.City, @job.Country
+                    </div>
+
+                    <div class="job-salary">
+                        @($"{job.MinSalary}-{job.MaxSalary} {job.Currency}")
+                    </div>
+
+                    <div class="job-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Status</div>
+                            <div class="meta-value">@(job.IsActive ? "Open" : "Closed")</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Published</div>
+                            <div class="meta-value">@job.PublishedAt?.ToShortDateString()</div>
+                        </div>
+                    </div>
+
+                    <div class="job-actions">
+                        <a asp-action="Details" asp-route-id="@job.Id" class="btn-view">👁 View</a>
+                        <a asp-action="Edit" asp-route-id="@job.Id" class="btn-edit">✏️ Edit</a>
+                        <a asp-action="Delete" asp-route-id="@job.Id" class="btn-delete">🗑 Delete</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>No Job Posts Yet</h3>
+            <p>Create your first job post to get started.</p>
+            <a asp-action="Create" class="btn-add-job">+ Add New Job Post</a>
+        </div>
+    }
+</div>

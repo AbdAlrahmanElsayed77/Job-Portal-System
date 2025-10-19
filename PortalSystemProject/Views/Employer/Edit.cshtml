@@ -6,128 +6,494 @@
     var jobTypes = ViewBag.JobTypes as IEnumerable<dynamic>;
 }
 
-<h2 class="mb-4">Edit Job Post</h2>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-<form asp-action="Edit" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Id" />
+    .edit-job-container {
+        padding: 2rem;
+        min-height: 100vh;
+    }
 
-    <div class="form-group mb-3">
-        <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+    .edit-job-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+    }
 
-    <div class="form-group mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+    .form-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-    <div class="form-group mb-3">
-        <label asp-for="Requirements" class="form-label"></label>
-        <textarea asp-for="Requirements" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Requirements" class="text-danger"></span>
-    </div>
+        .form-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="Country" class="form-label"></label>
-            <input asp-for="Country" class="form-control" />
+        .form-header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-icon {
+        font-size: 1.3rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control[readonly] {
+            background-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        font-family: inherit;
+        min-height: 100px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .form-group-half {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.4rem;
+        display: block;
+    }
+
+    .validation-summary {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: #721c24;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .validation-summary li {
+            margin-bottom: 0.5rem;
+        }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+        .checkbox-group:focus-within {
+            border-color: #667eea;
+            background-color: #f0f3ff;
+        }
+
+    .form-check-input {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: #667eea;
+        margin: 0;
+    }
+
+    .form-check-label {
+        margin: 0;
+        font-weight: 500;
+        cursor: pointer;
+        color: #333;
+    }
+
+    .input-hint {
+        font-size: 0.85rem;
+        color: #999;
+        margin-top: 0.3rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn {
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        flex: 1;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+    .btn-secondary {
+        background-color: #e9ecef;
+        color: #333;
+        flex: 1;
+    }
+
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+            text-decoration: none;
+        }
+
+    .required::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .edit-info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+        .edit-info-box p {
+            margin: 0;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .edit-info-box strong {
+            color: #667eea;
+        }
+
+    @@media (max-width: 768px) {
+        .edit-job-container
+
+    {
+        padding: 1rem;
+    }
+
+    .form-card {
+        padding: 1.5rem;
+    }
+
+    .form-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .form-group-half {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .checkbox-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    }
+
+    .salary-range-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr 0.8fr;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    @@media (max-width: 600px) {
+        .salary-range-group
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+<div class="edit-job-container">
+    <div class="edit-job-wrapper">
+        <div class="form-header">
+            <h1>✏️ Edit Job Post</h1>
+            <p>Update the job post details below</p>
         </div>
-        <div class="col-md-6 mb-3">
-            <label asp-for="City" class="form-label"></label>
-            <input asp-for="City" class="form-control" />
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="MinExperienceYears" class="form-label"></label>
-            <input asp-for="MinExperienceYears" type="number" class="form-control" />
-        </div>
-        <div class="col-md-6 mb-3">
-            <label asp-for="MaxExperienceYears" class="form-label"></label>
-            <input asp-for="MaxExperienceYears" type="number" class="form-control" />
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="MinSalary" class="form-label"></label>
-            <input asp-for="MinSalary" type="number" class="form-control" />
-        </div>
-        <div class="col-md-6 mb-3">
-            <label asp-for="MaxSalary" class="form-label"></label>
-            <input asp-for="MaxSalary" type="number" class="form-control" />
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="Currency" class="form-label"></label>
-            <input asp-for="Currency" class="form-control" placeholder="e.g., EGP or USD" />
-        </div>
-        <div class="col-md-6 mb-3 d-flex align-items-center">
-            <div class="form-check mt-3">
-                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-                <label asp-for="IsActive" class="form-check-label"></label>
+        <div class="form-card">
+            <div class="edit-info-box">
+                <p>💡 <strong>Tip:</strong> All changes are final. Make sure to review before saving. The Company ID cannot be changed.</p>
             </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="ExpiresAt" class="form-label"></label>
-            <input asp-for="ExpiresAt" type="datetime-local" class="form-control" />
-        </div>
-    </div>
-
-    <hr />
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="JobCategoryId" class="form-label">Job Category</label>
-            <select asp-for="JobCategoryId" class="form-select">
-                <option value="">-- Select Category --</option>
-                @foreach (var c in categories ?? Enumerable.Empty<dynamic>())
+            <form asp-action="Edit" method="post">
+                @if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count > 0)
                 {
-                    <option value="@c.Id" selected="@(c.Id == Model.JobCategoryId)">
-                        @c.Name
-                    </option>
+                    <div class="validation-summary">
+                        <div asp-validation-summary="ModelOnly"></div>
+                    </div>
                 }
-            </select>
-            <span asp-validation-for="JobCategoryId" class="text-danger"></span>
-        </div>
 
-        <div class="col-md-6 mb-3">
-            <label asp-for="JobTypeId" class="form-label">Job Type</label>
-            <select asp-for="JobTypeId" class="form-select">
-                <option value="">-- Select Job Type --</option>
-                @foreach (var t in jobTypes ?? Enumerable.Empty<dynamic>())
-                {
-                    <option value="@t.Id" selected="@(t.Id == Model.JobTypeId)">
-                        @t.Name
-                    </option>
-                }
-            </select>
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">📋</span>
+                        Basic Information
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Title" class="form-label required">Job Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g., Senior Software Engineer" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="form-label required">Job Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="5" placeholder="Provide a detailed description of the job position..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Requirements" class="form-label required">Requirements</label>
+                        <textarea asp-for="Requirements" class="form-control" rows="4" placeholder="List the skills, experience, and qualifications required..."></textarea>
+                        <span asp-validation-for="Requirements" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">📍</span>
+                        Location
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Country" class="form-label required">Country</label>
+                            <input asp-for="Country" class="form-control" placeholder="e.g., Egypt" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="City" class="form-label required">City</label>
+                            <input asp-for="City" class="form-control" placeholder="e.g., Cairo" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Experience & Salary Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">💼</span>
+                        Experience & Compensation
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="MinExperienceYears" class="form-label">Minimum Experience (Years)</label>
+                            <input asp-for="MinExperienceYears" type="number" class="form-control" placeholder="0" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="MaxExperienceYears" class="form-label">Maximum Experience (Years)</label>
+                            <input asp-for="MaxExperienceYears" type="number" class="form-control" placeholder="10" min="0" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Salary Range</label>
+                        <div class="salary-range-group">
+                            <div>
+                                <label asp-for="MinSalary" class="form-label" style="margin-bottom: 0.3rem;">Min Salary</label>
+                                <input asp-for="MinSalary" type="number" class="form-control" placeholder="0" />
+                            </div>
+                            <div>
+                                <label asp-for="MaxSalary" class="form-label" style="margin-bottom: 0.3rem;">Max Salary</label>
+                                <input asp-for="MaxSalary" type="number" class="form-control" placeholder="0" />
+                            </div>
+                            <div>
+                                <label asp-for="Currency" class="form-label" style="margin-bottom: 0.3rem;">Currency</label>
+                                <input asp-for="Currency" class="form-control" placeholder="e.g., EGP, USD" />
+                                @* <span class="input-hint">e.g., EGP, USD</span> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Details Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">⚙️</span>
+                        Job Details
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="JobCategoryId" class="form-label required">Job Category</label>
+                            <select asp-for="JobCategoryId" class="form-select">
+                                <option value="">-- Select Category --</option>
+                                @foreach (var c in categories ?? Enumerable.Empty<dynamic>())
+                                {
+                                    <option value="@c.Id" selected="@(c.Id == Model.JobCategoryId)">
+                                        @c.Name
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="JobCategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="JobTypeId" class="form-label required">Job Type</label>
+                            <select asp-for="JobTypeId" class="form-select">
+                                <option value="">-- Select Job Type --</option>
+                                @foreach (var t in jobTypes ?? Enumerable.Empty<dynamic>())
+                                {
+                                    <option value="@t.Id" selected="@(t.Id == Model.JobTypeId)">
+                                        @t.Name
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="JobTypeId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CompanyId" class="form-label required">Company ID</label>
+                        <input asp-for="CompanyId" class="form-control" readonly title="Company ID cannot be changed" />
+                        <span class="input-hint">🔒 Read-only - Cannot be changed</span>
+                    </div>
+                </div>
+
+                <!-- Publishing Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">📅</span>
+                        Publishing Settings
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="ExpiresAt" class="form-label">Expiration Date</label>
+                            <input asp-for="ExpiresAt" type="datetime-local" class="form-control" />
+                            <span class="input-hint">Leave empty for no expiration</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <div class="checkbox-group">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label for="IsActive" class="form-check-label">Publish / Keep Active</label>
+                            </div>
+                            <span class="input-hint">Check to keep this job post active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" asp-for="CreatedByUserId" />
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Update Job Post</button>
+                    <a asp-action="JobPosts" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="CompanyId" class="form-label"></label>
-            <input asp-for="CompanyId" class="form-control" readonly />
-        </div>
-        <div class="col-md-6 mb-3" hidden>
-            <label asp-for="CreatedByUserId" class="form-label"></label>
-            <input asp-for="CreatedByUserId" class="form-control" readonly />
-        </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="JobPosts" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     @{

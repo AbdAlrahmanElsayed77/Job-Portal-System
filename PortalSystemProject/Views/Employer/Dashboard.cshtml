@@ -3,84 +3,468 @@
     var data = ViewBag.DashboardData;
 }
 
-<h2 class="mb-4">Employer Dashboard</h2>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-<div class="row text-center mb-4">
-    <div class="col-md-2">
-        <div class="card p-3 shadow-sm">
-            <h5>Total Jobs</h5>
-            <h3>@data.totalJobs</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card p-3 shadow-sm">
-            <h5>Total Applicants</h5>
-            <h3>@data.totalApplicants</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card p-3 shadow-sm">
-            <h5>Accepted</h5>
-            <h3>@data.acceptedCount</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card p-3 shadow-sm">
-            <h5>Rejected</h5>
-            <h3>@data.rejectedCount</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card p-3 shadow-sm">
-            <h5>Active Jobs</h5>
-            <h3>@data.activeJobs</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card p-3 shadow-sm">
-            <h5>Expired Jobs</h5>
-            <h3>@data.expiredJobs</h3>
-        </div>
-    </div>
-</div>
+    .dashboard-container {
+        padding: 2rem;
+        min-height: 100vh;
+    }
 
-<hr />
+    .dashboard-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
 
-<div class="row">
-    <div class="col-md-6">
-        <canvas id="statusChart"></canvas>
-    </div>
-    <div class="col-md-6">
-        <canvas id="jobsChart"></canvas>
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-top: 4px solid #667eea;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(20px, -20px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card.jobs {
+            border-top-color: #667eea;
+        }
+
+        .stat-card.applicants {
+            border-top-color: #764ba2;
+        }
+
+        .stat-card.accepted {
+            border-top-color: #28a745;
+        }
+
+        .stat-card.rejected {
+            border-top-color: #dc3545;
+        }
+
+        .stat-card.active {
+            border-top-color: #0066cc;
+        }
+
+        .stat-card.expired {
+            border-top-color: #999;
+        }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #999;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        color: #999;
+        margin-top: 0.5rem;
+    }
+
+        .stat-change.positive {
+            color: #28a745;
+        }
+
+        .stat-change.negative {
+            color: #dc3545;
+        }
+
+    .charts-section {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        margin-bottom: 3rem;
+    }
+
+        .charts-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #667eea;
+        }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #f0f3ff 100%);
+        border-radius: 12px;
+    }
+
+    .chart-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    canvas {
+        max-height: 350px;
+    }
+
+    .dashboard-footer {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+        .dashboard-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .dashboard-footer a:hover {
+                text-decoration: underline;
+            }
+
+    .quick-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 0.85rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-action.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+            .btn-action.primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            }
+
+    @@media (max-width: 1200px) {
+        .charts-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 1rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .charts-section {
+        padding: 1.5rem;
+    }
+
+        .charts-section h2 {
+            font-size: 1.2rem;
+        }
+
+    .chart-container {
+        height: 300px;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .stats-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .btn-action {
+        width: 100%;
+        justify-content: center;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-wrapper">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>📊 Employer Dashboard</h1>
+            <p>Welcome back! Here's an overview of your recruitment activity.</p>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card jobs">
+                <div class="stat-icon">📋</div>
+                <div class="stat-label">Total Jobs</div>
+                <div class="stat-value">@data.totalJobs</div>
+            </div>
+
+            <div class="stat-card applicants">
+                <div class="stat-icon">👥</div>
+                <div class="stat-label">Total Applicants</div>
+                <div class="stat-value">@data.totalApplicants</div>
+            </div>
+
+            <div class="stat-card accepted">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Accepted</div>
+                <div class="stat-value">@data.acceptedCount</div>
+            </div>
+
+            <div class="stat-card rejected">
+                <div class="stat-icon">❌</div>
+                <div class="stat-label">Rejected</div>
+                <div class="stat-value">@data.rejectedCount</div>
+            </div>
+
+            <div class="stat-card active">
+                <div class="stat-icon">🟢</div>
+                <div class="stat-label">Active Jobs</div>
+                <div class="stat-value">@data.activeJobs</div>
+            </div>
+
+            @* <div class="stat-card expired">
+                <div class="stat-icon">⏰</div>
+                <div class="stat-label">Expired Jobs</div>
+                <div class="stat-value">@data.expiredJobs</div>
+            </div> *@
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <h2>📈 Analytics Overview</h2>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Application Status Distribution</div>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Jobs Overview</div>
+                    <canvas id="jobsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a asp-action="JobPosts" class="btn-action primary">📋 Go to Job Posts</a>
+        </div>
+        <!-- Footer -->
+        <div class="dashboard-footer">
+            <p>💡 Last updated: @DateTime.Now.ToString("MMMM dd, yyyy h:mm tt")</p>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
+        // Application Status Chart
         const statusCtx = document.getElementById('statusChart').getContext('2d');
         new Chart(statusCtx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
-                labels: ['Accepted', 'Rejected', 'Under Review'],
+                labels: ['✅ Accepted', '❌ Rejected', '⏳ Under Review'],
                 datasets: [{
                     label: 'Application Status',
-                    data: [@data.acceptedCount, @data.rejectedCount, @data.totalApplicants - (@data.acceptedCount + @data.rejectedCount)],
-                    backgroundColor: ['#4caf50', '#f44336', '#ffeb3b']
+                    data: [
+                        @data.acceptedCount,
+                        @data.rejectedCount,
+                        @data.totalApplicants - (@data.acceptedCount + @data.rejectedCount)
+                    ],
+                    backgroundColor: [
+                        '#28a745',
+                        '#dc3545',
+                        '#ffc107'
+                    ],
+                    borderColor: [
+                        '#228e3f',
+                        '#bd2130',
+                        '#e0a800'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 10
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            },
+                            padding: 15,
+                            color: '#333'
+                        }
+                    }
+                }
             }
         });
 
+        // Jobs Overview Chart
         const jobsCtx = document.getElementById('jobsChart').getContext('2d');
         new Chart(jobsCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Active Jobs', 'Expired Jobs'],
+                labels: ['🟢 Active Jobs', '⏰ Expired Jobs'],
                 datasets: [{
                     label: 'Jobs Overview',
-                    data: [@data.activeJobs, @data.expiredJobs],
-                    backgroundColor: ['#2196f3', '#9e9e9e']
+                    data: [
+                        @data.activeJobs,
+                        @data.expiredJobs
+                    ],
+                    backgroundColor: [
+                        '#0066cc',
+                        '#cccccc'
+                    ],
+                    borderColor: [
+                        '#0052a3',
+                        '#b3b3b3'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 10
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            },
+                            padding: 15,
+                            color: '#333'
+                        }
+                    }
+                }
             }
         });
     </script>

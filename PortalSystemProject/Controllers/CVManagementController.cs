@@ -63,11 +63,13 @@ namespace PortalSystemProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(UploadCVViewModel model)
+      
+        public async Task<IActionResult> Upload(IFormFile CVFile, bool SetAsPrimary = false)
         {
-            if (!ModelState.IsValid)
+            // ✅ Check if file is uploaded
+            if (CVFile == null || CVFile.Length == 0)
             {
-                TempData["Error"] = "Incorrect data";
+                TempData["Error"] = "الرجاء اختيار ملف السيرة الذاتية";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -76,14 +78,14 @@ namespace PortalSystemProject.Controllers
 
             if (profile == null)
             {
-                TempData["Error"] = "A profile must be created first.";
+                TempData["Error"] = "يجب إنشاء ملف تعريف أولاً";
                 return RedirectToAction("CreateProfile", "JobSeeker");
             }
 
             var (success, message, cvFileId) = await _cvRepo.UploadCVAsync(
                 profile.Id,
-                model.CVFile,
-                model.SetAsPrimary);
+                CVFile,
+                SetAsPrimary);
 
             if (success)
             {

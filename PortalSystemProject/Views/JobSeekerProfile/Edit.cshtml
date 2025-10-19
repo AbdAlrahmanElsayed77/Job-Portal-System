@@ -1,6 +1,10 @@
 ﻿@model BL.Dtos.JobSeekerProfileDto
 
-<div class="container mt-5">
+@{
+    ViewData["Title"] = Model.Id == Guid.Empty ? "Create Profile" : "Edit Profile";
+}
+
+<div class="container mt-5 mb-5">
     @* Success/Error Messages *@
     @if (TempData["Success"] != null)
     {
@@ -18,71 +22,148 @@
     }
 
     <div class="card shadow-sm p-4 rounded-4">
-        <h4 class="fw-bold mb-4">Edit Your Profile</h4>
+        <h4 class="fw-bold mb-4">
+            <i class="bi bi-person-circle"></i> @ViewData["Title"]
+        </h4>
+
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="UserId" />
-
-            <div class="mb-3">
-                <label asp-for="Headline" class="form-label">Headline</label>
-                <input asp-for="Headline" class="form-control rounded-3" placeholder="e.g. Full Stack Developer" />
-                <span asp-validation-for="Headline" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Summary" class="form-label">About You</label>
-                <textarea asp-for="Summary" class="form-control rounded-3" rows="4" placeholder="Write a short summary..."></textarea>
-                <span asp-validation-for="Summary" class="text-danger"></span>
-            </div>
+            <input type="hidden" asp-for="PhotoUrl" /> @* ✅ Preserve existing photo URL *@
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Country" class="form-label">Country</label>
-                    <input asp-for="Country" class="form-control rounded-3" />
-                    <span asp-validation-for="Country" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="City" class="form-label">City</label>
-                    <input asp-for="City" class="form-control rounded-3" />
-                    <span asp-validation-for="City" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="YearsOfExperience" class="form-label">Experience (Years)</label>
-                <input asp-for="YearsOfExperience" class="form-control rounded-3" type="number" min="0" max="50" />
-                <span asp-validation-for="YearsOfExperience" class="text-danger"></span>
-            </div>
-
-            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
-            {
-                <div class="mb-3">
-                    <label class="form-label">Current Photo</label>
-                    <div>
-                        <img src="@Model.PhotoUrl" alt="Profile Photo" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label asp-for="Headline" class="form-label">
+                            <i class="bi bi-briefcase"></i> Professional Headline *
+                        </label>
+                        <input asp-for="Headline" class="form-control rounded-3"
+                               placeholder="e.g. Full Stack Developer | .NET Specialist"
+                               required />
+                        <span asp-validation-for="Headline" class="text-danger"></span>
                     </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Summary" class="form-label">
+                            <i class="bi bi-file-text"></i> Professional Summary
+                        </label>
+                        <textarea asp-for="Summary" class="form-control rounded-3" rows="5"
+                                  placeholder="Write a brief summary of your experience, skills, and career goals..."></textarea>
+                        <span asp-validation-for="Summary" class="text-danger"></span>
+                        <small class="text-muted">This helps employers understand your background quickly.</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Country" class="form-label">
+                                <i class="bi bi-globe"></i> Country
+                            </label>
+                            <input asp-for="Country" class="form-control rounded-3"
+                                   placeholder="e.g. Egypt" />
+                            <span asp-validation-for="Country" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="City" class="form-label">
+                                <i class="bi bi-geo-alt"></i> City
+                            </label>
+                            <input asp-for="City" class="form-control rounded-3"
+                                   placeholder="e.g. Cairo" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="YearsOfExperience" class="form-label">
+                            <i class="bi bi-calendar-check"></i> Years of Experience
+                        </label>
+                        <input asp-for="YearsOfExperience" class="form-control rounded-3"
+                               type="number" min="0" max="50"
+                               placeholder="0" />
+                        <span asp-validation-for="YearsOfExperience" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-image"></i> Profile Photo
+                            </label>
+
+                            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+                            {
+                                <div class="mb-3">
+                                    <img src="@Model.PhotoUrl" alt="Current Photo"
+                                         class="img-thumbnail rounded-circle"
+                                         style="width: 120px; height: 120px; object-fit: cover;" />
+                                    <p class="text-muted small mt-2">Current Photo</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mb-3">
+                                    <img src="/img/default-avatar.png" alt="Default Avatar"
+                                         class="img-thumbnail rounded-circle"
+                                         style="width: 120px; height: 120px; object-fit: cover;" />
+                                    <p class="text-muted small mt-2">No photo uploaded</p>
+                                </div>
+                            }
+
+                            <input type="file" name="photoFile" class="form-control form-control-sm"
+                                   accept="image/*" id="photoFileInput" />
+                            <small class="text-muted d-block mt-2">
+                                @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+                                {
+                                    <span>Leave empty to keep current photo</span>
+                                }
+                                else
+                                {
+                                    <span>JPG, PNG (Max 5MB)</span>
+                                }
+                            </small>
+                        </div>
+                    </div>
+
+                    @if (Model.Id != Guid.Empty)
+                    {
+                        <div class="card bg-light mt-3">
+                            <div class="card-body">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-file-earmark-pdf"></i> Add New CV
+                                </label>
+                                <input type="file" name="cvFile" class="form-control form-control-sm"
+                                       accept=".pdf,.doc,.docx" />
+                                <small class="text-muted d-block mt-2">
+                                    PDF, DOC, DOCX (Max 5MB)<br />
+                                    Upload will add to your CV list
+                                </small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (Model.Id == Guid.Empty)
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>First Time Setup:</strong> After creating your profile, you can upload CVs from your profile page.
                 </div>
             }
 
-            <div class="mb-3">
-                <label class="form-label">Profile Photo</label>
-                <input type="file" name="photoFile" class="form-control rounded-3" accept="image/*" />
-                <small class="text-muted">Leave empty to keep current photo</small>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Upload CV</label>
-                <input type="file" name="cvFile" class="form-control rounded-3" accept=".pdf,.doc,.docx" />
-                <small class="text-muted">Upload a new CV (will be added to your existing CVs)</small>
-            </div>
+            <hr class="my-4" />
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary rounded-3">
-                    <i class="bi bi-save"></i> Save Changes
+                    <i class="bi bi-save"></i> @(Model.Id == Guid.Empty ? "Create Profile" : "Save Changes")
                 </button>
-                <a asp-action="Index" class="btn btn-secondary rounded-3">
-                    <i class="bi bi-x-circle"></i> Cancel
-                </a>
+                @if (Model.Id != Guid.Empty)
+                {
+                    <a asp-action="Index" class="btn btn-secondary rounded-3">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                }
             </div>
         </form>
     </div>
@@ -90,4 +171,20 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Preview photo before upload
+        document.getElementById('photoFileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.querySelector('.img-thumbnail');
+                    if (img) {
+                        img.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 }

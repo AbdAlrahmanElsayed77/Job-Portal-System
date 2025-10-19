@@ -1,7 +1,11 @@
 ﻿@model BL.Dtos.JobSeekerProfileDto
 
-<div class="container mt-5">
-    @* Success/Error Messages *@
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-4 mb-5">
+    @* Success/Error/Warning Messages *@
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -16,76 +20,290 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @TempData["Warning"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-md-3 text-center">
+    <div class="row">
+        <!-- Left Column - Profile Info -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body text-center p-4">
                     <img src="@(Model.PhotoUrl ?? "/img/default-avatar.png")"
                          alt="Profile Photo"
-                         class="rounded-circle img-thumbnail shadow-sm"
+                         class="rounded-circle img-thumbnail shadow-sm mb-3"
                          style="width: 150px; height: 150px; object-fit: cover;">
-                    <div class="mt-3">
-                        <a asp-action="Edit" asp-controller="JobseekerProfile" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil"></i> Edit Profile
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-9">
-                    <h3 class="fw-bold mb-1">@(Model.Headline ?? "Job Seeker")</h3>
-                    <p class="text-muted mb-2">
-                        <i class="bi bi-geo-alt"></i> @Model.City, @Model.Country
-                    </p>
+
+                    <h4 class="fw-bold mb-1">@(Model.Headline ?? "Job Seeker")</h4>
+
+                    @if (!string.IsNullOrEmpty(Model.City) || !string.IsNullOrEmpty(Model.Country))
+                    {
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-geo-alt"></i> @Model.City@(string.IsNullOrEmpty(Model.City) ? "" : ", ")@Model.Country
+                        </p>
+                    }
+
                     @if (Model.YearsOfExperience.HasValue)
                     {
-                        <p class="text-muted small">
+                        <p class="text-muted small mb-2">
                             <i class="bi bi-briefcase"></i> @Model.YearsOfExperience years of experience
                         </p>
                     }
-                    <p class="text-muted small">
+
+                    <p class="text-muted small mb-3">
                         <i class="bi bi-calendar"></i> Member since @Model.CreatedAt.ToString("MMMM yyyy")
                     </p>
-                    <hr>
-                    <p>@(Model.Summary ?? "No summary provided yet.")</p>
+
+                    <a asp-action="Edit" asp-controller="JobSeekerProfile" asp-route-id="@Model.Id" class="btn btn-primary w-100 mb-2">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
                 </div>
             </div>
 
-            <hr class="my-4">
-
-            <div>
-                <h5 class="fw-bold mb-3">
-                    <i class="bi bi-file-earmark-text"></i> Uploaded CVs
-                </h5>
-                @if (Model.CVFiles?.Count > 0)
-                {
-                    <ul class="list-group">
-                        @foreach (var cv in Model.CVFiles)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-file-earmark-text"></i>
-                                    @cv.FileName
-                                    <small class="text-muted">(@(cv.FileSizeBytes / 1024) KB)</small>
-                                    @if (cv.IsPrimary)
-                                    {
-                                        <span class="badge bg-primary ms-2">Primary</span>
-                                    }
-                                </div>
-                                <a href="@cv.BlobUrl" target="_blank" class="btn btn-sm btn-outline-success">
-                                    <i class="bi bi-download"></i> View
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No CV uploaded yet.
-                        <a asp-action="Edit" asp-route-id="@Model.Id">Upload your CV now</a>
+            <!-- Quick Stats Card -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Quick Stats</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="bi bi-file-earmark-text text-primary"></i> CVs</span>
+                        <strong>@(Model.CVFiles?.Count ?? 0)</strong>
                     </div>
-                }
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="bi bi-send text-success"></i> Applications</span>
+                        <strong>@(Model.Applications?.Count ?? 0)</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><i class="bi bi-bookmark text-warning"></i> Saved Jobs</span>
+                        <strong>@(Model.SavedJobs?.Count ?? 0)</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Details -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-person"></i> About Me
+                    </h5>
+                    <p class="text-muted">
+                        @(Model.Summary ?? "No summary provided yet. Click 'Edit Profile' to add information about yourself.")
+                    </p>
+                </div>
+            </div>
+
+            <!-- CV Management Section -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-file-earmark-text"></i> My CVs
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#uploadCVModal">
+                            <i class="bi bi-plus-circle"></i> Upload New CV
+                        </button>
+                    </div>
+
+                    @if (Model.CVFiles?.Count > 0)
+                    {
+                        <div class="list-group">
+                            @foreach (var cv in Model.CVFiles.OrderByDescending(c => c.IsPrimary).ThenByDescending(c => c.CreatedDate))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-file-earmark-pdf fs-3 text-danger me-3"></i>
+                                            <div>
+                                                <h6 class="mb-0">
+                                                    @cv.FileName
+                                                    @if (cv.IsPrimary)
+                                                    {
+                                                        <span class="badge bg-primary ms-2">Primary</span>
+                                                    }
+                                                </h6>
+                                                <small class="text-muted">
+                                                    Uploaded @cv.CreatedDate.Value.ToString("MMM dd, yyyy") •
+                                                    @(cv.FileSizeBytes / 1024) KB
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="@cv.BlobUrl" target="_blank" class="btn btn-sm btn-outline-success" title="View/Download">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        @if (!cv.IsPrimary)
+                                        {
+                                            <form asp-action="SetPrimaryCV" asp-controller="JobSeekerProfile" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="cvId" value="@cv.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary" title="Set as Primary">
+                                                    <i class="bi bi-star"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteCVModal"
+                                                data-cv-id="@cv.Id"
+                                                data-cv-name="@cv.FileName"
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i> No CVs uploaded yet. Upload your first CV to start applying for jobs!
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Applications Section -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-send"></i> My Applications
+                        </h5>
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    </div>
+
+                    @if (Model.Applications?.Count > 0)
+                    {
+                        <div class="list-group">
+                            @foreach (var app in Model.Applications.OrderByDescending(a => a.AppliedAt).Take(5))
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@app.JobPostTitle</h6>
+                                            <p class="mb-1 text-muted small">@app.CompanyName</p>
+                                            <small class="text-muted">
+                                                Applied @app.AppliedAt.ToString("MMM dd, yyyy")
+                                            </small>
+                                        </div>
+                                        <div>
+                                            @{
+                                                var statusClass = app.Status switch
+                                                {
+                                                    0 => "bg-warning",
+                                                    1 => "bg-success",
+                                                    2 => "bg-danger",
+                                                    _ => "bg-secondary"
+                                                };
+                                                var statusText = app.Status switch
+                                                {
+                                                    0 => "Pending",
+                                                    1 => "Accepted",
+                                                    2 => "Rejected",
+                                                    _ => "Unknown"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@statusText</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i> You haven't applied to any jobs yet.
+                            <a asp-controller="JobSeeker" asp-action="browseJobs" class="alert-link">Browse jobs now</a>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Upload CV Modal -->
+<div class="modal fade" id="uploadCVModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="UploadCV" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-upload"></i> Upload New CV
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select CV File</label>
+                        <input type="file" name="cvFile" class="form-control" accept=".pdf,.doc,.docx" required />
+                        <small class="text-muted">Accepted formats: PDF, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-upload"></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete CV Modal -->
+<div class="modal fade" id="deleteCVModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="DeleteCV" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="cvId" id="deleteCVId" />
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-trash"></i> Delete CV
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteCVName"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle delete modal data
+        var deleteCVModal = document.getElementById('deleteCVModal');
+        if (deleteCVModal) {
+            deleteCVModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var cvId = button.getAttribute('data-cv-id');
+                var cvName = button.getAttribute('data-cv-name');
+
+                document.getElementById('deleteCVId').value = cvId;
+                document.getElementById('deleteCVName').textContent = cvName;
+            });
+        }
+    </script>
+}

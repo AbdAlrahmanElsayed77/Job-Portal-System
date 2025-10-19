@@ -34,16 +34,34 @@ namespace BL.Mapping
             CreateMap<JobType, JobTypeDto>().ReverseMap();
             CreateMap<CVFile, CVFileDto>().ReverseMap()
                 .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());
+            CreateMap<CVFile, ProfileCVFileDto>().ReverseMap()
+                .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());
             CreateMap<JobSeekerProfile, JobSeekerProfileDto>()
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
                 .ReverseMap()
                 .ForMember(dest => dest.User, opt => opt.Ignore());
             CreateMap<SavedJob, SavedJobDto>().ReverseMap();
+            // SavedJob
+            CreateMap<SavedJob, ProfileSavedJobDto>()
+                .ForMember(dest => dest.SavedAt, opt => opt.MapFrom(src => src.CreatedDate ?? DateTime.Now))
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.JobPost != null ? src.JobPost.Title : null))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.JobPost != null && src.JobPost.Company != null ? src.JobPost.Company.Name : null))
+                .ReverseMap();
             CreateMap<EmployerProfile, EmployerProfileDto>()
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
                 .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.Company.LogoUrl))
                 .ReverseMap()
                 .ForMember(dest => dest.Company, opt => opt.Ignore());
+            // Application - Enhanced with display properties
+            CreateMap<Application, ProfileApplicationDto>()
+                .ForMember(dest => dest.AppliedAt, opt => opt.MapFrom(src => src.CreatedDate ?? DateTime.MinValue))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedDate))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.CurrentState))
+                .ForMember(dest => dest.JobPostTitle, opt => opt.MapFrom(src => src.JobPost != null ? src.JobPost.Title : null))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.JobPost != null && src.JobPost.Company != null ? src.JobPost.Company.Name : null))
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.JobPost != null && src.JobPost.Company != null ? src.JobPost.Company.LogoUrl : null))
+                .ReverseMap()
+                .ForMember(dest => dest.CurrentState, opt => opt.MapFrom(src => src.Status));
 
         }
     }

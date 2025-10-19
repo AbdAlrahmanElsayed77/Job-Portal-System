@@ -19,7 +19,7 @@
 
     <div class="card shadow-sm p-4 rounded-4">
         <h4 class="fw-bold mb-4">Edit Employer Profile</h4>
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <form asp-action="Edit" asp-controller="EmployerProfile" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="UserId" />
             <input type="hidden" asp-for="CompanyId" />

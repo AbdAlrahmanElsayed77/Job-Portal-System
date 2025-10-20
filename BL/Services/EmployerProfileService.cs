@@ -64,8 +64,19 @@ namespace BL.Services
                         company.UpdatedDate = DateTime.UtcNow;
                         _companyRepo.Update(company);
                     }
+                    else
+                    {
+                        company = new Company()
+                        {
+                            LogoUrl = logoUrl,
+                            CreatedBy = userId,
+                            CreatedDate = DateTime.UtcNow
+                        };
+                        _companyRepo.Add(company);
+                    }
+                    profile.CompanyId = company.Id;
                 }
-
+                
                 return _profileRepo.Add(profile);
             }
             else

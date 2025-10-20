@@ -38,6 +38,7 @@ namespace BL.Mapping
                 .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());
             CreateMap<JobSeekerProfile, JobSeekerProfileDto>()
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedDate ?? DateTime.Now))
                 .ReverseMap()
                 .ForMember(dest => dest.User, opt => opt.Ignore());
             CreateMap<SavedJob, SavedJobDto>().ReverseMap();
@@ -50,6 +51,7 @@ namespace BL.Mapping
             CreateMap<EmployerProfile, EmployerProfileDto>()
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
                 .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.Company.LogoUrl))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedDate ?? DateTime.Now))
                 .ReverseMap()
                 .ForMember(dest => dest.Company, opt => opt.Ignore());
             // Application - Enhanced with display properties

@@ -1,0 +1,193 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-lg-6 text-center">
+            <div class="error-content">
+                <!-- Animated Icon -->
+                <div class="mb-4 lock-container">
+                    <i class="bi bi-shield-lock display-1 text-danger lock-icon"></i>
+                    <div class="lock-pulse"></div>
+                </div>
+
+                <!-- Error Code -->
+                <div class="mb-3">
+                    <span class="badge bg-danger px-4 py-2" style="font-size: 1.2rem;">
+                        403 - FORBIDDEN
+                    </span>
+                </div>
+
+                <!-- Message -->
+                <h2 class="fw-bold mb-3">Access Denied</h2>
+                <p class="text-muted mb-4 lead">
+                    Sorry, you don't have permission to access this page.
+                </p>
+
+                <!-- Reasons -->
+                <div class="card border-danger mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">This could be because:</h6>
+                        <ul class="list-unstyled text-start mb-0">
+                            <li class="mb-2">
+                                <i class="bi bi-x-circle text-danger"></i>
+                                You don't have the required role or permissions
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-x-circle text-danger"></i>
+                                Your session may have expired
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-x-circle text-danger"></i>
+                                This page is restricted to certain user types
+                            </li>
+                            <li class="mb-0">
+                                <i class="bi bi-x-circle text-danger"></i>
+                                You need to verify your account first
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Go to Home
+                        </a>
+                        @if (User.IsInRole("JobSeeker"))
+                        {
+                            <a asp-controller="JobSeekerProfile" asp-action="Index" class="btn btn-outline-primary">
+                                <i class="bi bi-person"></i> My Profile
+                            </a>
+                        }
+                        else if (User.IsInRole("Employer"))
+                        {
+                            <a asp-controller="EmployerProfile" asp-action="Index" class="btn btn-outline-primary">
+                                <i class="bi bi-building"></i> My Dashboard
+                            </a>
+                        }
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-secondary">
+                                <i class="bi bi-box-arrow-right"></i> Logout & Login Again
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle"></i>
+                        You need to log in to access this page.
+                    </div>
+                    <div class="d-flex gap-2 justify-content-center mb-4">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                    </div>
+                }
+
+                <!-- Support -->
+                <div class="text-muted">
+                    <small>
+                        Need help? <a asp-controller="Home" asp-action="Contact" class="text-decoration-none">Contact Support</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .lock-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lock-icon {
+            position: relative;
+            z-index: 2;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .lock-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 3px solid rgba(220, 53, 69, 0.3);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        @@keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .error-content {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card {
+            animation: slideUp 0.6s ease-out;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

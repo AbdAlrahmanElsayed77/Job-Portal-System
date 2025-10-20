@@ -1,0 +1,180 @@
+﻿@{
+    ViewData["Title"] = "Server Error";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-lg-6 text-center">
+            <div class="error-content">
+                <!-- Animated Icon -->
+                <div class="mb-4">
+                    <div class="server-icon">
+                        <i class="bi bi-server display-1 text-warning"></i>
+                        <i class="bi bi-exclamation-triangle-fill error-badge"></i>
+                    </div>
+                </div>
+
+                <!-- Error Code -->
+                <div class="mb-3">
+                    <span class="badge bg-warning text-dark px-4 py-2" style="font-size: 1.2rem;">
+                        500 - SERVER ERROR
+                    </span>
+                </div>
+
+                <!-- Message -->
+                <h2 class="fw-bold mb-3">Something Went Wrong</h2>
+                <p class="text-muted mb-4 lead">
+                    We're experiencing technical difficulties. Our team has been notified and is working on it.
+                </p>
+
+                <!-- Status -->
+                <div class="card border-warning mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <i class="bi bi-tools text-warning fs-3"></i>
+                                    <p class="mb-0 mt-2 small">Our team is</p>
+                                    <strong>Working on it</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <i class="bi bi-clock text-info fs-3"></i>
+                                    <p class="mb-0 mt-2 small">Estimated time</p>
+                                    <strong>A few minutes</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <i class="bi bi-arrow-clockwise text-success fs-3"></i>
+                                    <p class="mb-0 mt-2 small">You can try</p>
+                                    <strong>Refreshing page</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What to do -->
+                <div class="alert alert-light border mb-4">
+                    <h6 class="fw-bold mb-3">What you can do:</h6>
+                    <ul class="list-unstyled text-start mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success"></i>
+                            Wait a few moments and refresh the page
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success"></i>
+                            Clear your browser cache and try again
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success"></i>
+                            Return to the homepage and try navigating again
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-check-circle text-success"></i>
+                            Contact support if the problem persists
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+                    <button onclick="location.reload()" class="btn btn-warning text-dark">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Page
+                    </button>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-house"></i> Go to Home
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Go Back
+                    </button>
+                </div>
+
+                <!-- Error ID (for support) -->
+                <div class="text-muted">
+                    <small>
+                        Error ID: @Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()
+                        <br />
+                        Time: @DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") UTC
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .server-icon {
+            position: relative;
+            display: inline-block;
+        }
+
+            .server-icon > i:first-child {
+                animation: pulse 2s infinite;
+            }
+
+        .error-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 2rem;
+            animation: bounce 1s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @@keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .error-content {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .card {
+            animation: slideUp 0.6s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

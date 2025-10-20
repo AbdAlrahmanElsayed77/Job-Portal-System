@@ -39,20 +39,36 @@ namespace PortalSystemProject
                 IdentitySeeder.SeedRolesAndAdminAsync(services).GetAwaiter().GetResult();
             }
             // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                // Production error handling
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-            
+
+            // ✅ Handle HTTP status codes (404, 403, etc.)
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
+            app.Use(async (context, next) =>
+            {
+                await next();
 
+                if (context.Response.StatusCode == 403)
+                {
+                    context.Request.Path = "/Error/AccessDenied";
+                    await next();
+                }
+            });
             app.MapControllerRoute(
                 name: "admin",
                 pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");

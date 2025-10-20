@@ -1,0 +1,99 @@
+﻿@model Domains.JobSeekerProfile
+
+@{
+    ViewData["Title"] = Model.Headline ?? "Job Seeker Profile";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body text-center p-4">
+                    <img src="@(Model.PhotoUrl ?? "/img/default-avatar.png")"
+                         alt="Profile Photo"
+                         class="rounded-circle img-thumbnail shadow-sm mb-3"
+                         style="width: 150px; height: 150px; object-fit: cover;">
+
+                    <h4 class="fw-bold mb-1">@(Model.Headline ?? "Job Seeker")</h4>
+
+                    @if (!string.IsNullOrEmpty(Model.City) || !string.IsNullOrEmpty(Model.Country))
+                    {
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-geo-alt"></i> @Model.City@(string.IsNullOrEmpty(Model.City) ? "" : ", ")@Model.Country
+                        </p>
+                    }
+
+                    @if (Model.YearsOfExperience.HasValue)
+                    {
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-briefcase"></i> @Model.YearsOfExperience years of experience
+                        </p>
+                    }
+
+                    <p class="text-muted small">
+                        <i class="bi bi-calendar"></i> @ViewBag.MemberSince
+                    </p>
+
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Employer"))
+                    {
+                        <hr />
+                        <a href="mailto:@ViewBag.UserEmail" class="btn btn-primary btn-sm w-100 mb-2">
+                            <i class="bi bi-envelope"></i> Contact
+                        </a>
+                    }
+                </div>
+            </div>
+
+            @if (Model.CVFiles?.Count > 0 && User.Identity?.IsAuthenticated == true && User.IsInRole("Employer"))
+            {
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-file-earmark-pdf"></i> Available CVs
+                        </h6>
+                        <div class="list-group">
+                            @foreach (var cv in Model.CVFiles.Where(c => c.IsPrimary))
+                            {
+                                <a href="@cv.BlobUrl" target="_blank" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-download"></i> @cv.FileName
+                                    <span class="badge bg-primary float-end">Primary</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-person"></i> About
+                    </h5>
+                    <p class="text-muted">
+                        @(Model.Summary ?? "This job seeker hasn't added a professional summary yet.")
+                    </p>
+                </div>
+            </div>
+
+            @if (!User.Identity?.IsAuthenticated == true)
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <a asp-controller="Account" asp-action="Login" class="alert-link">Login as an employer</a>
+                    to view full profile details and contact information.
+                </div>
+            }
+            else if (!User.IsInRole("Employer"))
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    Full profile details and contact options are available to employers only.
+                </div>
+            }
+        </div>
+    </div>
+</div>

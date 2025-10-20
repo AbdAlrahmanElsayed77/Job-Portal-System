@@ -13,15 +13,17 @@ namespace PortalSystemProject.Controllers
         private readonly IAccountService _accountService;
         private readonly UserManager<Domains.UserModel.ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly SignInManager<Domains.UserModel.ApplicationUser> _signInManager;
         public AccountController(
             IAccountService accountService,
             UserManager<Domains.UserModel.ApplicationUser> userManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            SignInManager<Domains.UserModel.ApplicationUser> signInManager)
         {
             _accountService = accountService;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            _signInManager = signInManager;
         }
 
         private string GetOrigin() =>
@@ -244,5 +246,193 @@ namespace PortalSystemProject.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Settings()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login");
+
+                var model = new AccountSettingsDto
+                {
+                    Email = user.Email,
+                    FName = user.FName,
+                    LName = user.LName
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error loading settings: " + ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(AccountSettingsDto model)
+        {
+            if (!ModelState.IsValid)
+                return View("Settings", model);
+
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login");
+
+                user.FName = model.FName;
+                user.LName = model.LName;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    TempData["Success"] = "Profile updated successfully!";
+                }
+                else
+                {
+                    TempData["Error"] = string.Join(", ", result.Errors.Select(e => e.Description));
+                }
+
+                return RedirectToAction("Settings");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error updating profile: " + ex.Message;
+                return RedirectToAction("Settings");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeEmail(string newEmail)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login");
+
+                if (user.Email == newEmail)
+                {
+                    TempData["Warning"] = "This is already your current email address.";
+                    return RedirectToAction("Settings");
+                }
+
+                var existingUser = await _userManager.FindByEmailAsync(newEmail);
+                if (existingUser != null)
+                {
+                    TempData["Error"] = "This email is already in use.";
+                    return RedirectToAction("Settings");
+                }
+
+                var token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+                var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+
+                if (result.Succeeded)
+                {
+                    user.UserName = newEmail;
+                    await _userManager.UpdateAsync(user);
+                    TempData["Success"] = "Email changed successfully! Please verify your new email.";
+                }
+                else
+                {
+                    TempData["Error"] = string.Join(", ", result.Errors.Select(e => e.Description));
+                }
+
+                return RedirectToAction("Settings");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error changing email: " + ex.Message;
+                return RedirectToAction("Settings");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Please provide all required fields.";
+                return RedirectToAction("Settings");
+            }
+
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login");
+
+                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.RefreshSignInAsync(user);
+                    TempData["Success"] = "Password changed successfully!";
+                }
+                else
+                {
+                    TempData["Error"] = string.Join(", ", result.Errors.Select(e => e.Description));
+                }
+
+                return RedirectToAction("Settings");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error changing password: " + ex.Message;
+                return RedirectToAction("Settings");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccount(string confirmPassword)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login");
+
+                // Verify password before deletion
+                var passwordCheck = await _userManager.CheckPasswordAsync(user, confirmPassword);
+                if (!passwordCheck)
+                {
+                    TempData["Error"] = "Incorrect password. Account not deleted.";
+                    return RedirectToAction("Settings");
+                }
+
+                var result = await _userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignOutAsync();
+                    TempData["Success"] = "Your account has been deleted.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                TempData["Error"] = "Error deleting account.";
+                return RedirectToAction("Settings");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error deleting account: " + ex.Message;
+                return RedirectToAction("Settings");
+            }
+        }
+        public IActionResult AccessDenied()
+        {
+            return RedirectToAction("AccessDenied", "Error");
+        }
+
     }
 }

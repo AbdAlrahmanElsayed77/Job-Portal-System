@@ -1,0 +1,128 @@
+﻿@{
+    ViewData["Title"] = "Page Not Found";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-lg-6 text-center">
+            <div class="error-content">
+                <!-- Animated 404 -->
+                <div class="error-number mb-4">
+                    <h1 class="display-1 fw-bold text-primary" style="font-size: 10rem; line-height: 1;">
+                        4<span class="error-zero">0</span>4
+                    </h1>
+                </div>
+
+                <!-- Icon -->
+                <div class="mb-4">
+                    <i class="bi bi-compass display-1 text-muted"></i>
+                </div>
+
+                <!-- Message -->
+                <h2 class="fw-bold mb-3">Oops! Page Not Found</h2>
+                <p class="text-muted mb-4 lead">
+                    The page you're looking for seems to have wandered off.
+                    It might have been moved, deleted, or maybe it never existed.
+                </p>
+
+                <!-- Suggestions -->
+                <div class="alert alert-light border mb-4">
+                    <p class="mb-2"><strong>Here are some helpful links instead:</strong></p>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                        <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-briefcase"></i> Browse Jobs
+                        </a>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (User.IsInRole("JobSeeker"))
+                            {
+                                <a asp-controller="JobSeekerProfile" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-person"></i> My Profile
+                                </a>
+                            }
+                            else if (User.IsInRole("Employer"))
+                            {
+                                <a asp-controller="EmployerProfile" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-building"></i> My Dashboard
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Search Box -->
+                <div class="mb-4">
+                    <p class="text-muted mb-2">Or try searching for what you need:</p>
+                    <form asp-controller="Home" asp-action="AllJobs" method="get" class="d-flex gap-2 justify-content-center">
+                        <input type="text" name="search" class="form-control" placeholder="Search jobs..." style="max-width: 400px;" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Back Button -->
+                <button onclick="history.back()" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Go Back
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .error-zero {
+            display: inline-block;
+            animation: spin 3s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-number {
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .error-content > div:not(.error-number) {
+            animation: fadeInUp 0.6s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+
+        @@keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

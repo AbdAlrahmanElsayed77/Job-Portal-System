@@ -1,0 +1,203 @@
+﻿@model Domains.Company
+
+@{
+    ViewData["Title"] = Model.Id == Guid.Empty ? "Create Company" : "Edit Company";
+    var isEdit = Model.Id != Guid.Empty;
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="bi bi-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h4 class="fw-bold mb-4">
+                    <i class="bi bi-building"></i> @ViewData["Title"]
+                </h4>
+
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedBy" />
+                    <input type="hidden" asp-for="CreatedDate" />
+                    <input type="hidden" asp-for="Status" />
+                    <input type="hidden" asp-for="LogoUrl" />
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Company Name -->
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label">
+                                    <i class="bi bi-building"></i> Company Name *
+                                </label>
+                                <input asp-for="Name" class="form-control rounded-3"
+                                       placeholder="e.g. Tech Solutions Inc."
+                                       required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <!-- Website -->
+                            <div class="mb-3">
+                                <label asp-for="Website" class="form-label">
+                                    <i class="bi bi-globe"></i> Website
+                                </label>
+                                <input asp-for="Website" class="form-control rounded-3"
+                                       type="url"
+                                       placeholder="https://www.example.com" />
+                                <span asp-validation-for="Website" class="text-danger"></span>
+                                <small class="text-muted">Include https://</small>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Country" class="form-label">
+                                        <i class="bi bi-globe"></i> Country
+                                    </label>
+                                    <input asp-for="Country" class="form-control rounded-3"
+                                           placeholder="e.g. Egypt" />
+                                    <span asp-validation-for="Country" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="City" class="form-label">
+                                        <i class="bi bi-geo-alt"></i> City
+                                    </label>
+                                    <input asp-for="City" class="form-control rounded-3"
+                                           placeholder="e.g. Cairo" />
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">
+                                    <i class="bi bi-file-text"></i> Company Description
+                                </label>
+                                <textarea asp-for="Description" class="form-control rounded-3" rows="6"
+                                          placeholder="Describe your company, culture, mission, and what makes you unique..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                                <small class="text-muted">Help job seekers understand your company better</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Logo Upload -->
+                            <div class="card bg-light border-0">
+                                <div class="card-body text-center">
+                                    <label class="form-label fw-bold">
+                                        <i class="bi bi-image"></i> Company Logo
+                                    </label>
+
+                                    @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                                    {
+                                        <div class="mb-3">
+                                            <img src="@Model.LogoUrl" alt="Company Logo"
+                                                 class="img-thumbnail" id="logoPreview"
+                                                 style="width: 150px; height: 150px; object-fit: contain; background: white;" />
+                                            <p class="text-muted small mt-2">Current Logo</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="mb-3">
+                                            <img src="/img/default-company-logo.png" alt="Default Logo"
+                                                 class="img-thumbnail" id="logoPreview"
+                                                 style="width: 150px; height: 150px; object-fit: contain; background: white;" />
+                                            <p class="text-muted small mt-2">No logo uploaded</p>
+                                        </div>
+                                    }
+
+                                    <input type="file" name="logoFile" class="form-control form-control-sm"
+                                           accept="image/*" id="logoFileInput" />
+                                    <small class="text-muted d-block mt-2">
+                                        @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                                        {
+                                            <span>Leave empty to keep current logo</span>
+                                        }
+                                        else
+                                        {
+                                            <span>PNG, JPG, SVG (Max 5MB)</span>
+                                        }
+                                    </small>
+                                </div>
+                            </div>
+
+                            @if (isEdit)
+                            {
+                                <div class="card bg-light border-0 mt-3">
+                                    <div class="card-body">
+                                        <small class="text-muted">
+                                            <strong>Created:</strong><br />
+                                            @Model.CreatedDate?.ToString("MMM dd, yyyy")
+                                        </small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!isEdit)
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            After creating your company, you'll be able to post jobs and manage applications.
+                        </div>
+                    }
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary rounded-3">
+                            <i class="bi bi-save"></i> @(isEdit ? "Save Changes" : "Create Company")
+                        </button>
+                        @if (isEdit)
+                        {
+                            <a asp-action="MyCompany" class="btn btn-secondary rounded-3">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary rounded-3">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Logo preview
+        document.getElementById('logoFileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('logoPreview');
+                    if (img) {
+                        img.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

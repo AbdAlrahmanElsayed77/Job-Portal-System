@@ -1,0 +1,265 @@
+﻿@model Domains.Company
+
+@{
+    ViewData["Title"] = "My Company";
+    var totalJobs = ViewBag.TotalJobs ?? 0;
+    var activeJobs = ViewBag.ActiveJobs ?? 0;
+    var recentJobs = ViewBag.RecentJobs as List<Domains.JobPost> ?? new List<Domains.JobPost>();
+}
+
+<div class="container mt-4 mb-5">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Warning"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Left Column - Company Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body text-center p-4">
+                    <img src="@(Model.LogoUrl ?? "/img/default-company-logo.png")"
+                         alt="@Model.Name Logo"
+                         class="img-thumbnail shadow-sm mb-3"
+                         style="width: 120px; height: 120px; object-fit: contain; background: #f8f9fa;" />
+
+                    <h5 class="fw-bold mb-2">@Model.Name</h5>
+
+                    @if (!string.IsNullOrEmpty(Model.City) || !string.IsNullOrEmpty(Model.Country))
+                    {
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt"></i>
+                            @Model.City@(string.IsNullOrEmpty(Model.City) ? "" : ", ")@Model.Country
+                        </p>
+                    }
+
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> Edit Company
+                        </a>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                            <i class="bi bi-eye"></i> View Public Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Statistics</h6>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h3 class="mb-0 text-primary">@totalJobs</h3>
+                                <small class="text-muted">Total Jobs</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h3 class="mb-0 text-success">@activeJobs</h3>
+                                <small class="text-muted">Active</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Details & Jobs -->
+        <div class="col-lg-8">
+            <!-- Company Details -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle"></i> Company Details
+                    </h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Company Name:</strong><br />
+                                @Model.Name
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Status:</strong><br />
+                                @if (Model.Status == 1)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Location:</strong><br />
+                                @Model.City@(string.IsNullOrEmpty(Model.City) ? "" : ", ")@Model.Country
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Website:</strong><br />
+                                @if (!string.IsNullOrEmpty(Model.Website))
+                                {
+                                    <a href="@Model.Website" target="_blank">@Model.Website</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not provided</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <strong>Description:</strong>
+                        <p class="text-muted mt-2">
+                            @(Model.Description ?? "No description provided")
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Job Posts -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-briefcase"></i> Recent Job Posts
+                        </h5>
+                        <a asp-controller="JobPost" asp-action="MyJobs" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    </div>
+
+                    @if (recentJobs.Count > 0)
+                    {
+                        <div class="list-group">
+                            @foreach (var job in recentJobs)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@job.Title</h6>
+                                            <p class="mb-1 text-muted small">
+                                                <i class="bi bi-geo-alt"></i> @job.City@(string.IsNullOrEmpty(job.City) ? "" : ", ")@job.Country
+                                            </p>
+                                            <small class="text-muted">
+                                                Posted @job.CreatedDate?.ToString("MMM dd, yyyy")
+                                            </small>
+                                        </div>
+                                        <div>
+                                            @{
+                                                var statusClass = job.CurrentState switch
+                                                {
+                                                    1 => "bg-success",
+                                                    0 => "bg-warning",
+                                                    _ => "bg-secondary"
+                                                };
+                                                var statusText = job.CurrentState switch
+                                                {
+                                                    1 => "Active",
+                                                    0 => "Draft",
+                                                    _ => "Closed"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@statusText</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a asp-controller="JobPost" asp-action="Edit" asp-route-id="@job.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <a asp-controller="JobPost" asp-action="Details" asp-route-id="@job.Id"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i>
+                            You haven't posted any jobs yet.
+                            <a asp-controller="JobPost" asp-action="Create">Create your first job post</a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card shadow-sm border-danger rounded-4 mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Danger Zone
+                    </h5>
+                    <p class="text-muted mb-3">
+                        Deleting your company will remove all associated job posts and data. This action cannot be undone.
+                    </p>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCompanyModal">
+                        <i class="bi bi-trash"></i> Delete Company
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Company Modal -->
+<div class="modal fade" id="deleteCompanyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Company
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <strong>Warning!</strong> This action cannot be undone.
+                    </div>
+                    <p>Are you sure you want to delete <strong>@Model.Name</strong>?</p>
+                    <p class="text-muted">
+                        This will permanently delete:
+                    </p>
+                    <ul>
+                        <li>Company profile</li>
+                        <li>All job posts (@totalJobs)</li>
+                        <li>All related data</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Yes, Delete Company
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

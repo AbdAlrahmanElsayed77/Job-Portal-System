@@ -71,7 +71,14 @@ namespace PortalSystemProject.Controllers
         public IActionResult Login()
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Index", "Home");
+            {
+                if (User.IsInRole("JobSeeker"))
+                    return RedirectToAction("Index", "Home");
+                else if (User.IsInRole("Employer"))
+                    return RedirectToAction("JobPosts", "Employer");
+                else if (User.IsInRole("Admin"))
+                    return RedirectToAction("index", "Dashboard", new { area = "admin" });
+            }
             return View();
         }
 
@@ -89,7 +96,12 @@ namespace PortalSystemProject.Controllers
                 if (result.Contains("successful", StringComparison.OrdinalIgnoreCase))
                 {
                     TempData["Success"] = "Welcome back!";
-                    return RedirectToAction("Index", "Home");
+                    if (User.IsInRole("JobSeeker"))
+                        return RedirectToAction("Index", "Home");
+                    else if (User.IsInRole("Employer"))
+                        return RedirectToAction("JobPosts", "Employer");
+                    else if (User.IsInRole("Admin"))
+                        return RedirectToAction("index", "Dashboard", new { area = "admin" });
                 }
 
                 ModelState.AddModelError(string.Empty, result);

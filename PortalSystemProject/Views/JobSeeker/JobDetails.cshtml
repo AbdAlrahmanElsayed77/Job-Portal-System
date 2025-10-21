@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = Model.Title;
 }
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+}
 
 <div class="container mt-4">
     <div class="row">
@@ -75,7 +78,7 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light">
                     <h5 class="mb-0">
-                        <i class="fas fa-file-alt"></i> وصف الوظيفة
+                        <i class="fas fa-file-alt"></i> Job Description
                     </h5>
                 </div>
                 <div class="card-body">
@@ -91,7 +94,7 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-light">
                         <h5 class="mb-0">
-                            <i class="fas fa-list-check"></i> المتطلبات
+                            <i class="fas fa-list-check"></i> Requirements
                         </h5>
                     </div>
                     <div class="card-body">
@@ -106,7 +109,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
                     <h5 class="mb-0">
-                        <i class="fas fa-building"></i> عن الشركة
+                        <i class="fas fa-building"></i> About the Company
                     </h5>
                 </div>
                 <div class="card-body">
@@ -137,12 +140,12 @@
                         {
                             <div class="alert alert-success mb-3">
                                 <i class="fas fa-check-circle"></i>
-                                <strong>تم التقديم على هذه الوظيفة</strong>
+                                <strong>You have already applied for this job</strong>
                             </div>
                             <a asp-controller="Application" asp-action="Details"
                                asp-route-id="@Model.CurrentApplicationId"
                                class="btn btn-outline-primary w-100 mb-2">
-                                <i class="fas fa-eye"></i> عرض التقديم
+                                <i class="fas fa-eye"></i> View Application
                             </a>
                         }
                         else if (Model.CanApply)
@@ -150,13 +153,13 @@
                             <a asp-controller="Application" asp-action="Apply"
                                asp-route-jobId="@Model.JobId"
                                class="btn btn-primary w-100 mb-2">
-                                <i class="fas fa-paper-plane"></i> تقديم على الوظيفة
+                                <i class="fas fa-paper-plane"></i> Apply Now
                             </a>
                         }
                         else
                         {
                             <button class="btn btn-secondary w-100 mb-2" disabled>
-                                <i class="fas fa-times-circle"></i> غير متاح للتقديم
+                                <i class="fas fa-times-circle"></i> Not Available for Application
                             </button>
                         }
 
@@ -164,19 +167,19 @@
                                 data-job-id="@Model.JobId"
                                 data-is-saved="@Model.IsSaved.ToString().ToLower()">
                             <i class="@(Model.IsSaved ? "fas" : "far") fa-heart"></i>
-                            @(Model.IsSaved ? "إلغاء الحفظ" : "حفظ الوظيفة")
+                            @(Model.IsSaved ? "Unsave Job" : "Save Job")
                         </button>
                     }
                     else
                     {
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            يجب تسجيل الدخول للتقديم
+                            You need to log in to apply
                         </div>
                         <a asp-controller="Account" asp-action="Login"
                            asp-route-returnUrl="@Context.Request.Path"
                            class="btn btn-primary w-100">
-                            <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                            <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                     }
                 </div>
@@ -186,22 +189,22 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light">
                     <h6 class="mb-0">
-                        <i class="fas fa-chart-bar"></i> إحصائيات الوظيفة
+                        <i class="fas fa-chart-bar"></i> Job Statistics
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
-                        <span>عدد المتقدمين:</span>
+                        <span>Applicants:</span>
                         <strong>@Model.TotalApplications</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span>تاريخ النشر:</span>
+                        <span>Posted on:</span>
                         <strong>@Model.PublishedAt.ToString("dd/MM/yyyy")</strong>
                     </div>
                     @if (Model.ExpiresAt.HasValue)
                     {
                         <div class="d-flex justify-content-between">
-                            <span>ينتهي في:</span>
+                            <span>Expires on:</span>
                             <strong>@Model.ExpiresAt.Value.ToString("dd/MM/yyyy")</strong>
                         </div>
                     }
@@ -212,7 +215,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
                     <h6 class="mb-0">
-                        <i class="fas fa-share-alt"></i> مشاركة الوظيفة
+                        <i class="fas fa-share-alt"></i> Share Job
                     </h6>
                 </div>
                 <div class="card-body">
@@ -262,12 +265,12 @@
                 if (result.action === 'saved') {
                     icon.classList.remove('far');
                     icon.classList.add('fas');
-                    this.innerHTML = '<i class="fas fa-heart"></i> إلغاء الحفظ';
+                    this.innerHTML = '<i class="fas fa-heart"></i> Unsave Job';
                     this.dataset.isSaved = 'true';
                 } else {
                     icon.classList.remove('fas');
                     icon.classList.add('far');
-                    this.innerHTML = '<i class="far fa-heart"></i> حفظ الوظيفة';
+                    this.innerHTML = '<i class="far fa-heart"></i> Save Job';
                     this.dataset.isSaved = 'false';
                 }
             }
@@ -288,7 +291,7 @@
 
         function copyLink() {
             navigator.clipboard.writeText(window.location.href);
-            alert('تم نسخ الرابط!');
+            alert('Link copied!');
         }
     </script>
 }

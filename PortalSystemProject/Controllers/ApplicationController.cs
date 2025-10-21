@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PortalSystemProject.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "JobSeeker")]
     public class ApplicationController : Controller
     {
         private readonly IApplicationRepository _applicationRepo;
@@ -83,7 +83,8 @@ namespace PortalSystemProject.Controllers
                     Id = cv.Id,
                     FileName = cv.FileName,
                     IsPrimary = cv.IsPrimary,
-                    UploadedAt = cv.UploadedAt
+                    UploadedAt = cv.UploadedAt,
+                    BlobUrl = cv.BlobUrl
                 }).ToList(),
                 CVFileId = cvs.FirstOrDefault(cv => cv.IsPrimary)?.Id ?? cvs.First().Id
             };

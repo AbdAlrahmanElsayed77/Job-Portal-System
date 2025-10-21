@@ -32,8 +32,10 @@ namespace BL.Mapping
             CreateMap<JobCategory, JobCategoryDto>().ReverseMap();
             CreateMap<JobPost, JobPostDto>().AfterMap((src, dst) => { dst.PublishedAt = src.CreatedDate; }).ReverseMap();
             CreateMap<JobType, JobTypeDto>().ReverseMap();
-            CreateMap<CVFile, CVFileDto>().ReverseMap()
+            CreateMap<CVFile, CVFileDto>().ForMember(dest => dest.UploadedAt, opt => opt.MapFrom(src => src.CreatedDate))
+                .ReverseMap()
                 .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());
+
             CreateMap<CVFile, ProfileCVFileDto>().ReverseMap()
                 .ForMember(dest => dest.JobSeeker, opt => opt.Ignore());
             CreateMap<JobSeekerProfile, JobSeekerProfileDto>()

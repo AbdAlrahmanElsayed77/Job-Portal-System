@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PortalSystemProject.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "JobSeeker")]
     public class SavedJobsController : Controller
     {
         private readonly ISavedJobRepository _savedJobRepo;

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PortalSystemProject.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "JobSeeker")]
     public class CVManagementController : Controller
     {
         private readonly ICVFileRepository _cvRepo;
@@ -53,7 +53,7 @@ namespace PortalSystemProject.Controllers
                     FileSizeBytes = cv.FileSizeBytes,
                     IsPrimary = cv.IsPrimary,
                     UploadedAt = cv.UploadedAt,
-                    UsedInApplications = _cvRepo.GetCVUsageCountAsync(cv.Id).Result
+                    //UsedInApplications = _cvRepo.GetCVUsageCountAsync(cv.Id).Result
                 }).ToList()
             };
 

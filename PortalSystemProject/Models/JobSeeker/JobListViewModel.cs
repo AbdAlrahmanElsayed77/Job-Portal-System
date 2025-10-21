@@ -1,4 +1,6 @@
-﻿namespace PortalSystemProject.Models.JobSeeker
+﻿using BL.Dtos;
+
+namespace PortalSystemProject.Models.JobSeeker
 {
 
     public class JobListViewModel
@@ -16,6 +18,11 @@
         public int TotalPages { get; set; }
         public int TotalJobs { get; set; }
         public int PageSize { get; set; } = 10;
+
+        public List<JobCategoryDto> AllCategories { get; set; } = new();
+        public List<JobTypeDto> AllJobTypes { get; set; } = new();
+        public Dictionary<Guid, CompanyDto> CompanyDictionary { get; set; } = new();
+
     }
 
 

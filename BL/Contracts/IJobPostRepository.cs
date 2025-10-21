@@ -39,5 +39,7 @@ namespace BL.Contracts
         Task<int> GetApplicationsCountAsync(Guid jobPostId);
         public List<JobPostDto> getJopsForEmployer(Guid empId);
 
+        Task<List<JobPostDto>> GetJobsByIdsAsync(List<Guid> ids);
+
     }
 }

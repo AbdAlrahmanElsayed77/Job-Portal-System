@@ -152,5 +152,16 @@ namespace BL.Services
         {
             return _mapper.Map<List<JobPostDto>>(Repo.GetAll().Where(j => j.CreatedByUserId == empId).ToList());
         }
+        public async Task<List<JobPostDto>> GetJobsByIdsAsync(List<Guid> ids)
+        {
+            var jobs = await _context.JobPosts
+                .Where(j => ids.Contains(j.Id))
+                .Include(j => j.Company)
+                .Include(j => j.JobCategory)
+                .Include(j => j.JobType)
+                .ToListAsync();
+
+            return _mapper.Map<List<JobPostDto>>(jobs);
+        }
     }
 }

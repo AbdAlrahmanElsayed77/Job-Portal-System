@@ -12,5 +12,6 @@ namespace BL.Dtos
         public Guid JobSeekerId { get; set; }     // part of composite key
         public Guid JobPostId { get; set; }       // part of composite key
         public DateTime SavedAt { get; set; }
+        public JobPostDto? JobPost { get; set; }
     }
 }

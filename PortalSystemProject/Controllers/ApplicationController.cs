@@ -17,6 +17,7 @@ namespace PortalSystemProject.Controllers
         private readonly IJobPostRepository _jobPostRepo;
         private readonly ICVFileRepository _cvRepo;
         private readonly IJobSeekerProfileRepository _profileRepo;
+        private readonly ICompanyRepository _companyRepo;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public ApplicationController(
@@ -24,16 +25,17 @@ namespace PortalSystemProject.Controllers
             IJobPostRepository jobPostRepo,
             ICVFileRepository cvRepo,
             IJobSeekerProfileRepository profileRepo,
+            ICompanyRepository companyRepo,
             UserManager<ApplicationUser> userManager)
         {
             _applicationRepo = applicationRepo;
             _jobPostRepo = jobPostRepo;
             _cvRepo = cvRepo;
             _profileRepo = profileRepo;
+            _companyRepo = companyRepo;
             _userManager = userManager;
         }
 
- 
         [HttpGet]
         public async Task<IActionResult> Apply(Guid jobId)
         {
@@ -42,7 +44,7 @@ namespace PortalSystemProject.Controllers
 
             if (profile == null)
             {
-                TempData["Error"] = "A first profile must be created.اً";
+                TempData["Error"] = "A profile must be created first.";
                 return RedirectToAction("CreateProfile", "JobSeeker");
             }
 
@@ -62,9 +64,9 @@ namespace PortalSystemProject.Controllers
 
             var job = await _jobPostRepo.GetJobDetailsWithCompanyAsync(jobId);
             if (job == null)
-            {
                 return NotFound();
-            }
+
+            var company = _companyRepo.GetAll().FirstOrDefault(c => c.Id == job.CompanyId);
 
             var cvs = await _cvRepo.GetCVsByJobSeekerIdAsync(profile.Id);
             if (!cvs.Any())
@@ -77,7 +79,7 @@ namespace PortalSystemProject.Controllers
             {
                 JobPostId = jobId,
                 JobTitle = job.Title,
-                CompanyName = "Company Name", 
+                CompanyName = company?.Name ?? "Unknown Company",
                 AvailableCVs = cvs.Select(cv => new CVOption
                 {
                     Id = cv.Id,
@@ -91,7 +93,6 @@ namespace PortalSystemProject.Controllers
 
             return View(viewModel);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,7 +137,6 @@ namespace PortalSystemProject.Controllers
             return RedirectToAction("Apply", new { jobId = model.JobPostId });
         }
 
-
         [HttpGet]
         public async Task<IActionResult> MyApplications(int? status, DateTime? fromDate, DateTime? toDate, int page = 1)
         {
@@ -145,7 +145,7 @@ namespace PortalSystemProject.Controllers
 
             if (profile == null)
             {
-                TempData["Error"] = "A first profile must be created.";
+                TempData["Error"] = "A profile must be created first.";
                 return RedirectToAction("CreateProfile", "JobSeeker");
             }
 
@@ -153,19 +153,39 @@ namespace PortalSystemProject.Controllers
             var (applications, totalCount) = await _applicationRepo.GetJobSeekerApplicationsAsync(
                 profile.Id, status, fromDate, toDate, page, pageSize);
 
+            var jobIds = applications.Select(a => a.JobPostId).Distinct().ToList();
+            var jobs = await _jobPostRepo.GetJobsByIdsAsync(jobIds);
+            var companyIds = jobs.Select(j => j.CompanyId).Distinct().ToList();
+            var companies = _companyRepo.GetAll().Where(c => companyIds.Contains(c.Id)).ToDictionary(c => c.Id);
+
+            var cvIds = applications
+                .Where(a => a.CVFileId.HasValue && a.CVFileId.Value != Guid.Empty)
+                .Select(a => a.CVFileId!.Value)
+                .Distinct()
+                .ToList();
+            var cvs = cvIds.Any() ? await _cvRepo.GetCVsByIdsAsync(cvIds) : new List<BL.Dtos.CVFileDto>();
+
             var viewModel = new ApplicationsHistoryViewModel
             {
-                Applications = applications.Select(a => new ApplicationItemViewModel
+                Applications = applications.Select(a =>
                 {
-                    ApplicationId = a.Id,
-                    JobPostId = a.JobPostId,
-                    JobTitle = "Job Title", 
-                    CompanyName = "Company Name",
-                    AppliedAt = a.AppliedAt,
-                    Status = GetStatusText((byte)a.Status),
-                    StatusClass = GetStatusClass((byte)a.Status),
-                    CoverLetter = a.CoverLetter,
-                    CVFileName = "CV.pdf"
+                    var job = jobs.FirstOrDefault(j => j.Id == a.JobPostId);
+                    var company = job != null ? companies.GetValueOrDefault(job.CompanyId) : null;
+                    var cv = a.CVFileId.HasValue ? cvs.FirstOrDefault(c => c.Id == a.CVFileId.Value) : null;
+
+                    return new ApplicationItemViewModel
+                    {
+                        ApplicationId = a.Id,
+                        JobPostId = a.JobPostId,
+                        JobTitle = job?.Title ?? "Unknown Job",
+                        CompanyName = company?.Name ?? "Unknown Company",
+                        CompanyLogo = company?.LogoUrl,
+                        AppliedAt = a.AppliedAt,
+                        Status = GetStatusText((byte)a.Status),
+                        StatusClass = GetStatusClass((byte)a.Status),
+                        CoverLetter = a.CoverLetter,
+                        CVFileName = cv?.FileName ?? "CV.pdf"
+                    };
                 }).ToList(),
                 StatusFilter = status?.ToString() ?? "all",
                 FromDate = fromDate,
@@ -178,7 +198,6 @@ namespace PortalSystemProject.Controllers
             return View(viewModel);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
@@ -186,32 +205,38 @@ namespace PortalSystemProject.Controllers
             var profile = await _profileRepo.GetByUserIdAsync(userId);
 
             if (profile == null)
-            {
                 return NotFound();
-            }
 
             var application = await _applicationRepo.GetApplicationDetailsAsync(id, profile.Id);
             if (application == null)
-            {
                 return NotFound();
-            }
+
+            var job = await _jobPostRepo.GetJobDetailsWithCompanyAsync(application.JobPostId);
+            var company = job != null ? _companyRepo.GetAll().FirstOrDefault(c => c.Id == job.CompanyId) : null;
+
+            var cv = application.CVFileId.HasValue && application.CVFileId.Value != Guid.Empty
+                ? await _cvRepo.GetCVByIdAsync(application.CVFileId.Value)
+                : null;
 
             var viewModel = new ApplicationDetailsViewModel
             {
                 ApplicationId = application.Id,
                 JobPostId = application.JobPostId,
-                JobTitle = "Job Title",
-                JobDescription = "Job Description",
-                CompanyName = "Company Name",
+                JobTitle = job?.Title ?? "Unknown Job",
+                JobDescription = job?.Description,
+                CompanyName = company?.Name ?? "Unknown Company",
+                CompanyLogo = company?.LogoUrl,
                 AppliedAt = application.AppliedAt,
                 Status = GetStatusText((byte)application.Status),
                 CoverLetter = application.CoverLetter,
-                CVFileName = "CV.pdf"
+                CVFileName = cv?.FileName ?? "CV.pdf",
+                CVBlobUrl = cv?.BlobUrl,
+                ReviewedAt = application.UpdatedAt,   
+                FinalDecisionAt = application.UpdatedAt 
             };
 
             return View(viewModel);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -221,12 +246,9 @@ namespace PortalSystemProject.Controllers
             var profile = await _profileRepo.GetByUserIdAsync(userId);
 
             if (profile == null)
-            {
                 return Json(new { success = false, message = "Profile not found" });
-            }
 
             var (success, message) = await _applicationRepo.WithdrawApplicationAsync(id, profile.Id);
-
             return Json(new { success, message });
         }
 
@@ -237,28 +259,22 @@ namespace PortalSystemProject.Controllers
             return profile != null ? await _cvRepo.GetCVsByJobSeekerIdAsync(profile.Id) : new();
         }
 
-        private string GetStatusText(byte status)
+        private string GetStatusText(byte status) => status switch
         {
-            return status switch
-            {
-                0 => "Under review",
-                1 => "Reviewed",
-                2 => "Accepted",
-                3 => "Rejected",
-                _ => "unknown"
-            };
-        }
+            0 => "Pending Review",
+            1 => "Reviewed",
+            2 => "Accepted",
+            3 => "Rejected",
+            _ => "Unknown"
+        };
 
-        private string GetStatusClass(byte status)
+        private string GetStatusClass(byte status) => status switch
         {
-            return status switch
-            {
-                0 => "badge bg-warning",
-                1 => "badge bg-info",
-                2 => "badge bg-success",
-                3 => "badge bg-danger",
-                _ => "badge bg-secondary"
-            };
-        }
+            0 => "badge bg-warning",
+            1 => "badge bg-info",
+            2 => "badge bg-success",
+            3 => "badge bg-danger",
+            _ => "badge bg-secondary"
+        };
     }
 }

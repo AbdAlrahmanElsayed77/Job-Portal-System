@@ -1,14 +1,10 @@
 ﻿using BL.Dtos.Base;
 using Domains;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BL.Dtos
 {
-    public class ApplicationDto:BaseDto
+    public class ApplicationDto : BaseDto
     {
         public Guid JobPostId { get; set; }       // FK -> JobPost
         public Guid JobSeekerId { get; set; }     // FK -> JobSeekerProfile
@@ -17,7 +13,7 @@ namespace BL.Dtos
         public Guid? CVFileId { get; set; }       // FK -> CVFile (snapshot)
         public Status Status { get; set; }        // 0..6
         public DateTime AppliedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }  
         public string? ApplicantName { get; set; }
     }
 }

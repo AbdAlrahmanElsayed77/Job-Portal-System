@@ -289,32 +289,41 @@
             window.location.href = url.toString();
         }
 
-        // Save/Unsave Job
+        // ✅ Save/Unsave Job - FIXED
         document.querySelectorAll('.save-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+
                 const jobId = this.dataset.jobId;
-                const isSaved = this.dataset.isSaved === 'true';
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken',
+                    '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)[1]);
 
-                const response = await fetch('/SavedJobs/Toggle/' + jobId, {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    }
-                });
+                try {
+                    const response = await fetch(`/SavedJobs/Toggle?jobId=${jobId}`, {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (result.success) {
-                    const icon = this.querySelector('i');
-                    if (result.action === 'saved') {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        this.dataset.isSaved = 'true';
+                    if (result.success) {
+                        const icon = this.querySelector('i');
+                        if (result.action === 'saved') {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            this.dataset.isSaved = 'true';
+                        } else {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            this.dataset.isSaved = 'false';
+                        }
                     } else {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                        this.dataset.isSaved = 'false';
+                        alert(result.message);
                     }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
                 }
             });
         });
@@ -327,7 +336,6 @@
         });
     </script>
 }
-
 @functions {
     string GetPageUrl(int page)
     {

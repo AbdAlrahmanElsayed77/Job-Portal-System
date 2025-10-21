@@ -1,7 +1,10 @@
 ﻿@model PortalSystemProject.Models.JobSeeker.ApplicationsHistoryViewModel
 
 @{
-    ViewData["Title"] = "سجل التقديمات";
+    ViewData["Title"] = "Application History";
+}
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 }
 
 <div class="container mt-4">
@@ -9,10 +12,10 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3>
-                    <i class="fas fa-file-alt"></i> سجل التقديمات
+                    <i class="fas fa-file-alt"></i> Application History
                 </h3>
                 <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-primary">
-                    <i class="fas fa-search"></i> تصفح الوظائف
+                    <i class="fas fa-search"></i> Browse Jobs
                 </a>
             </div>
 
@@ -21,28 +24,28 @@
                 <div class="card-body">
                     <form asp-action="MyApplications" method="get" class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">الحالة</label>
+                            <label class="form-label">Status</label>
                             <select name="status" class="form-select">
-                                <option value="">جميع الحالات</option>
-                                <option value="0" selected="@(Model.StatusFilter == "0")">قيد المراجعة</option>
-                                <option value="1" selected="@(Model.StatusFilter == "1")">تمت المراجعة</option>
-                                <option value="2" selected="@(Model.StatusFilter == "2")">مقبول</option>
-                                <option value="3" selected="@(Model.StatusFilter == "3")">مرفوض</option>
+                                <option value="">All Statuses</option>
+                                <option value="0" selected="@(Model.StatusFilter == "0")">Pending Review</option>
+                                <option value="1" selected="@(Model.StatusFilter == "1")">Reviewed</option>
+                                <option value="2" selected="@(Model.StatusFilter == "2")">Accepted</option>
+                                <option value="3" selected="@(Model.StatusFilter == "3")">Rejected</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">من تاريخ</label>
+                            <label class="form-label">From Date</label>
                             <input type="date" name="fromDate" class="form-control"
                                    value="@Model.FromDate?.ToString("yyyy-MM-dd")">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">إلى تاريخ</label>
+                            <label class="form-label">To Date</label>
                             <input type="date" name="toDate" class="form-control"
                                    value="@Model.ToDate?.ToString("yyyy-MM-dd")">
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-filter"></i> تصفية
+                                <i class="fas fa-filter"></i> Filter
                             </button>
                         </div>
                     </form>
@@ -55,7 +58,7 @@
                 <div class="row">
                     <div class="col-12">
                         <p class="text-muted mb-3">
-                            عرض @Model.Applications.Count من أصل @Model.TotalApplications تقديم
+                            Showing @Model.Applications.Count of @Model.TotalApplications applications
                         </p>
 
                         @foreach (var app in Model.Applications)
@@ -86,7 +89,7 @@
                                             </p>
                                             <small class="text-muted">
                                                 <i class="fas fa-calendar"></i>
-                                                قدمت في: @app.AppliedAt.ToString("dd/MM/yyyy hh:mm tt")
+                                                Applied on: @app.AppliedAt.ToString("dd/MM/yyyy hh:mm tt")
                                             </small>
                                         </div>
                                         <div class="col-md-2 text-center">
@@ -97,21 +100,21 @@
                                         <div class="col-md-2 text-end">
                                             <a asp-action="Details" asp-route-id="@app.ApplicationId"
                                                class="btn btn-sm btn-outline-primary mb-2 w-100">
-                                                <i class="fas fa-eye"></i> التفاصيل
+                                                <i class="fas fa-eye"></i> Details
                                             </a>
 
-                                            @if (app.Status == "قيد المراجعة")
+                                            @if (app.Status == "Pending Review")
                                             {
                                                 <button class="btn btn-sm btn-outline-danger w-100 withdraw-btn"
                                                         data-app-id="@app.ApplicationId">
-                                                    <i class="fas fa-times"></i> سحب التقديم
+                                                    <i class="fas fa-times"></i> Withdraw Application
                                                 </button>
                                             }
 
                                             <a asp-controller="JobSeeker" asp-action="JobDetails"
                                                asp-route-id="@app.JobPostId"
                                                class="btn btn-sm btn-outline-secondary w-100 mt-2">
-                                                <i class="fas fa-briefcase"></i> الوظيفة
+                                                <i class="fas fa-briefcase"></i> Job
                                             </a>
                                         </div>
                                     </div>
@@ -126,7 +129,7 @@
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
                                         <a class="page-link" href="@GetPageUrl(Model.CurrentPage - 1)">
-                                            السابق
+                                            Previous
                                         </a>
                                     </li>
 
@@ -139,7 +142,7 @@
 
                                     <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
                                         <a class="page-link" href="@GetPageUrl(Model.CurrentPage + 1)">
-                                            التالي
+                                            Next
                                         </a>
                                     </li>
                                 </ul>
@@ -152,10 +155,10 @@
             {
                 <div class="alert alert-info text-center py-5">
                     <i class="fas fa-inbox fa-4x mb-3"></i>
-                    <h5>لا توجد تقديمات</h5>
-                    <p class="text-muted">لم تقدم على أي وظيفة بعد</p>
+                    <h5>No Applications Found</h5>
+                    <p class="text-muted">You haven't applied for any jobs yet.</p>
                     <a asp-controller="JobSeeker" asp-action="BrowseJobs" class="btn btn-primary">
-                        <i class="fas fa-search"></i> تصفح الوظائف المتاحة
+                        <i class="fas fa-search"></i> Browse Available Jobs
                     </a>
                 </div>
             }
@@ -168,7 +171,7 @@
         // Withdraw Application
         document.querySelectorAll('.withdraw-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
-                if (!confirm('هل أنت متأكد من سحب هذا التقديم؟ لن تتمكن من التراجع عن هذا الإجراء.')) {
+                if (!confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
                     return;
                 }
 
@@ -192,7 +195,7 @@
                         alert(result.message);
                     }
                 } catch (error) {
-                    alert('حدث خطأ أثناء سحب التقديم');
+                    alert('An error occurred while withdrawing the application.');
                 }
             });
         });

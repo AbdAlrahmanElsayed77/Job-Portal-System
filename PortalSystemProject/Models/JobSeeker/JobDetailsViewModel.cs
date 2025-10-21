@@ -38,5 +38,6 @@
         public string FileName { get; set; } = string.Empty;
         public bool IsPrimary { get; set; }
         public DateTime UploadedAt { get; set; }
+        public string BlobUrl { get; set; } = string.Empty;
     }
 }

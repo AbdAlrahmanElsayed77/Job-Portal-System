@@ -31,7 +31,6 @@ namespace BL.Services
             _webHostEnvironment = webHostEnvironment;
         }
 
-
         public async Task<List<CVFileDto>> GetCVsByJobSeekerIdAsync(Guid jobSeekerId)
         {
             var cvFiles = await _context.CVFiles
@@ -42,7 +41,6 @@ namespace BL.Services
 
             return _mapper.Map<List<CVFileDto>>(cvFiles);
         }
-
 
         public async Task<(bool Success, string Message, Guid? CVFileId)> UploadCVAsync(
             Guid jobSeekerId,
@@ -79,7 +77,7 @@ namespace BL.Services
                     JobSeekerId = jobSeekerId,
                     FileName = file.FileName,
                     ContentType = file.ContentType,
-                    BlobUrl = $"Files/uploads/cvs/{uniqueFileName}",
+                    BlobUrl = $"/uploads/cvs/{uniqueFileName}", // Fixed path
                     FileSizeBytes = (int)file.Length,
                     IsPrimary = setAsPrimary,
                     CreatedDate = DateTime.Now,
@@ -109,7 +107,6 @@ namespace BL.Services
                 return (false, $"An error occurred while uploading the file: {ex.Message}", null);
             }
         }
-
 
         public async Task<(bool Success, string Message)> DeleteCVAsync(Guid cvFileId, Guid jobSeekerId)
         {
@@ -142,7 +139,6 @@ namespace BL.Services
             }
         }
 
-
         public async Task<bool> SetPrimaryAsync(Guid cvFileId, Guid jobSeekerId)
         {
             try
@@ -165,6 +161,32 @@ namespace BL.Services
             }
         }
 
+        //  Keep only one version with nullable handling
+        public async Task<List<CVFileDto>> GetCVsByIdsAsync(List<Guid> ids)
+        {
+            var validIds = ids.Where(id => id != Guid.Empty).ToList();
+
+            if (!validIds.Any())
+                return new List<CVFileDto>();
+
+            var cvs = await _context.CVFiles
+                .Where(c => validIds.Contains(c.Id))
+                .ToListAsync();
+
+            return _mapper.Map<List<CVFileDto>>(cvs);
+        }
+
+        //  Keep only one version with nullable handling
+        public async Task<CVFileDto?> GetCVByIdAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+                return null;
+
+            var cv = await _context.CVFiles
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            return cv != null ? _mapper.Map<CVFileDto>(cv) : null;
+        }
 
         public async Task<CVFileDto?> GetPrimaryCVAsync(Guid jobSeekerId)
         {
@@ -173,7 +195,6 @@ namespace BL.Services
 
             return cv == null ? null : _mapper.Map<CVFileDto>(cv);
         }
-
 
         public async Task<int> GetCVUsageCountAsync(Guid cvFileId)
         {

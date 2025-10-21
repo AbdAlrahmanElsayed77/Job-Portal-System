@@ -1,34 +1,37 @@
 ﻿@model PortalSystemProject.Models.JobSeeker.JobListViewModel
 
 @{
-    ViewData["Title"] = "تصفح الوظائف";
+    ViewData["Title"] = "Browse Jobs";
+}
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 }
 
 <div class="container mt-4">
     <div class="row">
-        <!-- Sidebar - الفلاتر -->
+        <!-- Sidebar - Filters -->
         <div class="col-md-3">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-filter"></i> تصفية النتائج
+                        <i class="fas fa-filter"></i> Filter Results
                     </h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="BrowseJobs" method="get" id="filterForm">
-                        <!-- البحث -->
+                        <!-- Search -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">كلمة البحث</label>
+                            <label class="form-label fw-bold">Search Keyword</label>
                             <input type="text" class="form-control" name="search"
                                    value="@Model.Filters.SearchKeyword"
-                                   placeholder="ابحث عن وظيفة...">
+                                   placeholder="Search for a job...">
                         </div>
 
-                        <!-- التصنيف -->
+                        <!-- Category -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">التصنيف</label>
+                            <label class="form-label fw-bold">Category</label>
                             <select class="form-select" name="categoryId">
-                                <option value="">جميع التصنيفات</option>
+                                <option value="">All Categories</option>
                                 @foreach (var cat in Model.Categories)
                                 {
                                     <option value="@cat.Id"
@@ -39,11 +42,11 @@
                             </select>
                         </div>
 
-                        <!-- نوع الوظيفة -->
+                        <!-- Job Type -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">نوع الوظيفة</label>
+                            <label class="form-label fw-bold">Job Type</label>
                             <select class="form-select" name="jobTypeId">
-                                <option value="">جميع الأنواع</option>
+                                <option value="">All Types</option>
                                 @foreach (var type in Model.JobTypes)
                                 {
                                     <option value="@type.Id"
@@ -54,11 +57,11 @@
                             </select>
                         </div>
 
-                        <!-- الدولة -->
+                        <!-- Country -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">الدولة</label>
+                            <label class="form-label fw-bold">Country</label>
                             <select class="form-select" name="country" id="countrySelect">
-                                <option value="">جميع الدول</option>
+                                <option value="">All Countries</option>
                                 @foreach (var country in Model.Countries)
                                 {
                                     <option value="@country"
@@ -69,13 +72,13 @@
                             </select>
                         </div>
 
-                        <!-- المدينة -->
+                        <!-- City -->
                         @if (!string.IsNullOrEmpty(Model.Filters.Country))
                         {
                             <div class="mb-3">
-                                <label class="form-label fw-bold">المدينة</label>
+                                <label class="form-label fw-bold">City</label>
                                 <select class="form-select" name="city">
-                                    <option value="">جميع المدن</option>
+                                    <option value="">All Cities</option>
                                     @foreach (var city in Model.Cities)
                                     {
                                         <option value="@city"
@@ -87,68 +90,68 @@
                             </div>
                         }
 
-                        <!-- الراتب -->
+                        <!-- Salary Range -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">نطاق الراتب</label>
+                            <label class="form-label fw-bold">Salary Range</label>
                             <div class="row g-2">
                                 <div class="col-6">
                                     <input type="number" class="form-control" name="minSalary"
-                                           value="@Model.Filters.MinSalary" placeholder="من">
+                                           value="@Model.Filters.MinSalary" placeholder="From">
                                 </div>
                                 <div class="col-6">
                                     <input type="number" class="form-control" name="maxSalary"
-                                           value="@Model.Filters.MaxSalary" placeholder="إلى">
+                                           value="@Model.Filters.MaxSalary" placeholder="To">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- الخبرة -->
+                        <!-- Experience -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">سنوات الخبرة</label>
+                            <label class="form-label fw-bold">Years of Experience</label>
                             <div class="row g-2">
                                 <div class="col-6">
                                     <input type="number" class="form-control" name="minExp"
-                                           value="@Model.Filters.MinExperience" placeholder="من">
+                                           value="@Model.Filters.MinExperience" placeholder="From">
                                 </div>
                                 <div class="col-6">
                                     <input type="number" class="form-control" name="maxExp"
-                                           value="@Model.Filters.MaxExperience" placeholder="إلى">
+                                           value="@Model.Filters.MaxExperience" placeholder="To">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- أزرار -->
+                        <!-- Buttons -->
                         <button type="submit" class="btn btn-primary w-100 mb-2">
-                            <i class="fas fa-search"></i> بحث
+                            <i class="fas fa-search"></i> Search
                         </button>
                         <a href="@Url.Action("BrowseJobs")" class="btn btn-outline-secondary w-100">
-                            <i class="fas fa-redo"></i> إعادة تعيين
+                            <i class="fas fa-redo"></i> Reset
                         </a>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content - قائمة الوظائف -->
+        <!-- Main Content - Job List -->
         <div class="col-md-9">
-            <!-- Header مع الترتيب -->
+            <!-- Header with Sorting -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4>
-                    تم العثور على <span class="text-primary">@Model.TotalJobs</span> وظيفة
+                    Found <span class="text-primary">@Model.TotalJobs</span> jobs
                 </h4>
                 <div class="d-flex align-items-center gap-2">
-                    <label class="mb-0">ترتيب حسب:</label>
+                    <label class="mb-0">Sort by:</label>
                     <select class="form-select form-select-sm" name="sortBy"
                             onchange="applySorting(this.value)" style="width: auto;">
-                        <option value="recent" selected="@(Model.Filters.SortBy == "recent")">الأحدث</option>
-                        <option value="salary" selected="@(Model.Filters.SortBy == "salary")">الراتب</option>
-                        <option value="experience" selected="@(Model.Filters.SortBy == "experience")">الخبرة</option>
-                        <option value="title" selected="@(Model.Filters.SortBy == "title")">العنوان</option>
+                        <option value="recent" selected="@(Model.Filters.SortBy == "recent")">Most Recent</option>
+                        <option value="salary" selected="@(Model.Filters.SortBy == "salary")">Salary</option>
+                        <option value="experience" selected="@(Model.Filters.SortBy == "experience")">Experience</option>
+                        <option value="title" selected="@(Model.Filters.SortBy == "title")">Title</option>
                     </select>
                 </div>
             </div>
 
-            <!-- قائمة الوظائف -->
+            <!-- Job List -->
             @if (Model.Jobs.Any())
             {
                 foreach (var job in Model.Jobs)
@@ -212,7 +215,7 @@
                                         @if (job.HasApplied)
                                         {
                                             <span class="badge bg-success">
-                                                <i class="fas fa-check"></i> تم التقديم
+                                                <i class="fas fa-check"></i> Applied
                                             </span>
                                         }
                                     </div>
@@ -233,7 +236,7 @@
 
                                     <a asp-action="JobDetails" asp-route-id="@job.Id"
                                        class="btn btn-sm btn-primary w-100">
-                                        التفاصيل
+                                        Details
                                     </a>
                                 </div>
                             </div>
@@ -247,7 +250,7 @@
                     <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center">
                             <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                                <a class="page-link" href="@GetPageUrl(Model.CurrentPage - 1)">السابق</a>
+                                <a class="page-link" href="@GetPageUrl(Model.CurrentPage - 1)">Previous</a>
                             </li>
 
                             @for (int i = 1; i <= Model.TotalPages; i++)
@@ -258,7 +261,7 @@
                             }
 
                             <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                                <a class="page-link" href="@GetPageUrl(Model.CurrentPage + 1)">التالي</a>
+                                <a class="page-link" href="@GetPageUrl(Model.CurrentPage + 1)">Next</a>
                             </li>
                         </ul>
                     </nav>
@@ -268,8 +271,8 @@
             {
                 <div class="alert alert-info text-center">
                     <i class="fas fa-info-circle fa-3x mb-3"></i>
-                    <h5>لا توجد وظائف متاحة</h5>
-                    <p>جرب تغيير معايير البحث</p>
+                    <h5>No jobs available</h5>
+                    <p>Try adjusting your search criteria</p>
                 </div>
             }
         </div>
@@ -286,37 +289,46 @@
             window.location.href = url.toString();
         }
 
-        // Save/Unsave Job
+        // ✅ Save/Unsave Job - FIXED
         document.querySelectorAll('.save-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+
                 const jobId = this.dataset.jobId;
-                const isSaved = this.dataset.isSaved === 'true';
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken',
+                    '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)[1]);
 
-                const response = await fetch('/SavedJobs/Toggle/' + jobId, {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    }
-                });
+                try {
+                    const response = await fetch(`/SavedJobs/Toggle?jobId=${jobId}`, {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (result.success) {
-                    const icon = this.querySelector('i');
-                    if (result.action === 'saved') {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        this.dataset.isSaved = 'true';
+                    if (result.success) {
+                        const icon = this.querySelector('i');
+                        if (result.action === 'saved') {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            this.dataset.isSaved = 'true';
+                        } else {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            this.dataset.isSaved = 'false';
+                        }
                     } else {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                        this.dataset.isSaved = 'false';
+                        alert(result.message);
                     }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
                 }
             });
         });
 
-        // Country change -> load cities
+        // Auto-submit when country changes
         document.getElementById('countrySelect')?.addEventListener('change', function() {
             if (this.value) {
                 document.getElementById('filterForm').submit();
@@ -324,7 +336,6 @@
         });
     </script>
 }
-
 @functions {
     string GetPageUrl(int page)
     {

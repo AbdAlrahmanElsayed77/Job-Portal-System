@@ -23,7 +23,10 @@ namespace PortalSystemProject
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddHttpContextAccessor();
+            
             RegisterServciesHelper.RegisteredServices(builder);
+            builder.Services.AddScoped<IAdminDashboardRepository, AdminDashboardRepository>();
+            builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
             var app = builder.Build();
             // 🔧 Auto apply migrations + seed roles/admin

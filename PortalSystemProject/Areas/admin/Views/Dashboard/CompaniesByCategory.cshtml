@@ -1,0 +1,41 @@
+﻿@using Domains
+@model BL.Dtos.Common.PagedResultDto<Domains.Company>
+
+@{
+    ViewData["Title"] = "Companies in " + ViewBag.CategoryName;
+}
+
+<h1>Companies in @ViewBag.CategoryName</h1>
+<div class="m-4"> <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2" onclick="window.history.back();"> <i class="fas fa-arrow-left"></i> <span>Back</span> </button> </div>
+
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Website</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Jobs Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var company in Model.Items)
+        {
+            <tr>
+                <td>@company.Name</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(company.Website))
+                    {
+                        <a href="@company.Website" target="_blank">@company.Website</a>
+                    }
+                </td>
+                <td>@company.Country</td>
+                <td>@company.City</td>
+                <td>@(company.JobPosts?.Count ?? 0)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@await Html.PartialAsync("_Pagination", Model)

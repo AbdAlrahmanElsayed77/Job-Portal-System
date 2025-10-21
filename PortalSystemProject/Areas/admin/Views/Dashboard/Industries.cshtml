@@ -1,0 +1,60 @@
+﻿@using Domains
+@model BL.Dtos.Common.PagedResultDto<Domains.JobCategory>
+
+@{
+    ViewData["Title"] = "Job Categories";
+}
+
+<h1>Job Categories</h1>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary">Job Categories</h2>
+        <a class="btn btn-success" href="@Url.Action("CreateJobCategory", "Dashboard", new { area = "admin" })">
+            + Add New Category
+        </a>
+    </div>
+
+    @foreach (var category in Model.Items)
+    {
+        <div class="card mb-3 p-3 border rounded shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@category.Name</h5>
+                <div>
+                    <a class="btn btn-info btn-sm me-2"
+                       href="@Url.Action("JobCategoryDetails", "Dashboard", new { area = "admin", id = category.Id })">
+                        Details
+                    </a>
+
+                    <a class="btn btn-warning btn-sm me-2"
+                       href="@Url.Action("UpdateJobCategory", "Dashboard", new { area = "admin", id = category.Id })">
+                        Edit
+                    </a>
+
+                    <a class="btn btn-danger btn-sm"
+                       href="@Url.Action("DeleteJobCategory", "Dashboard", new { area = "admin", id = category.Id })"
+                       onclick="return confirm('Are you sure you want to delete this category?');">
+                        Delete
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        onclick="window.location.href='@Url.Action("JobsByCategory", "Dashboard", new { area = "admin", id = category.Id })'">
+                    View Jobs
+                </button>
+
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        onclick="window.location.href='@Url.Action("CompaniesByCategory", "Dashboard", new { area = "admin", id = category.Id })'">
+                    View Companies
+                </button>
+            </div>
+        </div>
+    }
+
+    @await Html.PartialAsync("_Pagination", Model)
+</div>
+
+@await Html.PartialAsync("_Pagination", Model)

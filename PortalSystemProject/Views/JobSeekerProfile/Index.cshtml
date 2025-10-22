@@ -68,18 +68,24 @@
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body p-4">
                     <h6 class="fw-bold mb-3">Quick Stats</h6>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><i class="bi bi-file-earmark-text text-primary"></i> CVs</span>
-                        <strong>@(Model.CVFiles?.Count ?? 0)</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><i class="bi bi-send text-success"></i> Applications</span>
-                        <strong>@(Model.Applications?.Count ?? 0)</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span><i class="bi bi-bookmark text-warning"></i> Saved Jobs</span>
-                        <strong>@(Model.SavedJobs?.Count ?? 0)</strong>
-                    </div>
+                    <a href="/CVManagement/Index" target="_blank" class="text-decoration-none text-black">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-file-earmark-text text-primary"></i> CVs</span>
+                            <strong>@(Model.CVFiles?.Count ?? 0)</strong>
+                        </div>
+                    </a>
+                    <a href="/Application/MyApplications" target="_blank" class="text-decoration-none text-black">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-send text-success"></i> Applications</span>
+                            <strong>@(Model.Applications?.Count ?? 0)</strong>
+                        </div>
+                    </a>
+                    <a href="/SavedJobs/Index" target="_blank" class="text-decoration-none text-black">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="bi bi-bookmark text-warning"></i> Saved Jobs</span>
+                            <strong>@(Model.SavedJobs?.Count ?? 0)</strong>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -177,7 +183,7 @@
                         <h5 class="fw-bold mb-0">
                             <i class="bi bi-send"></i> My Applications
                         </h5>
-                        <a href="#" class="btn btn-sm btn-outline-primary">
+                        <a href="/Application/MyApplications" class="btn btn-sm btn-outline-primary">
                             View All
                         </a>
                     </div>

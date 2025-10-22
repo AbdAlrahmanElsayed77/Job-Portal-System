@@ -68,7 +68,7 @@ namespace PortalSystemProject.Controllers
 
                 // Get job posts for this company
                 var jobPosts = _jobPostRepo.GetAll(j => j.Company)
-                    .Where(j => j.CompanyId == id && j.CurrentState == 1)
+                    .Where(j => j.CompanyId == id && j.IsActive)
                     .OrderByDescending(j => j.CreatedDate)
                     .ToList();
 
@@ -105,11 +105,11 @@ namespace PortalSystemProject.Controllers
 
                 // Get statistics
                 var jobPosts = _jobPostRepo.GetAll()
-                    .Where(j => j.CompanyId == company.Id)
+                    .Where(j => j.CompanyId == company.Id).Take(3)
                     .ToList();
 
                 ViewBag.TotalJobs = jobPosts.Count;
-                ViewBag.ActiveJobs = jobPosts.Count(j => j.CurrentState == 1);
+                ViewBag.ActiveJobs = jobPosts.Count(j => j.IsActive);
                 ViewBag.RecentJobs = jobPosts.OrderByDescending(j => j.CreatedDate).Take(5).ToList();
 
                 return View(company);

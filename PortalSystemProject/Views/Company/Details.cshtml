@@ -87,7 +87,7 @@
                         <div class="list-group">
                             @foreach (var job in jobPosts)
                             {
-                                <a asp-controller="JobPost" asp-action="Details" asp-route-id="@job.Id"
+                                <a asp-controller="JobSeeker" asp-action="JobDetails" asp-route-id="@job.Id"
                                    class="list-group-item list-group-item-action">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>

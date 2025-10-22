@@ -17,7 +17,7 @@ namespace PortalSystemProject.Controllers
         private readonly IJobPostRepository _jobPostRepo;
         private readonly IJobCategoryRepository _categoryRepo;
         private readonly IJobTypeRepository _jobTypeRepo;
-        private readonly ICompanyRepository _companyRepo;           // ← أضفت ده
+        private readonly ICompanyRepository _companyRepo;           
         private readonly ICVFileRepository _cvRepo;
         private readonly IApplicationRepository _applicationRepo;
         private readonly ISavedJobRepository _savedJobRepo;
@@ -28,7 +28,7 @@ namespace PortalSystemProject.Controllers
             IJobPostRepository jobPostRepo,
             IJobCategoryRepository categoryRepo,
             IJobTypeRepository jobTypeRepo,
-            ICompanyRepository companyRepo,                         // ← أضفت ده
+            ICompanyRepository companyRepo,                         
             ICVFileRepository cvRepo,
             IApplicationRepository applicationRepo,
             ISavedJobRepository savedJobRepo,
@@ -38,7 +38,7 @@ namespace PortalSystemProject.Controllers
             _jobPostRepo = jobPostRepo;
             _categoryRepo = categoryRepo;
             _jobTypeRepo = jobTypeRepo;
-            _companyRepo = companyRepo;                             // ← أضفت ده
+            _companyRepo = companyRepo;                            
             _cvRepo = cvRepo;
             _applicationRepo = applicationRepo;
             _savedJobRepo = savedJobRepo;
@@ -63,10 +63,9 @@ namespace PortalSystemProject.Controllers
         {
             var pageSize = 10;
 
-            // ← جيب كل البيانات مرة واحدة
             var allCategories = await _categoryRepo.GetAllCategoriesAsync();
             var allJobTypes = await _jobTypeRepo.GetAllJobTypesAsync();
-            var allCompanies = _companyRepo.GetAll();               // ✅ Sync method من IBaseServices
+            var allCompanies = _companyRepo.GetAll();               
             var companyDictionary = allCompanies.ToDictionary(c => c.Id, c => c);
 
             var (jobs, totalCount) = await _jobPostRepo.GetFilteredJobsAsync(
@@ -104,7 +103,6 @@ namespace PortalSystemProject.Controllers
                     Id = j.Id,
                     Title = j.Title,
 
-                    // ← استخدم الـ Dictionary للشركة
                     CompanyName = companyDictionary.GetValueOrDefault(j.CompanyId,
                         new BL.Dtos.CompanyDto { Name = "Unknown Company" }).Name,
                     CompanyLogo = companyDictionary.GetValueOrDefault(j.CompanyId,
@@ -113,7 +111,6 @@ namespace PortalSystemProject.Controllers
                     City = j.City,
                     Country = j.Country,
 
-                    // ← استخدم الـ Lists للكاتيجوري والجوب تايب
                     JobCategory = allCategories.FirstOrDefault(c => c.Id == j.JobCategoryId)?.Name ?? "Unknown Category",
                     JobType = j.JobTypeId.HasValue ?
                         allJobTypes.FirstOrDefault(t => t.Id == j.JobTypeId.Value)?.Name : null,
@@ -161,7 +158,6 @@ namespace PortalSystemProject.Controllers
                 TotalJobs = totalCount,
                 PageSize = pageSize,
 
-                // ← مرر كل البيانات للـ ViewModel
                 AllCategories = allCategories,
                 AllJobTypes = allJobTypes,
                 CompanyDictionary = companyDictionary
@@ -178,10 +174,9 @@ namespace PortalSystemProject.Controllers
             if (job == null)
                 return NotFound();
 
-            // ← جيب البيانات اللازمة
             var allCategories = await _categoryRepo.GetAllCategoriesAsync();
             var allJobTypes = await _jobTypeRepo.GetAllJobTypesAsync();
-            var allCompanies = _companyRepo.GetAll();               // ✅ Sync method
+            var allCompanies = _companyRepo.GetAll();              
             var companyDictionary = allCompanies.ToDictionary(c => c.Id, c => c);
 
             var totalApplications = await _jobPostRepo.GetApplicationsCountAsync(id);
@@ -223,7 +218,6 @@ namespace PortalSystemProject.Controllers
                 Requirements = job.Requirements,
                 CompanyId = job.CompanyId,
 
-                // ← استخدم الـ Dictionary للشركة
                 CompanyName = companyDictionary.GetValueOrDefault(job.CompanyId,
                     new BL.Dtos.CompanyDto { Name = "Unknown Company" }).Name,
                 CompanyLogo = companyDictionary.GetValueOrDefault(job.CompanyId,
@@ -233,7 +227,6 @@ namespace PortalSystemProject.Controllers
                 CompanyDescription = companyDictionary.GetValueOrDefault(job.CompanyId,
                     new BL.Dtos.CompanyDto { Description = null }).Description,
 
-                // ← استخدم الـ Lists للكاتيجوري والجوب تايب
                 Category = allCategories.FirstOrDefault(c => c.Id == job.JobCategoryId)?.Name ?? "Unknown Category",
                 JobType = job.JobTypeId.HasValue ?
                     allJobTypes.FirstOrDefault(t => t.Id == job.JobTypeId.Value)?.Name : null,
@@ -254,7 +247,6 @@ namespace PortalSystemProject.Controllers
             return View(viewModel);
         }
 
-        // ← امسحت كل الـ placeholder methods دي
         // private string GetCompanyName(Guid companyId) => "Company Name"; 
         // private string? GetCompanyLogo(Guid companyId) => null;
         // private string? GetCompanyWebsite(Guid companyId) => null;

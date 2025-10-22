@@ -103,9 +103,9 @@ namespace PortalSystemProject.Controllers
                     Id = j.Id,
                     Title = j.Title,
 
-                    CompanyName = companyDictionary.GetValueOrDefault(j.CompanyId,
+                    CompanyName = companyDictionary.GetValueOrDefault(j.CompanyId ?? new Guid(),
                         new BL.Dtos.CompanyDto { Name = "Unknown Company" }).Name,
-                    CompanyLogo = companyDictionary.GetValueOrDefault(j.CompanyId,
+                    CompanyLogo = companyDictionary.GetValueOrDefault(j.CompanyId ?? new Guid(),
                         new BL.Dtos.CompanyDto { LogoUrl = null }).LogoUrl,
 
                     City = j.City,
@@ -216,15 +216,15 @@ namespace PortalSystemProject.Controllers
                 Title = job.Title,
                 Description = job.Description,
                 Requirements = job.Requirements,
-                CompanyId = job.CompanyId,
+                CompanyId = job.CompanyId ?? new Guid(),
 
-                CompanyName = companyDictionary.GetValueOrDefault(job.CompanyId,
+                CompanyName = companyDictionary.GetValueOrDefault(job.CompanyId ?? new Guid(),
                     new BL.Dtos.CompanyDto { Name = "Unknown Company" }).Name,
-                CompanyLogo = companyDictionary.GetValueOrDefault(job.CompanyId,
+                CompanyLogo = companyDictionary.GetValueOrDefault(job.CompanyId ?? new Guid(),
                     new BL.Dtos.CompanyDto { LogoUrl = null }).LogoUrl,
-                CompanyWebsite = companyDictionary.GetValueOrDefault(job.CompanyId,
+                CompanyWebsite = companyDictionary.GetValueOrDefault(job.CompanyId ?? new Guid(),
                     new BL.Dtos.CompanyDto { Website = null }).Website,
-                CompanyDescription = companyDictionary.GetValueOrDefault(job.CompanyId,
+                CompanyDescription = companyDictionary.GetValueOrDefault(job.CompanyId ?? new Guid(),
                     new BL.Dtos.CompanyDto { Description = null }).Description,
 
                 Category = allCategories.FirstOrDefault(c => c.Id == job.JobCategoryId)?.Name ?? "Unknown Category",

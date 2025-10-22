@@ -5,7 +5,7 @@ namespace BL.Dtos
 {
     public class JobPostDto : BaseDto
     {
-        public Guid CompanyId { get; set; }       // FK -> Company
+        public Guid? CompanyId { get; set; }       // FK -> Company
         public Guid CreatedByUserId { get; set; } // FK -> ApplicationUser
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

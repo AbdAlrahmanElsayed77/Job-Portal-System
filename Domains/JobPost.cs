@@ -42,6 +42,8 @@ namespace Domains
         public string? Currency { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public DateTime? ExpiresAt { get; set; }
+
 
         // Navs
 

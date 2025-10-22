@@ -11,11 +11,13 @@ namespace BL.Dtos.AccountDtos
     {
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
-        public string FirstName { get; set; } = string.Empty;
+        [Display(Name = "First Name")]
+        public string FName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Last name is required")]
         [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
-        public string LastName { get; set; } = string.Empty;
+        [Display(Name = "Last Name")]
+        public string LName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email address")]

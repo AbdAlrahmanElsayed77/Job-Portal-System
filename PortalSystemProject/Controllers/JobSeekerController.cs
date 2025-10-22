@@ -5,17 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using PortalSystemProject.Models.JobSeeker;
 using Domains.UserModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace PortalSystemProject.Controllers
 {
-    [Authorize] 
+    [Authorize(Roles = "JobSeeker")]
     public class JobSeekerController : Controller
     {
         private readonly IJobPostRepository _jobPostRepo;
         private readonly IJobCategoryRepository _categoryRepo;
         private readonly IJobTypeRepository _jobTypeRepo;
+        private readonly ICompanyRepository _companyRepo;           
         private readonly ICVFileRepository _cvRepo;
         private readonly IApplicationRepository _applicationRepo;
         private readonly ISavedJobRepository _savedJobRepo;
@@ -26,6 +28,7 @@ namespace PortalSystemProject.Controllers
             IJobPostRepository jobPostRepo,
             IJobCategoryRepository categoryRepo,
             IJobTypeRepository jobTypeRepo,
+            ICompanyRepository companyRepo,                         
             ICVFileRepository cvRepo,
             IApplicationRepository applicationRepo,
             ISavedJobRepository savedJobRepo,
@@ -35,6 +38,7 @@ namespace PortalSystemProject.Controllers
             _jobPostRepo = jobPostRepo;
             _categoryRepo = categoryRepo;
             _jobTypeRepo = jobTypeRepo;
+            _companyRepo = companyRepo;                            
             _cvRepo = cvRepo;
             _applicationRepo = applicationRepo;
             _savedJobRepo = savedJobRepo;
@@ -42,24 +46,27 @@ namespace PortalSystemProject.Controllers
             _userManager = userManager;
         }
 
- 
         [HttpGet]
         [AllowAnonymous]
-       
         public async Task<IActionResult> BrowseJobs(
-    string? search,
-    Guid? categoryId,
-    Guid? jobTypeId,
-    string? country,
-    string? city,
-    decimal? minSalary,
-    decimal? maxSalary,
-    byte? minExp,
-    byte? maxExp,
-    string sortBy = "recent",
-    int page = 1)
+            string? search,
+            Guid? categoryId,
+            Guid? jobTypeId,
+            string? country,
+            string? city,
+            decimal? minSalary,
+            decimal? maxSalary,
+            byte? minExp,
+            byte? maxExp,
+            string sortBy = "recent",
+            int page = 1)
         {
             var pageSize = 10;
+
+            var allCategories = await _categoryRepo.GetAllCategoriesAsync();
+            var allJobTypes = await _jobTypeRepo.GetAllJobTypesAsync();
+            var allCompanies = _companyRepo.GetAll();               
+            var companyDictionary = allCompanies.ToDictionary(c => c.Id, c => c);
 
             var (jobs, totalCount) = await _jobPostRepo.GetFilteredJobsAsync(
                 search, categoryId, jobTypeId, country, city,
@@ -83,7 +90,6 @@ namespace PortalSystemProject.Controllers
                 if (profile != null)
                 {
                     savedJobIds = await _savedJobRepo.GetSavedJobIdsAsync(profile.Id);
-
                     var (applications, _) = await _applicationRepo.GetJobSeekerApplicationsAsync(
                         profile.Id, page: 1, pageSize: 1000);
                     appliedJobIds = applications.Select(a => a.JobPostId).ToList();
@@ -96,15 +102,22 @@ namespace PortalSystemProject.Controllers
                 {
                     Id = j.Id,
                     Title = j.Title,
-                    CompanyName = GetCompanyName(j.CompanyId),
-                    CompanyLogo = GetCompanyLogo(j.CompanyId),
+
+                    CompanyName = companyDictionary.GetValueOrDefault(j.CompanyId,
+                        new BL.Dtos.CompanyDto { Name = "Unknown Company" }).Name,
+                    CompanyLogo = companyDictionary.GetValueOrDefault(j.CompanyId,
+                        new BL.Dtos.CompanyDto { LogoUrl = null }).LogoUrl,
+
                     City = j.City,
                     Country = j.Country,
-                    JobCategory = GetCategoryName(j.JobCategoryId),
-                    JobType = j.JobTypeId.HasValue ? GetJobTypeName(j.JobTypeId.Value) : null,
+
+                    JobCategory = allCategories.FirstOrDefault(c => c.Id == j.JobCategoryId)?.Name ?? "Unknown Category",
+                    JobType = j.JobTypeId.HasValue ?
+                        allJobTypes.FirstOrDefault(t => t.Id == j.JobTypeId.Value)?.Name : null,
+
                     SalaryRange = FormatSalaryRange(j.MinSalary, j.MaxSalary, j.Currency),
                     ExperienceRange = FormatExperienceRange(j.MinExperienceYears, j.MaxExperienceYears),
-                    PublishedAt = j.PublishedAt ?? DateTime.Now,  // ✅ الحل هنا
+                    PublishedAt = j.PublishedAt ?? DateTime.Now,
                     IsSaved = savedJobIds.Contains(j.Id),
                     HasApplied = appliedJobIds.Contains(j.Id)
                 }).ToList(),
@@ -143,21 +156,28 @@ namespace PortalSystemProject.Controllers
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
                 TotalJobs = totalCount,
-                PageSize = pageSize
+                PageSize = pageSize,
+
+                AllCategories = allCategories,
+                AllJobTypes = allJobTypes,
+                CompanyDictionary = companyDictionary
             };
 
             return View(viewModel);
         }
 
-
         [HttpGet]
         [AllowAnonymous]
- 
         public async Task<IActionResult> JobDetails(Guid id)
         {
             var job = await _jobPostRepo.GetJobDetailsWithCompanyAsync(id);
             if (job == null)
                 return NotFound();
+
+            var allCategories = await _categoryRepo.GetAllCategoriesAsync();
+            var allJobTypes = await _jobTypeRepo.GetAllJobTypesAsync();
+            var allCompanies = _companyRepo.GetAll();              
+            var companyDictionary = allCompanies.ToDictionary(c => c.Id, c => c);
 
             var totalApplications = await _jobPostRepo.GetApplicationsCountAsync(id);
 
@@ -197,17 +217,25 @@ namespace PortalSystemProject.Controllers
                 Description = job.Description,
                 Requirements = job.Requirements,
                 CompanyId = job.CompanyId,
-                CompanyName = GetCompanyName(job.CompanyId),
-                CompanyLogo = GetCompanyLogo(job.CompanyId),
-                CompanyWebsite = GetCompanyWebsite(job.CompanyId),
-                CompanyDescription = GetCompanyDescription(job.CompanyId),
-                Category = GetCategoryName(job.JobCategoryId),
-                JobType = job.JobTypeId.HasValue ? GetJobTypeName(job.JobTypeId.Value) : null,
+
+                CompanyName = companyDictionary.GetValueOrDefault(job.CompanyId,
+                    new BL.Dtos.CompanyDto { Name = "Unknown Company" }).Name,
+                CompanyLogo = companyDictionary.GetValueOrDefault(job.CompanyId,
+                    new BL.Dtos.CompanyDto { LogoUrl = null }).LogoUrl,
+                CompanyWebsite = companyDictionary.GetValueOrDefault(job.CompanyId,
+                    new BL.Dtos.CompanyDto { Website = null }).Website,
+                CompanyDescription = companyDictionary.GetValueOrDefault(job.CompanyId,
+                    new BL.Dtos.CompanyDto { Description = null }).Description,
+
+                Category = allCategories.FirstOrDefault(c => c.Id == job.JobCategoryId)?.Name ?? "Unknown Category",
+                JobType = job.JobTypeId.HasValue ?
+                    allJobTypes.FirstOrDefault(t => t.Id == job.JobTypeId.Value)?.Name : null,
+
                 Location = $"{job.City}, {job.Country}",
                 ExperienceRequired = FormatExperienceRange(job.MinExperienceYears, job.MaxExperienceYears),
                 SalaryRange = FormatSalaryRange(job.MinSalary, job.MaxSalary, job.Currency),
-                PublishedAt = job.PublishedAt ?? DateTime.Now,  // ✅ الحل هنا
-                ExpiresAt = job.ExpiresAt,  // ✅ ده nullable عادي
+                PublishedAt = job.PublishedAt ?? DateTime.Now,
+                ExpiresAt = job.ExpiresAt,
                 IsSaved = isSaved,
                 HasApplied = hasApplied,
                 CanApply = canApply,
@@ -219,12 +247,12 @@ namespace PortalSystemProject.Controllers
             return View(viewModel);
         }
 
-        private string GetCompanyName(Guid companyId) => "Company Name"; 
-        private string? GetCompanyLogo(Guid companyId) => null;
-        private string? GetCompanyWebsite(Guid companyId) => null;
-        private string? GetCompanyDescription(Guid companyId) => null;
-        private string GetCategoryName(Guid categoryId) => "Category";
-        private string? GetJobTypeName(Guid jobTypeId) => "Job Type";
+        // private string GetCompanyName(Guid companyId) => "Company Name"; 
+        // private string? GetCompanyLogo(Guid companyId) => null;
+        // private string? GetCompanyWebsite(Guid companyId) => null;
+        // private string? GetCompanyDescription(Guid companyId) => null;
+        // private string GetCategoryName(Guid categoryId) => "Category";
+        // private string? GetJobTypeName(Guid jobTypeId) => "Job Type";
 
         private string? FormatSalaryRange(decimal? min, decimal? max, string? currency)
         {

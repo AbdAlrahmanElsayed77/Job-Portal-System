@@ -1,20 +1,19 @@
-﻿using BL.Dtos.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BL.Dtos
+﻿namespace BL.Dtos
 {
-    public class CVFileDto:BaseDto
+    public class CVFileDto
     {
-        public Guid JobSeekerId { get; set; }     // FK -> JobSeekerProfile
+        public Guid Id { get; set; }
+        public Guid JobSeekerId { get; set; }
         public string FileName { get; set; } = string.Empty;
         public string ContentType { get; set; } = string.Empty;
         public string BlobUrl { get; set; } = string.Empty;
         public int FileSizeBytes { get; set; }
         public bool IsPrimary { get; set; }
         public DateTime UploadedAt { get; set; }
+
+        // Helper property for display
+        public string FileSizeDisplay => FileSizeBytes < 1024 * 1024
+            ? $"{FileSizeBytes / 1024} KB"
+            : $"{FileSizeBytes / (1024 * 1024)} MB";
     }
 }

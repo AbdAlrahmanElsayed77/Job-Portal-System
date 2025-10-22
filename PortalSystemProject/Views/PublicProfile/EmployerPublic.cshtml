@@ -1,0 +1,73 @@
+﻿@model Domains.EmployerProfile
+
+@{
+    ViewData["Title"] = Model.Company?.Name ?? "Employer Profile";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body text-center p-4">
+                    <img src="@(Model.Company?.LogoUrl ?? "/img/default-company-logo.png")"
+                         alt="Company Logo"
+                         class="img-thumbnail shadow-sm mb-3"
+                         style="width: 150px; height: 150px; object-fit: contain; background: #f8f9fa;">
+
+                    <h4 class="fw-bold mb-1">@(Model.Company?.Name ?? "Company")</h4>
+                    <p class="text-primary mb-2">
+                        <i class="bi bi-briefcase"></i> @(Model.JobTitle ?? "Employer")
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(Model.Company?.City) || !string.IsNullOrEmpty(Model.Company?.Country))
+                    {
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt"></i> @Model.Company.City@(string.IsNullOrEmpty(Model.Company.City) ? "" : ", ")@Model.Company.Country
+                        </p>
+                    }
+
+                    <p class="text-muted small">
+                        <i class="bi bi-calendar"></i> @ViewBag.MemberSince
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(Model.Company?.Website))
+                    {
+                        <hr />
+                        <a href="@Model.Company.Website" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="bi bi-globe"></i> Visit Website
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-building"></i> About the Company
+                    </h5>
+                    <p class="text-muted">
+                        @(Model.Company?.Description ?? "No company description available.")
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-briefcase"></i> Open Positions
+                    </h5>
+                    <div class="text-center p-4">
+                        <a asp-controller="JobPost" asp-action="Index" asp-route-companyId="@Model.CompanyId"
+                           class="btn btn-primary">
+                            <i class="bi bi-search"></i> View All Jobs from this Company
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

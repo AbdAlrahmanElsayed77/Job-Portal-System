@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PortalSystemProject.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     <header>
@@ -38,15 +40,57 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="MyProfile">
                                             <i class="bi bi-person-lines-fill"></i> Profile
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
-                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Settings">
+                                            <i class="bi bi-gear"></i> Settings
                                         </a>
+                                    </li>
+                                    @if(User.IsInRole("Admin"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                                <i class="bi bi-speedometer2"></i> Admin Dashboard
+                                            </a>
+                                        </li>
+                                    }
+                                    @if(User.IsInRole("Employer"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Employer" asp-action="JobPosts">
+                                                <i class="bi bi-building"></i> Employer Dashboard
+                                            </a>
+                                        </li>
+                                    }
+                                    @if(User.IsInRole("JobSeeker"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="CvManagement" asp-action="Index">
+                                                <i class="bi bi-file-earmark-text"></i> CV Management
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="SavedJobs" asp-action="Index">
+                                                <i class="bi bi-bookmark"></i> Saved Jobs
+                                            </a>
+                                        </li>
+                                    }
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
                             </li>

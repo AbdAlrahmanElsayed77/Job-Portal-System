@@ -21,5 +21,6 @@ namespace BL.Contracts
 
   
         Task<List<Guid>> GetSavedJobIdsAsync(Guid jobSeekerId);
+        Task<List<SavedJobDto>> GetSavedJobsWithDetailsAsync(Guid jobSeekerId);
     }
 }

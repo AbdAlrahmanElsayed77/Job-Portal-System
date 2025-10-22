@@ -110,5 +110,20 @@ namespace BL.Services
                 .Select(s => s.JobPostId)
                 .ToListAsync();
         }
+        public async Task<List<SavedJobDto>> GetSavedJobsWithDetailsAsync(Guid jobSeekerId)
+        {
+            var savedJobs = await _context.SavedJobs
+                .Where(s => s.JobSeekerId == jobSeekerId)
+                .Include(s => s.JobPost)
+                    .ThenInclude(j => j.Company)
+                .Include(s => s.JobPost)
+                    .ThenInclude(j => j.JobCategory)
+                .Include(s => s.JobPost)
+                    .ThenInclude(j => j.JobType)
+                .OrderByDescending(s => s.CreatedDate)
+                .ToListAsync();
+
+            return _mapper.Map<List<SavedJobDto>>(savedJobs);
+        }
     }
 }

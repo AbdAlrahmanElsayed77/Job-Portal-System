@@ -1,1 +1,126 @@
-﻿<h1>Admin dashmlsmd</h1>
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <h1 class="mb-4 fw-bold text-primary text-center">Admin Dashboard</h1>
+
+     <div class="d-flex justify-content-end mb-4">
+        <select id="periodSelect" class="form-select" style="max-width: 250px;">
+            <option value="all">All Time</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">Last 30 Days</option>
+        </select>
+    </div>
+
+     <div id="statsContainer" class="row g-4 mb-5"></div>
+
+     <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-center text-secondary">Jobs by Category</h5>
+                    <canvas id="categoryChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-center text-secondary">Jobs by Company</h5>
+                    <canvas id="companyChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let categoryChart, companyChart;
+
+     async function loadDashboard(period = "all") {
+        const response = await fetch(`/admin/Dashboard/GetDashboardData?period=${period}`);
+        const data = await response.json();
+
+        updateStats(data);
+        updateCharts(data);
+    }
+
+     function updateStats(data) {
+        document.getElementById('statsContainer').innerHTML = `
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm border-0 text-center bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">Users</h5>
+                        <h2 class="fw-bold text-dark">${data.userCount}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm border-0 text-center bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">Companies</h5>
+                        <h2 class="fw-bold text-dark">${data.companyCount}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm border-0 text-center bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">Jobs</h5>
+                        <h2 class="fw-bold text-dark">${data.jobCount}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm border-0 text-center bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">Categories</h5>
+                        <h2 class="fw-bold text-dark">${data.categoryCount}</h2>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+     function updateCharts(data) {
+        if (categoryChart) categoryChart.destroy();
+        if (companyChart) companyChart.destroy();
+
+        const categoryCtx = document.getElementById('categoryChart');
+        categoryChart = new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: data.categoryLabels,
+                datasets: [{
+                    data: data.categoryJobCounts,
+                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2', '#fd7e14', '#20c997', '#6c757d']
+                }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
+        });
+
+        const companyCtx = document.getElementById('companyChart');
+        companyChart = new Chart(companyCtx, {
+            type: 'bar',
+            data: {
+                labels: data.companyLabels,
+                datasets: [{
+                    label: 'Jobs Count',
+                    data: data.companyJobCounts,
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+     document.getElementById('periodSelect').addEventListener('change', (e) => {
+        loadDashboard(e.target.value);
+    });
+
+     loadDashboard();
+
+</script>

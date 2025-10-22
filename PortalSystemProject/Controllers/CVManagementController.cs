@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PortalSystemProject.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "JobSeeker")]
     public class CVManagementController : Controller
     {
         private readonly ICVFileRepository _cvRepo;
@@ -53,7 +53,7 @@ namespace PortalSystemProject.Controllers
                     FileSizeBytes = cv.FileSizeBytes,
                     IsPrimary = cv.IsPrimary,
                     UploadedAt = cv.UploadedAt,
-                    UsedInApplications = _cvRepo.GetCVUsageCountAsync(cv.Id).Result
+                    //UsedInApplications = _cvRepo.GetCVUsageCountAsync(cv.Id).Result
                 }).ToList()
             };
 
@@ -63,13 +63,11 @@ namespace PortalSystemProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-      
         public async Task<IActionResult> Upload(IFormFile CVFile, bool SetAsPrimary = false)
         {
-            // ✅ Check if file is uploaded
             if (CVFile == null || CVFile.Length == 0)
             {
-                TempData["Error"] = "الرجاء اختيار ملف السيرة الذاتية";
+                TempData["Error"] = "Please select a CV file";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -78,7 +76,7 @@ namespace PortalSystemProject.Controllers
 
             if (profile == null)
             {
-                TempData["Error"] = "يجب إنشاء ملف تعريف أولاً";
+                TempData["Error"] = "Profile must be created first";
                 return RedirectToAction("CreateProfile", "JobSeeker");
             }
 

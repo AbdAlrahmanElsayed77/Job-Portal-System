@@ -28,7 +28,11 @@ namespace BL.Services
 
         public JobSeekerProfileDto GetByUserId(Guid userId)
         {
-            var entity = _profileRepo.GetAll()
+            var entity = _profileRepo.GetAll(
+                    p => p.CVFiles,
+                    p => p.Applications,
+                    p => p.SavedJobs
+                )
                 .FirstOrDefault(p => p.UserId == userId);
             return _mapper.Map<JobSeekerProfileDto>(entity);
         }
@@ -72,7 +76,7 @@ namespace BL.Services
                     var cvEntity = new CVFile
                     {
                         Id = Guid.NewGuid(),
-                        JobSeekerId = profile.Id, // ✅ critical line - now profile.Id is generated
+                        JobSeekerId = profile.Id,
                         BlobUrl = _fileService.UploadFileAsync("uploads/cvs", cv).Result,
                         FileName = cv.FileName,
                         ContentType = cv.ContentType,
@@ -97,6 +101,7 @@ namespace BL.Services
                 var originalUserId = profile.UserId;
                 var originalCreatedBy = profile.CreatedBy;
                 var originalCreatedDate = profile.CreatedDate;
+                var originalPhotoUrl = profile.PhotoUrl; // ✅ Preserve photo
 
                 _mapper.Map(dto, profile);
 
@@ -107,25 +112,36 @@ namespace BL.Services
                 profile.UpdatedBy = userId;
                 profile.UpdatedDate = DateTime.UtcNow;
 
+                // ✅ Only update photo if new one provided
                 if (photo != null)
                 {
                     profile.PhotoUrl = _fileService.UploadFileAsync("uploads/profile_photos", photo).Result;
                 }
+                else if (!string.IsNullOrEmpty(dto.PhotoUrl))
+                {
+                    // Use the photo URL from DTO (preserved from hidden field)
+                    profile.PhotoUrl = dto.PhotoUrl;
+                }
+                else
+                {
+                    // Keep original photo
+                    profile.PhotoUrl = originalPhotoUrl;
+                }
 
                 _profileRepo.Update(profile);
 
-                // ✅ Add new CV if provided
+                // ✅ Add new CV if provided (handled separately now via UploadCV action)
                 if (cv != null)
                 {
                     var cvEntity = new CVFile
                     {
                         Id = Guid.NewGuid(),
-                        JobSeekerId = profile.Id, // ✅ ensure FK is valid
+                        JobSeekerId = profile.Id,
                         BlobUrl = _fileService.UploadFileAsync("uploads/cvs", cv).Result,
                         FileName = cv.FileName,
                         ContentType = cv.ContentType,
                         FileSizeBytes = (int)cv.Length,
-                        IsPrimary = false, // Existing profile, so not primary
+                        IsPrimary = false,
                         CreatedBy = userId,
                         CreatedDate = DateTime.UtcNow,
                         CurrentState = 1

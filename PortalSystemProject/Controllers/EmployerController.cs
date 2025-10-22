@@ -4,6 +4,7 @@ using BL.Services;
 using Domains;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Packaging;
 using OfficeOpenXml;
@@ -11,10 +12,11 @@ using OfficeOpenXml.Style;
 using System.ComponentModel;
 using System.Drawing;
 using System.Security.Claims;
-using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace PortalSystemProject.Controllers
 {
+    [Authorize(Roles = "Employer")]
+
     public class EmployerController : Controller
     {
         public EmployerController
@@ -72,18 +74,19 @@ namespace PortalSystemProject.Controllers
         [HttpPost]
         public IActionResult create(JobPostDto jop)
         {
-            if(!ModelState.IsValid)
+            var EmpId = GetCurrentEmployerId();
+            var currentEmployer = EmployerProfileService.GetById(EmpId);
+            jop.CreatedByUserId = GetCurrentUserId();
+            jop.CompanyId = currentEmployer.CompanyId;
+            jop.PublishedAt = DateTime.Now;
+
+            if (!ModelState.IsValid)
             {
                 ViewBag.JobCategories = CategoryService.GetAll();
                 ViewBag.JobTypes = JobTypeService.GetAll();
                 return View(jop);
             }
-            var currentEmployer = EmployerProfileService.GetById(EmpId);
-
-            //jop.CompanyId= currentEmployer.CompanyId;
-            //jop.CreatedByUserId = currentEmployer.Id;
-            jop.CreatedByUserId = GetCurrentUserId();
-            jop.PublishedAt = DateTime.Now;
+            
             JobPostService.Add(jop);
             TempData["success"] = "Job post added successfully!";
             return RedirectToAction("JobPosts");

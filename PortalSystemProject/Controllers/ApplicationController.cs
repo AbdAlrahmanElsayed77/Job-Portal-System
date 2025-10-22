@@ -170,7 +170,7 @@ namespace PortalSystemProject.Controllers
                 Applications = applications.Select(a =>
                 {
                     var job = jobs.FirstOrDefault(j => j.Id == a.JobPostId);
-                    var company = job != null ? companies.GetValueOrDefault(job.CompanyId) : null;
+                    var company = job != null ? companies.GetValueOrDefault(job.CompanyId??new Guid()) : null;
                     var cv = a.CVFileId.HasValue ? cvs.FirstOrDefault(c => c.Id == a.CVFileId.Value) : null;
 
                     return new ApplicationItemViewModel

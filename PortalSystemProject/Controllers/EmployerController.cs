@@ -11,7 +11,6 @@ using OfficeOpenXml.Style;
 using System.ComponentModel;
 using System.Drawing;
 using System.Security.Claims;
-using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace PortalSystemProject.Controllers
 {

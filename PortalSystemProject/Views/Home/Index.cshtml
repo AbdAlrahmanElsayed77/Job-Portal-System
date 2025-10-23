@@ -116,7 +116,11 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div class="company-logo bg-light rounded p-2">
-                                        <i class="bi bi-building fs-3 text-primary"></i>
+                                        @* <i class="bi bi-building fs-3 text-primary"></i> *@
+                                        <img src="@job.LogoUrl"
+                                             alt="@job.CompanyName Logo"
+                                             class="img-fluid"
+                                             style="max-height: 50px;">
                                     </div>
                                     <span class="badge bg-success">New</span>
                                 </div>

@@ -23,6 +23,7 @@ namespace PortalSystemProject.Models.Home
         public string? JobType { get; set; }
         public string? SalaryRange { get; set; }
         public DateTime PublishedAt { get; set; }
+        public string? LogoUrl { get; set; }
     }
 
     public class CategoryItem

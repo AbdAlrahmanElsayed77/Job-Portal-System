@@ -11,33 +11,32 @@ namespace PortalSystemProject.Controllers
     {
         private readonly IJobPostRepository _jobPostRepo;
         private readonly IJobCategoryRepository _categoryRepo;
+        private readonly ICompanyRepository _companyRepo;
 
         public HomeController(
             IJobPostRepository jobPostRepo,
-            IJobCategoryRepository categoryRepo)
+            IJobCategoryRepository categoryRepo,ICompanyRepository companyRepository)
         {
             _jobPostRepo = jobPostRepo;
             _categoryRepo = categoryRepo;
+            _companyRepo = companyRepository;
+
         }
 
-        /// <summary>
-        /// Landing Page - «·’›Õ… «·—∆Ì”Ì…
-        /// </summary>
+  
         public async Task<IActionResult> Index()
         {
-            // Ã·» √ÕœÀ «·ÊŸ«∆› (Recently Posted)
             var (recentJobs, _) = await _jobPostRepo.GetFilteredJobsAsync(
                 sortBy: "recent",
                 page: 1,
                 pageSize: 6);
 
-            // Ã·» «· ’‰Ì›« 
             var categories = await _categoryRepo.GetCategoriesWithJobCountAsync();
 
-            // ≈Õ’«∆Ì«  ”—Ì⁄…
             var (allJobs, totalJobs) = await _jobPostRepo.GetFilteredJobsAsync(
                 page: 1,
                 pageSize: 1);
+
 
             var viewModel = new HomeViewModel
             {
@@ -45,11 +44,12 @@ namespace PortalSystemProject.Controllers
                 {
                     Id = j.Id,
                     Title = j.Title,
-                    CompanyName = "Company Name", // TODO
+                    CompanyName = j.Company.Name ?? "N/A",
                     City = j.City,
                     Country = j.Country,
-                    Category = "Category", // TODO
-                    JobType = "Job Type", // TODO
+                    Category = j.JobCategory.Name??"N/A", 
+                    JobType = j.JobType.Name ?? "N/A", 
+                    LogoUrl = j.Company.LogoUrl,
                     SalaryRange = FormatSalary(j.MinSalary, j.MaxSalary, j.Currency),
                     PublishedAt = j.PublishedAt ?? DateTime.Now
                 }).ToList(),
@@ -62,16 +62,14 @@ namespace PortalSystemProject.Controllers
                 }).ToList(),
 
                 TotalJobs = totalJobs,
-                TotalCompanies = 0, // TODO
+                TotalCompanies =_companyRepo.GetAll().Count(), 
                 TotalCategories = categories.Count
             };
 
             return View(viewModel);
         }
 
-        /// <summary>
-        /// «·»ÕÀ «·”—Ì⁄ „‰ «·‹ Landing Page
-        /// </summary>
+       
         [HttpGet]
         public IActionResult Search(string? keyword, string? location)
         {

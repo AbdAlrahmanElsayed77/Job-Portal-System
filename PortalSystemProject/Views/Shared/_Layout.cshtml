@@ -27,11 +27,22 @@
                                 <i class="bi bi-house"></i> Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="JobSeeker" asp-action="BrowseJobs">
-                                <i class="bi bi-search"></i> Browse Jobs
-                            </a>
-                        </li>
+                        @if(User.IsInRole("Employer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Employer" asp-action="JobPosts">
+                                    <i class="bi bi-briefcase"></i> My Job Posts
+                                </a>
+                            </li>
+                        }
+                        @if(User.IsInRole("JobSeeker"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="JobSeeker" asp-action="BrowseJobs">
+                                    <i class="bi bi-search"></i> Browse Jobs
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity!.IsAuthenticated)
@@ -64,7 +75,7 @@
                                     @if (User.IsInRole("Employer"))
                                     {
                                         <li>
-                                            <a class="dropdown-item" asp-controller="Employer" asp-action="JobPosts">
+                                            <a class="dropdown-item" asp-controller="Employer" asp-action="Dashboards">
                                                 <i class="bi bi-building"></i> Employer Dashboard
                                             </a>
                                         </li>
@@ -82,6 +93,11 @@
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="MyProfile">
                                             <i class="bi bi-person-lines-fill"></i> Profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Settings">
+                                            <i class="bi bi-gear"></i> Settings
                                         </a>
                                     </li>
                                     <li>
@@ -114,7 +130,7 @@
         </nav>
     </header>
 
-    <main role="main">
+    <main role="main" class="@(ViewContext.RouteData.Values["controller"]?.ToString() != "Home" ? "container" : "")">
         @RenderBody()
     </main>
 
@@ -431,7 +447,7 @@
         justify-content: center;
     }
 
-    }
+    
 
     /* Body min-height to push footer down */
     html, body {
@@ -441,6 +457,7 @@
     body {
         display: flex;
         flex-direction: column;
+        margin-bottom: 0;
     }
 
     main {
@@ -450,6 +467,8 @@
     .footer-modern {
         flex-shrink: 0;
     }
+
+
 
 
 

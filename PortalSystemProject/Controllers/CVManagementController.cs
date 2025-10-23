@@ -77,7 +77,7 @@ namespace PortalSystemProject.Controllers
             if (profile == null)
             {
                 TempData["Error"] = "Profile must be created first";
-                return RedirectToAction("CreateProfile", "JobSeeker");
+                return RedirectToAction("index", "JobSeekerprofile");
             }
 
             var (success, message, cvFileId) = await _cvRepo.UploadCVAsync(

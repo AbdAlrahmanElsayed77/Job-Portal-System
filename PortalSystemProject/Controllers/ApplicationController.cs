@@ -45,7 +45,7 @@ namespace PortalSystemProject.Controllers
             if (profile == null)
             {
                 TempData["Error"] = "A profile must be created first.";
-                return RedirectToAction("CreateProfile", "JobSeeker");
+                return RedirectToAction("index", "JobSeekerprofile");
             }
 
             var isActive = await _jobPostRepo.IsJobActiveAsync(jobId);

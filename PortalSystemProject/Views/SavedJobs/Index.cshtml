@@ -149,7 +149,7 @@
                     document.querySelector('input[name="__RequestVerificationToken"]')?.value || '');
 
                 try {
-                    const response = await fetch('/SavedJobs/Unsave/' + jobId, {
+                    const response = await fetch(`/SavedJobs/Toggle?jobId=${jobId}`, {
                         method: 'POST',
                         body: formData
                     });

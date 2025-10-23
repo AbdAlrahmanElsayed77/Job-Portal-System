@@ -59,7 +59,7 @@ namespace BL.Services
                 if (!_allowedExtensions.Contains(extension))
                     return (false, "File type not allowed. Allowed types: PDF, DOCX, DOC", null);
 
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "cvs");
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Files/uploads", "cvs");
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);
 
@@ -77,7 +77,7 @@ namespace BL.Services
                     JobSeekerId = jobSeekerId,
                     FileName = file.FileName,
                     ContentType = file.ContentType,
-                    BlobUrl = $"/uploads/cvs/{uniqueFileName}", // Fixed path
+                    BlobUrl = $"Files/uploads/cvs/{uniqueFileName}", // Fixed path
                     FileSizeBytes = (int)file.Length,
                     IsPrimary = setAsPrimary,
                     CreatedDate = DateTime.Now,

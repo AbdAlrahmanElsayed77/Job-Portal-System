@@ -3,88 +3,103 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PortalSystemProject</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Job Portal System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PortalSystemProject.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    @RenderSection("Styles", required: false)
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PortalSystemProject</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-0">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-briefcase-fill text-primary"></i> Job Portal
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house"></i> Home
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Jobseeker" asp-action="BrowseJobs">Browse Jobs</a>
-                        </li>
+                        @if(User.IsInRole("Employer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Employer" asp-action="JobPosts">
+                                    <i class="bi bi-briefcase"></i> My Job Posts
+                                </a>
+                            </li>
+                        }
+                        @if(User.IsInRole("JobSeeker"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="JobSeeker" asp-action="BrowseJobs">
+                                    <i class="bi bi-search"></i> Browse Jobs
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity!.IsAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown">
                                     <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="MyProfile">
-                                            <i class="bi bi-person-lines-fill"></i> Profile
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="Settings">
-                                            <i class="bi bi-gear"></i> Settings
-                                        </a>
-                                    </li>
-                                    @if(User.IsInRole("Admin"))
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (User.IsInRole("JobSeeker"))
                                     {
-                                        <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                                                <i class="bi bi-speedometer2"></i> Admin Dashboard
+                                            <a class="dropdown-item" asp-controller="Application" asp-action="MyApplications">
+                                                <i class="bi bi-file-earmark-text"></i> My Applications
                                             </a>
                                         </li>
-                                    }
-                                    @if(User.IsInRole("Employer"))
-                                    {
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Employer" asp-action="JobPosts">
-                                                <i class="bi bi-building"></i> Employer Dashboard
-                                            </a>
-                                        </li>
-                                    }
-                                    @if(User.IsInRole("JobSeeker"))
-                                    {
-                                        <li><hr class="dropdown-divider"></li>
-
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="CvManagement" asp-action="Index">
-                                                <i class="bi bi-file-earmark-text"></i> CV Management
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a class="dropdown-item" asp-controller="SavedJobs" asp-action="Index">
                                                 <i class="bi bi-bookmark"></i> Saved Jobs
                                             </a>
                                         </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="CVManagement" asp-action="Index">
+                                                <i class="bi bi-file-earmark-pdf"></i> My CVs
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
                                     }
-                                    <li><hr class="dropdown-divider"></li>
+                                    @if (User.IsInRole("Employer"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Employer" asp-action="Dashboards">
+                                                <i class="bi bi-building"></i> Employer Dashboard
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                                <i class="bi bi-speedometer2"></i> Admin Dashboard
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="MyProfile">
+                                            <i class="bi bi-person-lines-fill"></i> Profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Settings">
+                                            <i class="bi bi-gear"></i> Settings
+                                        </a>
+                                    </li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">
                                             <button type="submit" class="dropdown-item text-danger">
@@ -94,12 +109,19 @@
                                     </li>
                                 </ul>
                             </li>
-                        }else{
+                        }
+                        else
+                        {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                                <a class="nav-link btn btn-primary text-white ms-2 px-3"
+                                   asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-person-plus"></i> Register
+                                </a>
                             </li>
                         }
                     </ul>
@@ -107,20 +129,348 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - PortalSystemProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main role="main" class="@(ViewContext.RouteData.Values["controller"]?.ToString() != "Home" ? "container" : "")">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-modern mt-5">
+        <!-- Main Footer -->
+        <div class="footer-content bg-dark text-white pt-5 pb-4">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- About Column -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="footer-brand mb-3">
+                            <h4 class="fw-bold">
+                                <i class="bi bi-briefcase-fill text-primary"></i>
+                                <span class="gradient-text">Job Portal</span>
+                            </h4>
+                        </div>
+                        <p class="text-light-gray mb-4">
+                            Your gateway to thousands of job opportunities.
+                            Connect with top employers and find your dream career today.
+                        </p>
+                        <div class="social-links d-flex gap-3">
+                            <a href="#" class="social-icon" title="Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            <a href="#" class="social-icon" title="Twitter">
+                                <i class="bi bi-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon" title="LinkedIn">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            <a href="#" class="social-icon" title="Instagram">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-lg-2 col-md-6 col-6 mb-4">
+                        <h6 class="footer-title fw-bold mb-3">Quick Links</h6>
+                        <ul class="footer-links list-unstyled">
+                            <li class="mb-2">
+                                <a asp-controller="Home" asp-action="Index">
+                                    <i class="bi bi-chevron-right"></i> Home
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a asp-controller="JobSeeker" asp-action="BrowseJobs">
+                                    <i class="bi bi-chevron-right"></i> Browse Jobs
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> About Us
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> Contact
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- For Job Seekers -->
+                    <div class="col-lg-2 col-md-6 col-6 mb-4">
+                        <h6 class="footer-title fw-bold mb-3">Job Seekers</h6>
+                        <ul class="footer-links list-unstyled">
+                            <li class="mb-2">
+                                <a asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-chevron-right"></i> Sign Up
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a asp-controller="CVManagement" asp-action="Index">
+                                    <i class="bi bi-chevron-right"></i> Upload CV
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> Career Tips
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a asp-controller="SavedJobs" asp-action="Index">
+                                    <i class="bi bi-chevron-right"></i> Saved Jobs
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- For Employers -->
+                    <div class="col-lg-2 col-md-6 col-6 mb-4">
+                        <h6 class="footer-title fw-bold mb-3">Employers</h6>
+                        <ul class="footer-links list-unstyled">
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> Post a Job
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> Browse CVs
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> Pricing Plans
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="#">
+                                    <i class="bi bi-chevron-right"></i> Success Stories
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="col-lg-2 col-md-6 col-6 mb-4">
+                        <h6 class="footer-title fw-bold mb-3">Get in Touch</h6>
+                        <ul class="footer-contact list-unstyled">
+                            <li class="mb-3">
+                                <i class="bi bi-geo-alt-fill text-primary"></i>
+                                <span class="ms-2">Cairo, Egypt</span>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-telephone-fill text-primary"></i>
+                                <a href="tel:+20123456789" class="ms-2">+20 123 456 789</a>
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-envelope-fill text-primary"></i>
+                                <a href="mailto:info@jobportal.com" class="ms-2">info@jobportal.com</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="footer-bottom bg-darker py-3">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                        <p class="mb-0 text-light-gray small">
+                            &copy; 2025 <span class="text-primary fw-bold">Job Portal System</span>. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <ul class="footer-bottom-links list-inline mb-0">
+                            <li class="list-inline-item">
+                                <a asp-controller="Home" asp-action="Privacy" class="small">Privacy Policy</a>
+                            </li>
+                            <li class="list-inline-item text-light-gray">|</li>
+                            <li class="list-inline-item">
+                                <a href="#" class="small">Terms of Service</a>
+                            </li>
+                            <li class="list-inline-item text-light-gray">|</li>
+                            <li class="list-inline-item">
+                                <a href="#" class="small">Cookie Policy</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+    /* Footer Styles */
+    .footer-modern {
+        margin-top: auto;
+    }
+
+    .footer-content {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+
+    .footer-bottom {
+        background: #0f1419;
+    }
+
+    .bg-darker {
+        background-color: #0a0e27 !important;
+    }
+
+    .text-light-gray {
+        color: #b8b8b8 !important;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .footer-title {
+        color: #ffffff;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+    .footer-links li a {
+        color: #b8b8b8;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+        .footer-links li a:hover {
+            color: #667eea;
+            padding-left: 5px;
+        }
+
+        .footer-links li a i {
+            font-size: 0.7rem;
+            margin-right: 5px;
+        }
+
+    .footer-contact li {
+        color: #b8b8b8;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: flex-start;
+    }
+
+        .footer-contact li i {
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+
+        .footer-contact li a {
+            color: #b8b8b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+            .footer-contact li a:hover {
+                color: #667eea;
+            }
+
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: #ffffff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+        .social-icon:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+    .footer-bottom-links li a {
+        color: #b8b8b8;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .footer-bottom-links li a:hover {
+            color: #667eea;
+        }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .footer-content {
+            text-align: center;
+        }
+    }
+
+
+    .footer-title::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .social-links {
+        justify-content: center !important;
+    }
+
+    .footer-contact li {
+        justify-content: center;
+    }
+
+    
+
+    /* Body min-height to push footer down */
+    html, body {
+        height: 100%;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0;
+    }
+
+    main {
+        flex: 1 0 auto;
+    }
+
+    .footer-modern {
+        flex-shrink: 0;
+    }
+
+
+
+
+
+
+</style>

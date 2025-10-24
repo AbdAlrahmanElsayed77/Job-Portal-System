@@ -1,0 +1,264 @@
+﻿@model PortalSystemProject.Models.Admin.JobPostListViewModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Job Posts Management";
+}
+
+
+<div class="mb-4">
+    <h4 class="mb-2">Job Posts Management</h4>
+    <p class="text-muted">Monitor and manage all job postings</p>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">@Model.TotalCount</h3>
+                <p class="mb-0 text-muted">Total Job Posts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success">@Model.ActiveCount</h3>
+                <p class="mb-0 text-muted">Active</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-secondary">@Model.InactiveCount</h3>
+                <p class="mb-0 text-muted">Inactive</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters & Search -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Search by title or company..."
+                           value="@Model.SearchTerm">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="btn-group w-100">
+                    <a asp-action="Index"
+                       class="btn @(string.IsNullOrEmpty(Model.StatusFilter) ? "btn-primary" : "btn-outline-primary")">
+                        All
+                    </a>
+                    <a asp-action="Index" asp-route-status="active"
+                       class="btn @(Model.StatusFilter == "active" ? "btn-success" : "btn-outline-success")">
+                        Active
+                    </a>
+                    <a asp-action="Index" asp-route-status="inactive"
+                       class="btn @(Model.StatusFilter == "inactive" ? "btn-secondary" : "btn-outline-secondary")">
+                        Inactive
+                    </a>
+                    <a asp-action="Index" asp-route-status="expired"
+                       class="btn @(Model.StatusFilter == "expired" ? "btn-danger" : "btn-outline-danger")">
+                        Expired
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Applications</th>
+                        <th>Status</th>
+                        <th>Posted</th>
+                        <th width="150">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+@if (Model.JobPosts.Any())
+{
+    @foreach (var job in Model.JobPosts)
+    {
+                            <tr class="@(job.IsExpired ? "table-warning" : "")">
+                                <td>
+                                    <div>
+                                        <strong>@job.Title</strong>
+                                        @if (!string.IsNullOrEmpty(job.Location))
+                                        {
+                                            <br>
+                                
+                                            <small class="text-muted">
+                                                <i class="bi bi-geo-alt"></i> @job.Location
+                                            </small>
+                                        }
+                                        @if (job.IsExpired)
+                                        {
+                                            <br>
+                                
+                                            <span class="badge bg-danger">Expired</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(job.CompanyLogoUrl))
+                                        {
+                                            <img src="@job.CompanyLogoUrl" alt="@job.CompanyName"
+                                                 class="rounded me-2" style="width: 35px; height: 35px; object-fit: contain;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center"
+                                                 style="width: 35px; height: 35px;">
+                                                <i class="bi bi-building text-muted"></i>
+                                            </div>
+                                        }
+                                        <span>@job.CompanyName</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@job.CategoryName</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@job.JobTypeName</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">@job.ApplicationsCount</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@job.StatusClass">@job.StatusText</span>
+                                </td>
+                                <td>@job.PostedDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@job.Id"
+                                           class="btn btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <form asp-action="ToggleStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@job.Id" />
+                                            <button type="submit" class="btn btn-outline-warning"
+                                                    title="@(job.IsActive ? "Deactivate" : "Activate")">
+                                                <i class="bi bi-@(job.IsActive ? "pause" : "play")-circle"></i>
+                                            </button>
+                                        </form>
+
+                                        <button class="btn btn-outline-danger delete-btn"
+                                                data-id="@job.Id"
+                                                data-title="@job.Title"
+                                                @(job.ApplicationsCount > 0 ? "disabled" : "")
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+    }
+}
+else
+{
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="text-muted">No job posts found</p>
+                            </td>
+                        </tr>
+}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteJobTitle"></strong>?</p>
+                <p class="text-muted small mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" name="id" id="deleteJobId" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle Delete Button Click
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const jobId = this.getAttribute('data-id');
+                const title = this.getAttribute('data-title');
+                document.getElementById('deleteJobId').value = jobId;
+                document.getElementById('deleteJobTitle').textContent = title;
+                const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                modal.show();
+            });
+        });
+
+        // Handle Toggle Status (Activate/Deactivate)
+        document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const id = this.getAttribute('data-id');
+                const currentStatus = this.getAttribute('data-current-status') === 'true';
+
+                const confirmMsg = currentStatus
+                    ? 'Are you sure you want to deactivate this job post?'
+                    : 'Activate this job post?';
+
+                if (!confirm(confirmMsg)) return;
+
+                try {
+                    const response = await fetch(`/Admin/JobPost/ToggleStatus/${id}`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to update job status.');
+                    }
+                } catch {
+                    alert('An error occurred while updating status.');
+                }
+            });
+        });
+    </script>
+}
+

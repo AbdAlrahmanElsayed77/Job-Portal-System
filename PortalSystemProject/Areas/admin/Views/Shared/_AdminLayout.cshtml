@@ -184,10 +184,11 @@
                 </a>
 
                 <a asp-area="Admin" asp-controller="JobPost" asp-action="Index"
-                   class="admin-nav-item">
+                   class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "JobPost" ? "active" : "")">
                     <i class="bi bi-card-list"></i>
                     <span>Job Posts</span>
                 </a>
+
 
                 <a asp-area="Admin" asp-controller="UserManagement" asp-action="Index"
                    class="admin-nav-item">

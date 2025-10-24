@@ -1,0 +1,282 @@
+﻿@model PortalSystemProject.Models.Admin.UserManagementViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="mb-4">
+    <h4 class="mb-2">User Management</h4>
+    <p class="text-muted">Manage users, roles, and permissions</p>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">@Model.TotalCount</h3>
+                <p class="mb-0 text-muted">Total Users</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-info">@Model.JobSeekersCount</h3>
+                <p class="mb-0 text-muted">Job Seekers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success">@Model.EmployersCount</h3>
+                <p class="mb-0 text-muted">Employers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-danger">@Model.AdminsCount</h3>
+                <p class="mb-0 text-muted">Administrators</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters & Search -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Search by name or email..."
+                           value="@Model.SearchTerm">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="btn-group w-100">
+                    <a asp-action="Index"
+                       class="btn btn-sm @(string.IsNullOrEmpty(Model.RoleFilter) ? "btn-primary" : "btn-outline-primary")">
+                        All
+                    </a>
+                    <a asp-action="Index" asp-route-role="JobSeeker"
+                       class="btn btn-sm @(Model.RoleFilter == "JobSeeker" ? "btn-info" : "btn-outline-info")">
+                        Job Seekers
+                    </a>
+                    <a asp-action="Index" asp-route-role="Employer"
+                       class="btn btn-sm @(Model.RoleFilter == "Employer" ? "btn-success" : "btn-outline-success")">
+                        Employers
+                    </a>
+                    <a asp-action="Index" asp-route-role="Admin"
+                       class="btn btn-sm @(Model.RoleFilter == "Admin" ? "btn-danger" : "btn-outline-danger")">
+                        Admins
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Stats</th>
+                        <th>Registered</th>
+                        <th width="150">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Users.Any())
+                    {
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@user.FullName</strong>
+                                    @if (!string.IsNullOrEmpty(user.CompanyName))
+                                    {
+                                        <br>
+                            
+                                        <small class="text-muted">
+                                            <i class="bi bi-building"></i> @user.CompanyName
+                                        </small>
+                                    }
+                                </td>
+                                <td>
+                                    @user.Email
+                                    @if (user.EmailConfirmed)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success" title="Email Verified"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-exclamation-circle-fill text-warning" title="Email Not Verified"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        var badgeClass = role switch
+                                        {
+                                            "Admin" => "bg-danger",
+                                            "Employer" => "bg-success",
+                                            "JobSeeker" => "bg-info",
+                                            _ => "bg-secondary"
+                                        };
+                                        <span class="badge @badgeClass">@role</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Locked</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (user.ApplicationsCount.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            <i class="bi bi-file-text"></i> @user.ApplicationsCount Applications
+                                        </small>
+                                    }
+                                    @if (user.JobPostsCount.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            <i class="bi bi-briefcase"></i> @user.JobPostsCount Jobs
+                                        </small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (user.CreatedDate.HasValue)
+                                    {
+                                        @user.CreatedDate.Value.ToString("dd MMM yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                       @*  <a asp-action="EditRoles" asp-route-id="@user.Id"
+                                           class="btn btn-outline-warning" title="Edit Roles">
+                                            <i class="bi bi-shield-check"></i>
+                                        </a> *@
+                                        @if (user.IsActive)
+                                        {
+                                            <button class="btn btn-success toggle-lock-btn"
+                                                    data-id="@user.Id"
+                                                    data-email="@user.Email"
+                                                    data-active="true"
+                                                    title="Lock User">
+                                                <i class="bi bi-unlock"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger toggle-lock-btn"
+                                                    data-id="@user.Id"
+                                                    data-email="@user.Email"
+                                                    data-active="false"
+                                                    title="Unlock User">
+                                                <i class="bi bi-lock"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="text-muted">No users found</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        document.querySelectorAll('.toggle-lock-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const id = this.dataset.id;
+                const email = this.dataset.email;
+                const isActive = this.dataset.active === "true";
+
+                const action = isActive ? "LockUser" : "UnlockUser";
+                const confirmMessage = isActive
+                    ? `Are you sure you want to lock the user "${email}"?\nThey will not be able to log in.`
+                    : `Are you sure you want to unlock the user "${email}"?`;
+
+                if (!confirm(confirmMessage)) return;
+
+                const response = await fetch(`/Admin/UserManagement/${action}/${id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    if (isActive) {
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-danger');
+                        this.innerHTML = '<i class="bi bi-lock"></i>';
+                        this.dataset.active = "false";
+                        this.title = "Unlock User";
+
+                        const statusCell = this.closest('tr').querySelector('td:nth-child(4)');
+                        statusCell.innerHTML = '<span class="badge bg-danger">Locked</span>';
+                    } else {
+                        this.classList.remove('btn-danger');
+                        this.classList.add('btn-success');
+                        this.innerHTML = '<i class="bi bi-unlock"></i>';
+                        this.dataset.active = "true";
+                        this.title = "Lock User";
+
+                        const statusCell = this.closest('tr').querySelector('td:nth-child(4)');
+                        statusCell.innerHTML = '<span class="badge bg-success">Active</span>';
+                    }
+                } else {
+                    alert(result.message || 'An error occurred while updating the user status.');
+                }
+            });
+        });
+    </script>
+}
+

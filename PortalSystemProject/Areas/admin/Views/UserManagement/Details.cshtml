@@ -1,0 +1,91 @@
+﻿@model PortalSystemProject.Models.Admin.UserItemViewModel
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">User Details</h5>
+            <a asp-area="Admin" asp-controller="UserManagement" asp-action="Index" class="btn btn-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Full Name</dt>
+                <dd class="col-sm-9">@Model.FullName</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">
+                    @Model.Email
+                    @if (Model.EmailConfirmed)
+                    {
+                        <i class="bi bi-check-circle-fill text-success ms-1" title="Email Verified"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-exclamation-circle-fill text-warning ms-1" title="Email Not Verified"></i>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Roles</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Roles?.Any() == true)
+                    {
+                        @foreach (var role in Model.Roles)
+                        {
+                            var badgeClass = role switch
+                            {
+                                "Admin" => "bg-danger",
+                                "Employer" => "bg-success",
+                                "JobSeeker" => "bg-info",
+                                _ => "bg-secondary"
+                            };
+                            <span class="badge @badgeClass me-1">@role</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="text-muted">No roles assigned</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Company</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrEmpty(Model.CompanyName))
+                    {
+                        <i class="bi bi-building"></i> 
+                        @Model.CompanyName
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Applications Count</dt>
+                <dd class="col-sm-9">@Model.ApplicationsCount</dd>
+
+                <dt class="col-sm-3">Job Posts Count</dt>
+                <dd class="col-sm-9">@Model.JobPostsCount</dd>
+
+                <dt class="col-sm-3">Account Status</dt>
+                <dd class="col-sm-9">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success"><i class="bi bi-unlock"></i> Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger"><i class="bi bi-lock"></i> Locked</span>
+                    }
+                </dd>
+
+                
+            </dl>
+        </div>
+    </div>
+</div>

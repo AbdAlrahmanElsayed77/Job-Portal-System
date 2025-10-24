@@ -48,6 +48,19 @@
                                 </a>
                             </li>
                         }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="JobSeeker" asp-action="BrowseJobs">
+                                    <i class="bi bi-search"></i> Browse Jobs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="company" asp-action="index">
+                                    <i class="bi bi-buildings"></i> Companies
+                                </a>
+                            </li>
+                        }
 
                     </ul>
                     <ul class="navbar-nav ms-auto">
@@ -96,11 +109,11 @@
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                     }
-                                    <li>
+                                   @*  <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="MyProfile">
                                             <i class="bi bi-person-lines-fill"></i> Profile
                                         </a>
-                                    </li>
+                                    </li> *@
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="Settings">
                                             <i class="bi bi-gear"></i> Settings

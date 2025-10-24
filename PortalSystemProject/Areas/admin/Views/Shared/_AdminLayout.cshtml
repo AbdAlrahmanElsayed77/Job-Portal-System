@@ -62,6 +62,17 @@
             border-left: 3px solid transparent;
         }
 
+        .admin-nav .section-title {
+            margin-top: 1.5rem;
+            padding: 0 1.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+        }
+
+
             .admin-nav-item:hover,
             .admin-nav-item.active {
                 color: white;
@@ -150,7 +161,7 @@
                     <span>Dashboard</span>
                 </a>
 
-                <div class="mt-3 px-3 text-muted small text-uppercase">Content Management</div>
+                <div class="section-title" >Content Management</div>
 
                 <a asp-area="Admin" asp-controller="JobCategory" asp-action="Index"
                    class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "JobCategory" ? "active" : "")">
@@ -164,7 +175,7 @@
                     <span>Job Types</span>
                 </a>
 
-                <div class="mt-3 px-3 text-muted small text-uppercase">Management</div>
+                <div class="section-title">Management</div>
 
                 <a asp-area="Admin" asp-controller="Company" asp-action="Index"
                    class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Company" ? "active" : "")">
@@ -184,7 +195,7 @@
                     <span>Users & Roles</span>
                 </a>
 
-                <div class="mt-3 px-3 text-muted small text-uppercase">System</div>
+                <div class="section-title">System</div>
 
                 <a asp-area="" asp-controller="Home" asp-action="Index"
                    class="admin-nav-item">

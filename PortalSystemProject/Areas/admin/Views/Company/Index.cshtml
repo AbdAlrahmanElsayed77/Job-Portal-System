@@ -1,0 +1,205 @@
+﻿@model PortalSystemProject.Models.Admin.CompanyListViewModel
+
+@{
+    ViewData["Title"] = "Company Management";
+}
+
+<div class="mb-4">
+    <h4 class="mb-2">Company Management</h4>
+    <p class="text-muted">Approve or reject company registrations</p>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">@Model.TotalCount</h3>
+                <p class="mb-0 text-muted">Total Companies</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-warning">@Model.PendingCount</h3>
+                <p class="mb-0 text-muted">Pending Approval</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success">@Model.ApprovedCount</h3>
+                <p class="mb-0 text-muted">Approved</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="btn-group">
+            <a asp-action="Index" class="btn @(string.IsNullOrEmpty(Model.StatusFilter) ? "btn-primary" : "btn-outline-primary")">
+                All (@Model.TotalCount)
+            </a>
+            <a asp-action="Index" asp-route-status="pending"
+               class="btn @(Model.StatusFilter == "pending" ? "btn-warning" : "btn-outline-warning")">
+                Pending (@Model.PendingCount)
+            </a>
+            <a asp-action="Index" asp-route-status="approved"
+               class="btn @(Model.StatusFilter == "approved" ? "btn-success" : "btn-outline-success")">
+                Approved (@Model.ApprovedCount)
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Location</th>
+                        <th>Job Posts</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                        <th width="200">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var company in Model.Companies)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(company.LogoUrl))
+                                    {
+                                        <img src="@company.LogoUrl" alt="@company.Name"
+                                             class="rounded me-2" style="width: 40px; height: 40px; object-fit: contain;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i class="bi bi-building text-muted"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <strong>@company.Name</strong>
+                                        @if (!string.IsNullOrEmpty(company.Website))
+                                        {
+                                            <br>
+                                    
+                                            <small class="text-muted">@company.Website</small>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(company.City))
+                                {
+                                    <span>@company.City, @company.Country</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">@company.JobPostsCount</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-@company.StatusClass">
+                                    @company.StatusText
+                                </span>
+                            </td>
+                            <td>@company.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@company.Id"
+                                       class="btn btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (company.Status == 0)
+                                    {
+                                        <button class="btn btn-outline-success approve-btn"
+                                                data-id="@company.Id">
+                                            <i class="bi bi-check"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-warning reject-btn"
+                                                data-id="@company.Id">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    }
+                                    <button class="btn btn-outline-danger delete-btn"
+                                            data-id="@company.Id"
+                                            @(company.JobPostsCount > 0 ? "disabled" : "")>
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        // Approve
+        document.querySelectorAll('.approve-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('Approve this company?')) return;
+                const response = await fetch(`/Admin/Company/Approve/${this.dataset.id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }
+                });
+                const result = await response.json();
+                if (result.success) location.reload();
+                else alert(result.message);
+            });
+        });
+
+        // Reject
+        document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('Reject this company?')) return;
+                const response = await fetch(`/Admin/Company/Reject/${this.dataset.id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }
+                });
+                const result = await response.json();
+                if (result.success) location.reload();
+                else alert(result.message);
+            });
+        });
+
+        // Delete
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('Delete this company? This cannot be undone!')) return;
+                const response = await fetch(`/Admin/Company/Delete/${this.dataset.id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }
+                });
+                const result = await response.json();
+                if (result.success) location.reload();
+                else alert(result.message);
+            });
+        });
+    </script>
+}

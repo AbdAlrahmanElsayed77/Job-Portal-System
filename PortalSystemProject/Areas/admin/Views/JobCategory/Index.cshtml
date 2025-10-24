@@ -1,0 +1,109 @@
+﻿@model PortalSystemProject.Models.Admin.JobCategoryListViewModel
+
+@{
+    ViewData["Title"] = "Job Categories";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0">Job Categories</h4>
+        <p class="text-muted">Manage job categories for the portal</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Category
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Jobs Count</th>
+                        <th>Created At</th>
+                        <th width="150">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Categories.Any())
+                    {
+                        @foreach (var category in Model.Categories)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@category.Name</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">@category.JobCount Jobs</span>
+                                </td>
+                                <td>@category.CreatedAt.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@category.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger delete-btn"
+                                                data-id="@category.Id"
+                                                data-name="@category.Name"
+                                                @(category.JobCount > 0 ? "disabled" : "")>
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="text-muted">No categories found</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+
+                if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                try {
+                    const response = await fetch(`/Admin/JobCategory/Delete/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert('Error deleting category');
+                }
+            });
+        });
+    </script>
+}

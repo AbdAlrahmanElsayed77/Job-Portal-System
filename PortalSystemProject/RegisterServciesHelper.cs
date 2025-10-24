@@ -68,6 +68,8 @@ namespace PortalSystemProject
             //external services
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IFileService, FileService>();
+            // Admin Services
+            builder.Services.AddScoped<IAdminAnalyticsService, AdminAnalyticsService>();
 
             //builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserService>();
         }

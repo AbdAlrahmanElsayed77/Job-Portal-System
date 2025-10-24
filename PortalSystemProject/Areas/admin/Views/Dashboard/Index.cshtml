@@ -63,12 +63,87 @@
     </div>
 </div>
 
+<!-- Chart + Welcome Section -->
 <div class="row mt-4">
-    <div class="col-12">
+    <div class="col-md-8">
         <div class="stat-card">
+            <h5 class="mb-3">System Overview</h5>
+            <canvas id="dashboardChart" height="150"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card h-100">
             <h5 class="mb-3">Welcome to Admin Panel</h5>
-            <p class="text-muted mb-0">Manage your job portal from here.</p>
+            <p class="text-muted mb-0">
+                Manage your job portal efficiently.<br />
+                View user statistics, monitor applications, and oversee all companies and job posts in one place.
+            </p>
         </div>
     </div>
 </div>
 
+@section Scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+        const dashboardChart = new Chart(ctx, {
+            type: 'bar', // You can change to 'pie' or 'doughnut'
+            data: {
+                labels: ['Companies', 'Jobs', 'Users', 'Applications'],
+                datasets: [{
+                    label: 'Portal Statistics',
+                    data: [
+                        @Model.TotalCompanies,
+                        @Model.TotalJobs,
+                        @Model.TotalUsers,
+                        @Model.TotalApplications
+                    ],
+                    backgroundColor: [
+                        'rgba(13, 110, 253, 0.7)',   // Blue
+                        'rgba(25, 135, 84, 0.7)',    // Green
+                        'rgba(13, 202, 240, 0.7)',   // Cyan
+                        'rgba(255, 193, 7, 0.7)'     // Yellow
+                    ],
+                    borderColor: [
+                        'rgba(13, 110, 253, 1)',
+                        'rgba(25, 135, 84, 1)',
+                        'rgba(13, 202, 240, 1)',
+                        'rgba(255, 193, 7, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Overall System Stats',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+    </script>
+}

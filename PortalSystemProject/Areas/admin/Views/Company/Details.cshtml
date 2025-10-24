@@ -1,0 +1,266 @@
+﻿@model PortalSystemProject.Models.Admin.CompanyDetailsViewModel
+
+@{
+    ViewData["Title"] = "Company Details";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Companies</a></li>
+            <li class="breadcrumb-item active">Details</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row g-4">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-building"></i> @Model.Name
+                </h5>
+                <span class="badge bg-@(Model.Status == 1 ? "success" : "warning")">
+                    @(Model.Status == 1 ? "Approved" : "Pending")
+                </span>
+            </div>
+            <div class="card-body">
+                <!-- Company Logo & Basic Info -->
+                <div class="d-flex align-items-start mb-4 pb-3 border-bottom">
+                    @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                    {
+                        <img src="@Model.LogoUrl" alt="@Model.Name"
+                             class="rounded me-3" style="width: 100px; height: 100px; object-fit: contain;">
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                             style="width: 100px; height: 100px;">
+                            <i class="bi bi-building fs-1 text-muted"></i>
+                        </div>
+                    }
+                    <div class="flex-grow-1">
+                        <h4 class="mb-2">@Model.Name</h4>
+                        @if (!string.IsNullOrEmpty(Model.Website))
+                        {
+                            <p class="mb-2">
+                                <i class="bi bi-globe text-muted"></i>
+                                <a href="@Model.Website" target="_blank">@Model.Website</a>
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.City) && !string.IsNullOrEmpty(Model.Country))
+                        {
+                            <p class="mb-0">
+                                <i class="bi bi-geo-alt text-muted"></i>
+                                @Model.City, @Model.Country
+                            </p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Company Details -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Registered Date</label>
+                        <p>@Model.CreatedAt.ToString("dd MMMM yyyy")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Status</label>
+                        <p>
+                            <span class="badge bg-@(Model.Status == 1 ? "success" : "warning")">
+                                @(Model.Status == 1 ? "Approved" : "Pending Approval")
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Total Job Posts</label>
+                        <p><span class="badge bg-primary">@Model.TotalJobPosts</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Active Job Posts</label>
+                        <p><span class="badge bg-success">@Model.ActiveJobPosts</span></p>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-file-text"></i> Company Description
+                        </h6>
+                        <div class="text-muted">@Model.Description</div>
+                    </div>
+                }
+
+                <!-- Employers -->
+                <div>
+                    <h6 class="text-primary mb-3">
+                        <i class="bi bi-people"></i> Company Employers
+                    </h6>
+                    @if (Model.EmployerEmails.Any())
+                    {
+                        <ul class="list-unstyled">
+                            @foreach (var email in Model.EmployerEmails)
+                            {
+                                <li class="mb-2">
+                                    <i class="bi bi-envelope text-muted"></i> @email
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No employers associated with this company</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Actions -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning"></i> Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (Model.Status == 0)
+                    {
+                        <button class="btn btn-success approve-btn" data-id="@Model.Id">
+                            <i class="bi bi-check-circle"></i> Approve Company
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-warning reject-btn" data-id="@Model.Id">
+                            <i class="bi bi-x-circle"></i> Revoke Approval
+                        </button>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Website))
+                    {
+                        <a href="@Model.Website" target="_blank" class="btn btn-outline-primary">
+                            <i class="bi bi-globe"></i> Visit Website
+                        </a>
+                    }
+
+                    <button class="btn btn-outline-danger delete-btn"
+                            data-id="@Model.Id"
+                            @(Model.TotalJobPosts > 0 ? "disabled" : "")>
+                        <i class="bi bi-trash"></i> Delete Company
+                    </button>
+                </div>
+                @if (Model.TotalJobPosts > 0)
+                {
+                    <small class="text-muted d-block mt-2">
+                        <i class="bi bi-info-circle"></i> Cannot delete company with job posts
+                    </small>
+                }
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up"></i> Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Total Job Posts</span>
+                        <strong>@Model.TotalJobPosts</strong>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-primary" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Active Jobs</span>
+                        <strong class="text-success">@Model.ActiveJobPosts</strong>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-success"
+                             style="width: @(Model.TotalJobPosts > 0 ? (Model.ActiveJobPosts * 100.0 / Model.TotalJobPosts) : 0)%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Employers</span>
+                        <strong>@Model.EmployerEmails.Count</strong>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-info" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        // Approve
+        document.querySelector('.approve-btn')?.addEventListener('click', async function() {
+            if (!confirm('Approve this company?')) return;
+
+            const response = await fetch(`/Admin/Company/Approve/${this.dataset.id}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        });
+
+        // Reject
+        document.querySelector('.reject-btn')?.addEventListener('click', async function() {
+            if (!confirm('Revoke approval for this company?')) return;
+
+            const response = await fetch(`/Admin/Company/Reject/${this.dataset.id}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        });
+
+        // Delete
+        document.querySelector('.delete-btn')?.addEventListener('click', async function() {
+            if (!confirm('Delete this company?\n\nThis action cannot be undone!')) return;
+
+            const response = await fetch(`/Admin/Company/Delete/${this.dataset.id}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = '/Admin/Company';
+            } else {
+                alert(result.message);
+            }
+        });
+    </script>
+}

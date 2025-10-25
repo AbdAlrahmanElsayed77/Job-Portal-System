@@ -123,6 +123,9 @@ Key entities include:
 * **Application** — Connects job seekers with job posts.
 * **JobCategory** and **JobType** — For job classification.
 
+<img width="1460" height="1678" alt="Untitled (1)" src="https://github.com/user-attachments/assets/5ddd381e-d42a-4ee7-8a3c-2b000acde640" />
+
+
 Each entity is connected using **EF Core relationships** with proper foreign keys and navigation properties.
 
 ---

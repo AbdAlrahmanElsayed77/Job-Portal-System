@@ -1,86 +1,178 @@
-### 📄 **README.md (Secret Setup Section)**
+# Job Portal System — ASP.NET Core MVC
 
-````markdown
-# 🔐 Email Configuration Setup (Secure)
-
-This project uses **.NET User Secrets** to safely store sensitive data like email credentials during local development.  
-User secrets are **stored outside the project folder** and are **not shared in GitHub** — so each developer must set them up locally.
+A professional, full-stack Job Portal built with ASP.NET Core MVC, designed to connect **Employers**, **Job Seekers**, and **Administrators** through a modern and secure web platform.  
+The system supports **role-based authentication**, **job posting and browsing**, **company management**, **CV uploads**, and **application tracking** with dashboards for each role.
 
 ---
 
-## 🧠 Step 1: Initialize User Secrets
+## 🏗️ Project Overview
 
-Run this command **inside the main Web project folder** (where your `.csproj` file is located):
+This project implements a complete job portal system that enables different types of users to interact efficiently:
 
+- **Admin:** Manage users, companies, jobs, and system settings.
+- **Employer:** Create and manage company profiles, post jobs, and handle applications.
+- **Job Seeker:** Browse jobs, upload CVs, and apply to jobs seamlessly.
+
+---
+
+## ⚙️ Technologies Used
+
+- **ASP.NET Core MVC 9.0**
+- **Entity Framework Core** for ORM
+- **SQL Server** for the database
+- **Identity Framework** for authentication and authorization
+- **Razor Views** for frontend rendering
+- **Bootstrap 5** + **CSS** + **JavaScript** for responsive UI
+- **LINQ**, **Repository Pattern**, **Dependency Injection**
+- **IIS Express** / **Kestrel Server** for hosting
+
+---
+
+## 📂 Project Structure
+
+```
+Job-Portal-System/
+│
+├── Areas/
+│   ├── Admin/
+│   │   ├── Controllers/
+│   │   ├── Views/
+│   │   └── Models/
+│   ├── Employer/
+│   │   ├── Controllers/
+│   │   ├── Views/
+│   │   └── Models/
+│   └── JobSeeker/
+│       ├── Controllers/
+│       ├── Views/
+│       └── Models/
+│
+├── Controllers/
+│   ├── HomeController.cs
+│   ├── AccountController.cs
+│   └── Shared Controllers for base routes
+│
+├── Models/
+│   ├── Job.cs
+│   ├── Company.cs
+│   ├── Application.cs
+│   ├── JobCategory.cs
+│   ├── JobType.cs
+│   └── Identity Models
+│
+├── Data/
+│   ├── ApplicationDbContext.cs
+│   └── SeedData.cs
+│
+├── Views/
+│   ├── Shared/
+│   └── Home/
+│
+├── wwwroot/
+│   ├── css/
+│   ├── js/
+│   ├── images/
+│   └── uploads/
+│
+├── appsettings.json
+├── Program.cs
+├── Startup.cs
+└── Job-Portal-System.csproj
+```
+
+---
+
+## 👥 Roles and Features
+
+### 🔹 Admin
+- Manage all users (Employers & Job Seekers)
+- Approve or reject companies and job posts
+- Manage job categories and job types
+- View system statistics and dashboards
+- Handle content moderation and reports
+
+### 🔹 Employer
+- Register and create a company profile
+- Post new job listings with categories and job types
+- View and manage job applications
+- Shortlist or reject candidates
+- Edit or delete job posts
+- View analytics on job performance
+
+### 🔹 Job Seeker
+- Register, log in, and manage personal profile
+- Upload CV or resume
+- Browse and search for jobs by category or company
+- Apply to jobs directly
+- View application history and statuses
+- Save favorite jobs
+
+---
+
+## 🧠 Database Design
+
+Key entities include:
+
+- **User (IdentityUser)** — Manages authentication and role mapping.  
+- **Company** — Contains employer details.  
+- **Job** — Represents job listings.  
+- **Application** — Connects job seekers with job posts.  
+- **JobCategory** and **JobType** — For job classification.
+
+Each entity is connected using **EF Core relationships** with proper foreign keys and navigation properties.
+
+---
+
+## 🚀 How to Run the Project
+
+### 1️⃣ Prerequisites
+Ensure you have installed:
+- [.NET SDK 9.0+](https://dotnet.microsoft.com/)
+- SQL Server (LocalDB or SQL Express)
+- Visual Studio 2022 (or later)
+
+### 2️⃣ Clone the Repository
 ```bash
-dotnet user-secrets init
-````
+git clone https://github.com/AbdAlrahmanElsayed77/Job-Portal-System.git
+cd Job-Portal-System
+```
 
-This adds a unique `UserSecretsId` to your project file and creates a secure storage location on your machine.
+### 3️⃣ Configure Database
+Edit your **`appsettings.json`** file to include your SQL Server connection string:
 
----
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=.;Database=JobPortalDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+}
+```
 
-## ✉️ Step 2: Add Your Email Credentials
-
-Run these commands to store your Gmail credentials (or any SMTP account):
-
+### 4️⃣ Apply Migrations and Create Database
 ```bash
-dotnet user-secrets set "EmailSettings:Email" "youraddress@gmail.com"
-dotnet user-secrets set "EmailSettings:Password" "your-app-password"
+dotnet ef database update
 ```
 
-> ⚠️ **Important:**
-> Do **not** use your regular Gmail password.
-> You must create an **App Password** in your Google Account (under
-> `Manage Account → Security → 2-Step Verification → App Passwords`).
-
-Example:
-
-```
-App name: "MVCApp"
-App password: "abcd efgh ijkl mnop"
+Or use Visual Studio **Package Manager Console**:
+```powershell
+Update-Database
 ```
 
-Then use that 16-character code as your `"EmailSettings:Password"` value.
-
----
-
-## ⚙️ Step 3: Verify It Works
-
-You can verify your secret values (safe to check locally only):
-
-```bash
-dotnet user-secrets list
-```
-
-Expected output (your actual password will be masked):
-
-```
-EmailSettings:Email = youraddress@gmail.com
-EmailSettings:Password = ************
-```
-
----
-
-## 🚀 Step 4: Run the App
-
-Once configured, the app will automatically read these secrets from your local store at runtime — no need to modify `appsettings.json`.
-
+### 5️⃣ Run the Application
+You can run it using:
 ```bash
 dotnet run
 ```
+Or from Visual Studio, press **F5** to start with IIS Express.
 
-When sending emails (like registration or password reset), the app will use your configured Gmail credentials.
-
----
-
-## 🛡️ Notes
-
-* User secrets are **specific to your local machine** and **not checked into GitHub**.
-* Each developer must set their own secrets using the commands above.
-* For production or shared environments, use **environment variables** or **a secure secrets manager** (e.g., Azure Key Vault, AWS Secrets Manager).
+### 6️⃣ Access the Application
+- Home: `https://localhost:xxxx`
+- Admin Area: `/Admin`
+- Employer Area: `/Employer`
+- JobSeeker Area: `/JobSeeker`
 
 ---
 
-✅ That’s it! You’re all set to send emails securely without exposing credentials in source control.
+## 📈 Future Scalability (Optional)
+- Add notifications and messaging system between employers and job seekers.
+- Implement API endpoints for mobile integration.
+- Include subscription or payment modules.
 

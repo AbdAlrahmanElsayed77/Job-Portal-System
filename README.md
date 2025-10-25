@@ -31,53 +31,69 @@ This project implements a complete job portal system that enables different type
 ## 📂 Project Structure
 
 ```
-Job-Portal-System/
+PortalSystemProject/
 │
-├── Areas/
-│   ├── Admin/
-│   │   ├── Controllers/
-│   │   ├── Views/
-│   │   └── Models/
-│   ├── Employer/
-│   │   ├── Controllers/
-│   │   ├── Views/
-│   │   └── Models/
-│   └── JobSeeker/
-│       ├── Controllers/
-│       ├── Views/
-│       └── Models/
+├── 📁 Presentation Layer (Web - ASP.NET Core MVC)
+│   │
+│   ├── Areas/
+│   │   └── Admin/                    → The only Area in the project (dedicated to administrators)
+│   │       ├── Controllers/          → e.g., DashboardController, UserManagementController
+│   │       ├── Views/                → Razor views for admin pages (Dashboard, User list, etc.)
+│   │       ├── Models/               → Admin-specific ViewModels
+│   │       └── wwwroot/              → Admin assets (CSS, JS, images)
+│   │
+│   ├── Controllers/                  → Main controllers for other roles (not Areas)
+│   │   ├── HomeController.cs
+│   │   ├── AccountController.cs
+│   │   ├── EmployerController.cs
+│   │   ├── JobSeekerController.cs
+│   │   └── ApplicationController.cs
+│   │
+│   ├── Models/                       → Shared and role-based models used by controllers
+│   │   ├── Job/
+│   │   ├── Company/
+│   │   ├── Admin/
+│   │   └── Shared/
+│   │
+│   ├── Views/                        → Razor Views for each controller
+│   │   ├── Home/
+│   │   ├── Employer/
+│   │   ├── JobSeeker/
+│   │   ├── Account/
+│   │   └── Shared/
+│   │
+│   ├── wwwroot/                      → Static files
+│   │   ├── css/
+│   │   ├── js/
+│   │   ├── images/
+│   │   └── uploads/
+│   │
+│   ├── ViewModels/                   → MVC ViewModels used across roles
+│   ├── DTOs/                         → Data transfer objects for Web ↔ BL communication
+│   ├── Program.cs / Startup.cs
+│   └── appsettings.json
 │
-├── Controllers/
-│   ├── HomeController.cs
-│   ├── AccountController.cs
-│   └── Shared Controllers for base routes
+├── 📁 Business Logic Layer (BL)
+│   ├── Contracts/                    → Interfaces (e.g., IJobService, ICompanyService)
+│   ├── Services/                     → Implementations (JobService, EmployerService, etc.)
+│   ├── Helpers/                      → Utility classes, validation logic, extensions
+│   └── Mappers/                      → Maps Entities ↔ DTOs ↔ ViewModels
 │
-├── Models/
-│   ├── Job.cs
-│   ├── Company.cs
-│   ├── Application.cs
-│   ├── JobCategory.cs
-│   ├── JobType.cs
-│   └── Identity Models
+├── 📁 Data Access Layer (DAL)
+│   ├── ApplicationDbContext.cs       → EF Core context, DbSets, configurations
+│   ├── Entities/                     → Domain entities (JobPost, Company, Application, etc.)
+│   ├── Repositories/                 → Repository pattern implementations
+│   │   ├── GenericRepository.cs
+│   │   ├── JobRepository.cs
+│   │   ├── CompanyRepository.cs
+│   │   └── ApplicationRepository.cs
+│   ├── SeedData.cs                   → Seeds roles, admin user, and sample jobs
+│   └── Migrations/                   → EF Core migrations
 │
-├── Data/
-│   ├── ApplicationDbContext.cs
-│   └── SeedData.cs
-│
-├── Views/
-│   ├── Shared/
-│   └── Home/
-│
-├── wwwroot/
-│   ├── css/
-│   ├── js/
-│   ├── images/
-│   └── uploads/
-│
-├── appsettings.json
-├── Program.cs
-├── Startup.cs
-└── Job-Portal-System.csproj
+└── 📁 Domains/
+    ├── UserModel/                    → Extended ASP.NET Identity models
+    ├── JobModel/                     → Job, JobType, JobCategory entities
+    └── CompanyModel/                 → Company, Department, etc.
 ```
 
 ---

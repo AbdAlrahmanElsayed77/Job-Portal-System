@@ -65,6 +65,12 @@ namespace PortalSystemProject.Controllers
         //create a jobpost
         public IActionResult create()
         {
+            var currentEmployer = EmployerProfileService.GetById(GetCurrentEmployerId());
+            if (currentEmployer == null)
+            {
+                TempData["Error"] = "A profile must be created first.";
+                return RedirectToAction("Index", "EmployerProfile");
+            }
             // Load dropdown data
             ViewBag.JobCategories = CategoryService.GetAll();
             ViewBag.JobTypes = JobTypeService.GetAll();

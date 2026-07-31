@@ -149,7 +149,7 @@ Each entity is connected using **EF Core relationships** with proper foreign key
 ## 🎥 Live Demo
 
 Watch a full walkthrough of the Job Portal System here:
-👉 [**Live Demo Video**](https://drive.google.com/file/d/1UK30y6nocgIrN1IUEdVriUz3WYb4kAoq/view?usp=sharing)
+👉 [**Live Demo Video**](https://www.linkedin.com/posts/abdalrahman-elsayed7_thrilled-to-share-our-latest-mvc-project-ugcPost-7388186183807303680-XW6G/?utm_source=share&utm_medium=member_desktop&rcm=ACoAADcjjVIBcNJXQBg5fdb3zPUdPFVTWep3-ME)
 
 ---
 
